@@ -1,0 +1,91 @@
+---
+import { relUrl } from '../lib/site';
+
+const home = relUrl('');
+---
+<!-- tpm-header-area start -->
+<header class="tmp-header-area-start header-one header--sticky header--transparent">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="header-content">
+          <div class="logo">
+            <a href={home}>
+              <p><strong>Christoph B. Reimann</strong></p>
+            </a>
+          </div>
+
+          <nav class="tmp-mainmenu-nav d-none d-xl-block">
+            <ul class="tmp-mainmenu">
+              <li><a href={home}>Start</a></li>
+              <li class="has-dropdown">
+                <a href="#">Über mich
+                  <i class="fa-regular fa-chevron-down"></i>
+                </a>
+                <ul class="submenu">
+                  <li><a href={relUrl('about/')}>Über mich</a></li>
+                  <li><a href={relUrl('mein-weg/')}>Mein Weg</a></li>
+                </ul>
+              </li>
+              {/* <li><a href={relUrl('blog/')}>Blog</a></li> */}
+            </ul>
+          </nav>
+
+          <div class="actions-area">
+            <div class="tmp-side-collups-area d-block d-xl-none">
+              <button class="tmp-menu-bars humberger_menu_active">
+                <i class="fa-regular fa-bars-staggered"></i>
+              </button>
+            </div>
+          </div>
+
+        </div> <!-- .header-content -->
+      </div>
+    </div>
+  </div>
+</header>
+<!-- tpm-header-area end -->
+
+<!-- mobile menu -->
+<div class="d-block d-xl-none">
+  <div class="tmp-popup-mobile-menu">
+    <div class="inner">
+      <div class="header-top">
+        <div class="logo">
+          <a href={home}>
+            <p><strong>Christoph B. Reimann</strong></p>
+          </a>
+        </div>
+        <div class="close-menu">
+          <button class="close-button tmp-round-action-btn">
+            <i class="fa-sharp fa-light fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <ul class="tmp-mainmenu">
+        <li><a href={home}>Start</a></li>
+        <li class="has-dropdown">
+          <a href="#">Über mich
+            <i class="fa-regular fa-chevron-down"></i>
+          </a>
+          <ul class="submenu">
+            <li><a href={relUrl('about/')}>Über mich</a></li>
+            <li><a href={relUrl('mein-weg/')}>Mein Weg</a></li>
+          </ul>
+        </li>
+        {/* <li><a href={relUrl('blog/')}>Blog</a></li> */}
+      </ul>
+
+      <div class="social-wrapper mt--40">
+        <div class="social-link">
+          <a href="https://www.linkedin.com/in/christoph-b-reimann-192328227/" target="_blank" rel="noopener">
+            <i class="fa-brands fa-linkedin"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!-- mobile menu end -->

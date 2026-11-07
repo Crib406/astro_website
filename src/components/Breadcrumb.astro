@@ -1,0 +1,71 @@
+---
+/*
+  Breadcrumb: die Kette wird einmal als Liste aus (name, url) aufgebaut und
+  daraus sowohl die sichtbare Navigation als auch das BreadcrumbList-JSON-LD
+  erzeugt. Der letzte Eintrag ist immer die aktuelle Seite (ohne Link).
+*/
+import { absUrl, homeUrl, permalinkFromUrl } from '../lib/site';
+import { toScriptJson } from '../lib/jsonld';
+
+interface Props {
+  /** Überschrift (h1) und Name der aktuellen Seite in der Kette */
+  pageTitle: string;
+  /** abweichender Name in der Kette (Blog-Übersicht: "Blog") */
+  crumbName?: string;
+  /** Blogbeitrag: fügt "Blog" als Zwischenstufe ein */
+  isBlogPost?: boolean;
+  /** absolute URL der aktuellen Seite (Standard: aus der Request-URL) */
+  permalink?: string;
+}
+const { pageTitle, crumbName = pageTitle, isBlogPost = false } = Astro.props;
+const permalink = Astro.props.permalink ?? permalinkFromUrl(Astro.url);
+
+const crumbs = [{ name: 'Start', url: homeUrl() }];
+if (isBlogPost) crumbs.push({ name: 'Blog', url: absUrl('blog/') });
+crumbs.push({ name: crumbName, url: permalink });
+
+const jsonld = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: crumbs.map((c, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: c.name,
+    item: c.url,
+  })),
+};
+---
+<div class="breadcrumb-area breadcrumb-bg">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="breadcrumb-inner text-center">
+
+          <!-- Page Title -->
+          <h1 class="title split-collab">{pageTitle}</h1>
+
+          <!-- Breadcrumb Navigation -->
+          <ul class="page-list">
+            {crumbs.map((c, i) => (
+              <>
+                {i > 0 && (
+                  <li class="icon">
+                    <i class="fa-solid fa-angle-right"></i>
+                  </li>
+                )}
+                {i + 1 === crumbs.length ? (
+                  <li class="tmp-breadcrumb-item active">{c.name}</li>
+                ) : (
+                  <li class="tmp-breadcrumb-item"><a href={c.url}>{c.name}</a></li>
+                )}
+              </>
+            ))}
+          </ul>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="application/ld+json" is:inline set:html={toScriptJson(jsonld)}></script>

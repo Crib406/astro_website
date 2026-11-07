@@ -1,0 +1,111 @@
+---
+/*
+  <head> der Seite: Titel, Beschreibung, Robots, Canonical, Open Graph,
+  Twitter, Zählskript, JSON-LD und das CSS-Bündel (Hugo: head.html).
+
+  CSS und JS tragen einen Fingerabdruck aus dem Dateiinhalt (siehe
+  src/lib/bundles.ts); Favicon und Vorschaubild bleiben ohne Anhängsel, damit
+  Browser und die Bildzwischenspeicher von LinkedIn und WhatsApp sie behalten.
+*/
+import Favicons from './Favicons.astro';
+import JsonLd from './JsonLd.astro';
+import { getCssBundle } from '../lib/bundles';
+import type { PageSeo } from '../lib/jsonld';
+import {
+  absUrl,
+  canonicalUrl,
+  isPreview,
+  ogImagePath,
+  ogLocale,
+  seoDescription,
+  seoTitle,
+  siteTitle,
+} from '../lib/site';
+
+interface Props {
+  page: PageSeo;
+  /** Frontmatter `seo_title` */
+  seoTitle?: string;
+  kind: 'home' | 'section' | 'page' | '404';
+  section?: string;
+}
+const { page, kind, section } = Astro.props;
+
+// Title: seo_title (Frontmatter) > Startseite: globaler SEO-Titel > "Seitentitel – Christoph B. Reimann"
+let title: string;
+if (Astro.props.seoTitle) {
+  title = Astro.props.seoTitle;
+} else if (page.isHome) {
+  title = seoTitle || siteTitle;
+} else if (page.title) {
+  // Site-Titel nicht doppeln, wenn er schon im Seitentitel steckt
+  title = page.title.includes(siteTitle) ? page.title : `${page.title} – ${siteTitle}`;
+} else {
+  title = siteTitle;
+}
+
+// Meta Description: Seite > global
+const desc = page.description || seoDescription;
+
+// Branch-Vorschauen (/preview/<branch>/) bekommen noindex und verweisen per
+// canonical auf die Hauptseite.
+const canonical = canonicalUrl(page.permalink);
+
+// Social-Preview: 1200x630, wie von Facebook/LinkedIn/WhatsApp erwartet
+const ogImage = absUrl(ogImagePath);
+const ogType = section === 'blog' && kind === 'page' ? 'article' : 'website';
+
+const css = await getCssBundle();
+---
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <Favicons />
+
+  <!-- Title -->
+  <title>{title}</title>
+
+  <!-- Meta Description: Page > global -->
+  {desc && <meta name="description" content={desc}>}
+
+  <!-- Robots -->
+  {isPreview || kind === '404'
+    ? <meta name="robots" content="noindex, nofollow">
+    : <meta name="robots" content="index,follow">}
+
+  <!-- Canonical -->
+  <link rel="canonical" href={canonical}>
+
+  <!-- Open Graph -->
+  <meta property="og:locale" content={ogLocale}>
+  <meta property="og:type" content={ogType}>
+  <meta property="og:title" content={title}>
+  {desc && <meta property="og:description" content={desc}>}
+  <meta property="og:url" content={canonical}>
+  <meta property="og:site_name" content={siteTitle}>
+  <meta property="og:image" content={ogImage}>
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Portrait von Christoph B. Reimann aus Bad Harzburg">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content={title}>
+  {desc && <meta name="twitter:description" content={desc}>}
+  <meta name="twitter:image" content={ogImage}>
+  <meta name="twitter:image:alt" content="Portrait von Christoph B. Reimann aus Bad Harzburg">
+
+  {/* Das Zählskript liegt auf einem fremden Server. Ohne async hält so ein
+      Skript den Seitenaufbau an, bis DNS, Verbindung und Antwort durch sind.
+      preconnect ohne crossorigin: das Skript selbst wird ohne CORS geladen. */}
+  <link rel="preconnect" href="https://scripts.simpleanalyticscdn.com">
+
+  <!-- 100% privacy-first analytics -->
+  <script is:inline async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+
+  <JsonLd page={page} image={ogImage} />
+
+  <link rel="stylesheet" href={css.href}>
+</head>

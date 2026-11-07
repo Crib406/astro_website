@@ -1,0 +1,17 @@
+---
+/*
+  Hinweisleiste für Branch-Vorschauen.
+
+  Erscheint nur, wenn die Seite unter /preview/<branch>/ ausgeliefert wird.
+  Der Branch wird aus dem Basispfad abgeleitet, den die CI beim Bauen setzt.
+  Auf der Hauptseite erscheint nichts.
+*/
+import { isPreview, previewBranch } from '../lib/site';
+---
+{isPreview && (
+  <div class="preview-banner">
+    <span class="preview-banner__label">Vorschau</span>
+    <span class="preview-banner__branch">{previewBranch}</span>
+    <a class="preview-banner__link" href="/preview/">Alle Vorschauen</a>
+  </div>
+)}

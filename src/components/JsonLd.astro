@@ -1,0 +1,11 @@
+---
+import { buildGraph, toScriptJson, type PageSeo } from '../lib/jsonld';
+
+interface Props {
+  page: PageSeo;
+  /** absolute URL des Social-Preview-Bilds (Bild der Person) */
+  image: string;
+}
+const { page, image } = Astro.props;
+---
+<script type="application/ld+json" is:inline set:html={toScriptJson(buildGraph(page, image))}></script>

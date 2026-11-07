@@ -1,0 +1,91 @@
+---
+/*
+  Grundlayout (Hugo: baseof.html): Kopf, Vorschau-Banner, Header, <main> (Slot),
+  Footer und das JS-Bündel.
+
+  Seitendaten kommen als Props; die Seiten reichen sie aus dem Frontmatter
+  der Collection weiter, zum Beispiel:
+
+    <BaseLayout title={data.title} description={data.description}
+                seoTitle={data.seo_title} jsonld={data.jsonld}
+                lastmod={data.lastmod} isHome kind="home">
+*/
+import Head from '../components/Head.astro';
+import PreviewBanner from '../components/PreviewBanner.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { getJsBundle } from '../lib/bundles';
+import { lang, permalinkFromUrl } from '../lib/site';
+import type { Json } from '../lib/jsonld';
+
+interface Props {
+  /** Seitentitel (Frontmatter `title`) */
+  title: string;
+  description?: string;
+  /** Frontmatter `seo_title`: ersetzt den berechneten <title> */
+  seoTitle?: string;
+  isHome?: boolean;
+  /** Hugo-Kind der Seite: home, section (z. B. Blog-Übersicht), page (Einzelseite/Beitrag), 404 */
+  kind?: 'home' | 'section' | 'page' | '404';
+  /** Hugo-Section, z. B. 'blog'. Mit kind 'page' ergibt das einen Blogbeitrag (BlogPosting, og:type article) */
+  section?: string;
+  /** Frontmatter `jsonld`: wird in den Seitenknoten des JSON-LD-Graphen gemischt */
+  jsonld?: Json;
+  /** Veröffentlichungsdatum (Blog) */
+  date?: Date | string;
+  /** Änderungsdatum (JSON-LD dateModified) */
+  lastmod?: Date | string;
+  /** Titelbild eines Beitrags (Pfad oder URL) */
+  image?: string;
+  /** absolute Seiten-URL; Standard: aus der Request-URL (für 404 `permalinkFor('404.html')` übergeben) */
+  permalink?: string;
+}
+
+const {
+  title,
+  description,
+  seoTitle,
+  isHome = false,
+  kind = isHome ? 'home' : 'page',
+  section,
+  jsonld,
+  date,
+  lastmod,
+  image,
+} = Astro.props;
+const permalink = Astro.props.permalink ?? permalinkFromUrl(Astro.url);
+
+const page = {
+  title,
+  description,
+  isHome,
+  isPost: section === 'blog' && kind === 'page',
+  permalink,
+  lastmod,
+  date,
+  image,
+  jsonld,
+};
+const js = await getJsBundle();
+---
+<!DOCTYPE html>
+<html lang={lang}>
+
+  <Head page={page} seoTitle={seoTitle} kind={kind} section={section} />
+
+  <body>
+
+    <PreviewBanner />
+
+    <Header />
+
+    <main>
+      <slot />
+    </main>
+    <br>
+    <Footer />
+
+    <script is:inline defer src={js.href}></script>
+  </body>
+
+</html>

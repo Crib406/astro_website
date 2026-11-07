@@ -1,0 +1,18 @@
+---
+/*
+  Favicons, erzeugt von tools/build-favicons.py (Hugo-Projekt).
+
+  favicon.ico (16/32/48) für alte Browser und für alle, die ohne Hinweis
+  /favicon.ico anfragen. Das SVG für aktuelle Browser, die PNGs in 96 und
+  192 für Google: das Favicon in den Suchergebnissen muss mindestens 48 px
+  oder ein Vielfaches davon haben. apple-touch-icon für den iOS-Startbildschirm.
+
+  Ohne Fingerabdruck, damit Browser und Suchmaschinen die Dateien behalten.
+*/
+import { absUrl } from '../lib/site';
+---
+<link rel="icon" href={absUrl('favicon.ico')} sizes="16x16 32x32 48x48">
+<link rel="icon" href={absUrl('assets/images/favicon/favicon.svg')} type="image/svg+xml">
+<link rel="icon" href={absUrl('assets/images/favicon/favicon-96.png')} type="image/png" sizes="96x96">
+<link rel="icon" href={absUrl('assets/images/favicon/favicon-192.png')} type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href={absUrl('assets/images/favicon/apple-touch-icon.png')}>
