@@ -33,14 +33,12 @@ const posts = await getPublishedPosts();
                     )}
                   </a>
                   <ul class="blog-tags">
-                    {post.data.category && (
-                      <li>
-                        <span class="tag-icon">
-                          <i class="fa-solid fa-tag"></i>
-                        </span>
-                        {post.data.category}
-                      </li>
-                    )}
+                    <li>
+                      <span class="tag-icon">
+                        <i class="fa-solid fa-tag"></i>
+                      </span>
+                      {post.data.category}
+                    </li>
                     <li>
                       <span class="tag-icon">
                         <i class="fa-solid fa-calendar-days"></i>

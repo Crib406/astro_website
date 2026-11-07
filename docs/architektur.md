@@ -150,10 +150,10 @@ statt dass Meta-Tags still fehlen. Die Hugo-Altfelder (`layout`, `type`, `url`, 
 | `title` | Pflicht | Pflicht |
 | `lastmod` | Pflicht | Pflicht |
 | `date` | – | Pflicht, Text in Anführungszeichen mit Offset |
-| `summary` | – | Pflicht (nicht leer) |
+| `summary`, `author`, `category` | – | Pflicht (nicht leer) |
 | `description`, `seo_title`, `jsonld` | optional | optional |
 | `sitemap_exclude` | optional | – |
-| `draft`, `slug`, `author`, `author_role`, `author_bio`, `image`, `featured_image`, `category`, `tags`, `reading_time` | – | optional |
+| `draft`, `slug`, `author_role`, `author_bio`, `image`, `featured_image`, `tags`, `reading_time` | – | optional |
 
 Dazu die Einzelheiten:
 

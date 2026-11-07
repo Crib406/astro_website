@@ -21,7 +21,7 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 const { data } = entry;
 const img = data.featured_image || data.image;
-const author = data.author || 'Christoph B. Reimann';
+const { author } = data;
 const bio =
   data.author_bio ||
   'Ich schreibe über Menschlichkeit, Werte und mutige Entscheidungen im Alltag mit dem Ziel, das Zugehörigkeitsgefühl zu steigern.';

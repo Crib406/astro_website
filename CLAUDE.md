@@ -105,7 +105,7 @@ Siehe `docs/template-fallen.md`, Punkt 9.
 
 **Es gibt zwei Fließtextgrößen, nicht mehr.** Lesetext und Nebentext, Werte in `docs/design-system.md`.
 
-**Content-Schemas sind strikt** (`src/content.config.ts`): unbekannte Felder, ein fehlendes `lastmod`/`summary`
+**Content-Schemas sind strikt** (`src/content.config.ts`): unbekannte Felder, ein fehlendes `lastmod`/`summary`/`author`/`category`
 oder ein Datum ohne Anführungszeichen brechen den Bau ab. Das ist gewollt.
 
 **`lastmod` von Hand pflegen.** Pflichtfeld in jeder Seite und jedem Beitrag; speist Sitemap und JSON-LD

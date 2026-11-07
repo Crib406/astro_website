@@ -25,10 +25,10 @@ title: "Titel des Beitrags"            # wird die Seitenüberschrift (h1) und Te
 date: "2026-03-01T10:00:00+01:00"      # Veröffentlichungsdatum, IMMER in Anführungszeichen, mit Versatz
 lastmod: 2026-03-01T09:00:00Z          # Datum der letzten inhaltlichen Änderung, UTC (Z), ohne Anführungszeichen
 summary: "Ein bis zwei Sätze für die Blog-Übersicht und den RSS-Feed."
-
-# --- Praktisch Pflicht (die Seite zeigt sie an, leer sieht es unvollständig aus) --------
 author: "Christoph B. Reimann"         # steht über dem Text: „Von …“
 category: "Zugehörigkeit"              # eine Kategorie, steht in Übersicht und Beitrag
+
+# --- Praktisch Pflicht (die Seite zeigt es an, ohne sieht es unvollständig aus) --------
 image: "/assets/images/blog/mein-beitrag.webp"   # Titelbild, 1000 × 600 px, Pfad mit führendem /
 
 # --- Optional --------------------------------------------------------------
@@ -62,6 +62,7 @@ Text des Beitrags in Markdown …
 | `date` | **In Anführungszeichen**, sonst bricht der Bau ab (ein Zeitstempel ohne Anführungszeichen verliert den Versatz). Formen: `"2026-03-01"` (gilt als UTC, 00:00) oder `"2026-03-01T10:00:00+01:00"`. Der Versatz (`+01:00` Winter, `+02:00` Sommer) bleibt so stehen, wie er eingetragen ist. |
 | **Zukunftsdatum** | Liegt `date` in der Zukunft, ist der Beitrag **unveröffentlicht**: keine Seite, nicht in Übersicht, Sitemap und Feed. Er erscheint erst, wenn die Seite **nach** diesem Zeitpunkt neu gebaut und ausgeliefert wird. Die Seite ist statisch: ohne neuen Bau bleibt er weg. |
 | `draft` | `true` = Entwurf, wird nirgends gebaut (auch nicht im Entwicklungsserver). Einen Entwurf zum Anschauen: `draft: false` auf einem Vorschau-Branch (Vorschauen sind `noindex`). |
+| `author`, `category` | **Pflicht** (nicht leer). `author` steht als „Von …“ im Beitragskopf und als Name in der Seitenleiste, `category` als Überschrift im Beitragskopf und in der Übersicht. Ein leeres Feld würde „Von “ bzw. eine leere Überschrift ergeben, darum bricht der Bau ab. |
 | `summary` | **Pflicht.** Ein Ersatz aus dem Text entfällt. In der Übersicht wird er nach 150 Zeichen gekürzt (` …`). Einfaches Markdown (`**fett**`, `*kursiv*`) geht, Links werden zu Text. |
 | `description` | Meta-Beschreibung für Suchmaschinen und Link-Vorschauen. Ohne Angabe gilt die allgemeine Beschreibung der Seite. |
 | `slug` | Adresse des Beitrags. Nachträglich ändern heißt: alte Adresse bricht. |
@@ -246,11 +247,16 @@ Häufige Meldungen:
 
 | Meldung | Ursache und Lösung |
 |---|---|
-| `date muss als Text in Anführungszeichen stehen …` | `date` ohne Anführungszeichen. Anführungszeichen setzen. |
-| `date ist kein gültiges Datum …` | Tippfehler oder ein Datum, das es nicht gibt (31. Februar). |
-| `summary: Required` | `summary` fehlt oder ist leer. |
-| `lastmod: Required` | `lastmod` fehlt. |
-| `Unrecognized key: "…"` | Unbekanntes Feld, meist ein Tippfehler im Feldnamen. |
+| `date muss als Text in Anführungszeichen stehen, z. B. "2025-12-06T10:00:00+01:00" …` | `date` ohne Anführungszeichen. Anführungszeichen setzen. |
+| `date fehlt. Pflichtfeld, als Text in Anführungszeichen …` | `date` fehlt im Frontmatter. |
+| `date ist kein gültiges Datum (erwartet: "2025-12-06" oder "2025-12-06T10:00:00+01:00")` | Tippfehler oder ein Datum, das es nicht gibt (31. Februar). |
+| `lastmod fehlt. Pflichtfeld, z. B. lastmod: 2026-08-12T18:00:38Z …` | `lastmod` fehlt (bei Seiten wie bei Beiträgen). |
+| `lastmod "…" ist kein gültiges Datum. Erwartet z. B. 2026-08-12T18:00:38Z` | Tippfehler im `lastmod`; der Wert wird in der Meldung genannt. |
+| `summary fehlt. Pflichtfeld: Kurztext für Blogübersicht und RSS` | `summary` fehlt. |
+| `summary ist leer. Pflichtfeld: …` | `summary` ist leer oder besteht nur aus Leerzeichen. |
+| `author fehlt …` / `author ist leer …` | `author` fehlt oder ist leer. |
+| `category fehlt …` / `category ist leer …` | `category` fehlt oder ist leer. |
+| `Unrecognized key: "…"` | Unbekanntes Feld, meist ein Tippfehler im Feldnamen (die Meldung ist englisch). |
 | `Keine Route für Seite "…"` | Neue Seite fehlt in `pageRoutes` in `src/lib/routes.ts`. |
 | Test: `jedes <img> hat alt, width und height` | Ein Bild im Text ohne eines dieser Attribute. |
 | Test: `interne Verweise zeigen auf vorhandene Dateien` | Tippfehler im Link oder Bild-Dateiname, oder die Datei fehlt in `public/`. |
