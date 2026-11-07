@@ -9,7 +9,7 @@ Astro-Bau abweicht, womit die Gleichheit belegt ist und was noch zu tun ist.
 
 | Hugo | Astro |
 |---|---|
-| `static/` (Bilder, Schriften, `favicon.ico`, `CNAME`, `assets/maps`) | `public/` |
+| `static/` (Bilder, Schriften, `favicon.ico`, `CNAME`; ohne die verwaiste Quellkarte `assets/maps/style.css.map`) | `public/` |
 | `assets/scss/`, `assets/css/`, `assets/js/` (Template) | `src/legacy/scss/`, `css/`, `js/` (unverändert) |
 | `hugo.toml` (Titel, `params.siteseo`) | `src/lib/site.ts` |
 | `data/person.yaml` | `src/data/person.yaml` |
@@ -49,6 +49,7 @@ Der Entwurf `loyalitaet.md` wurde als Entwurf (`draft: true`) übernommen.
 | Sass-Auflösung `elements/error` | Hugo löst `_error.scss` / `error.scss` stillschweigend auf | eigener Importer in `bundles.ts` | Dart Sass bricht sonst ab; die Quellen bleiben unverändert |
 | Minifizierung | `hugo --minify` | esbuild (CSS/JS), `compressHTML: false` | Byte-Vergleich daher nicht möglich; Leerraum im HTML bleibt wie in Hugo |
 | Rohtext-Seiten | `unsafe = true`, `.RawContent \| safeHTML` | `<Fragment set:html={entry.body} />` | gleiche Ausgabe |
+| Quellkarte `assets/maps/style.css.map` | lag in `static/assets/maps/` | entfällt | verwaist: Quellkarte eines früheren CSS-Baus, das ausgelieferte Bündel verweist nicht darauf (kein `sourceMappingURL`); 650 KB ohne Nutzen |
 | Reihenfolge in der Sitemap | nach Gewicht/Datum | Seiten, dann Beiträge | für Suchmaschinen ohne Bedeutung |
 
 Die neuen `lastmod`-Werte (alle bisher `2026-10-23T13:33:40Z`):
@@ -74,7 +75,7 @@ Nach dem Gleichheitsnachweis (siehe „Nachweise“) bewusst eingebaut, ohne sic
 |---|---|---|
 | S1 | `<link rel="preload">` für `fraunces-variable.woff2` und `source-sans-3-variable.woff2` | Schriften werden sonst erst nach dem CSS entdeckt (späterer Wechsel, LCP/CLS) |
 | S2 | Preload von `breadcum-bg.png` (`fetchpriority="high"`), nur auf Seiten mit Breadcrumb | als CSS-Hintergrund spät entdeckt, wahrscheinlich das LCP-Element der Unterseiten |
-| S3 | `aria-label` an reinen Icon-Bedienelementen (LinkedIn in Header und Mobilmenü, Hamburger, Schließen, „Nach oben“) | Barrierefreiheit, Linktext für Crawler |
+| S3 | `aria-label` an reinen Icon-Bedienelementen (LinkedIn im Mobilmenü und in der Autorenbox der Beiträge, Hamburger, Schließen; der LinkedIn-Link im Footer hatte es schon). Der „Nach oben“-Knopf bekommt `aria-hidden="true"` | Barrierefreiheit, Linktext für Crawler. „Nach oben“ ist nur mit der Maus bedienbar (kein Fokus, keine Tastatur) und gehört darum nicht in den Zugänglichkeitsbaum |
 | S4 | 404: kein Canonical, kein Seitenknoten im JSON-LD, Titel „Seite nicht gefunden – Christoph B. Reimann“, `noindex` bleibt | eine Fehlerseite hat keine kanonische URL; der Titel war englisch |
 | S5 | `person.yaml`: `areaServed` entfernt, `credentialCategory` einheitlich klein, `Person.image` = quadratisches Porträt `uebermichich.webp` | schema.org kennt `areaServed` an `Person` nicht (Validator-Warnung); ein Porträt passt besser als die Querformat-Karte |
 | S6 | `WebSite.alternateName` ["Christoph Reimann", "creimann.cc"]; `BlogPosting.author` zusätzlich mit `name` und `url` | Google site names; manche Tools lösen `@id` nicht auf |
