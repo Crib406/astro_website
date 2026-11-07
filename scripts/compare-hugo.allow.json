@@ -1,0 +1,6 @@
+[
+  { "page": "about/index.xml", "path": "(Datei)", "reason": "Leere Bereichs-Feeds entfallen bewusst (Entscheidung des Orchestrators)." },
+  { "page": "kontakt/index.xml", "path": "(Datei)", "reason": "Leere Bereichs-Feeds entfallen bewusst (Entscheidung des Orchestrators)." },
+  { "page": "mein-weg/index.xml", "path": "(Datei)", "reason": "Leere Bereichs-Feeds entfallen bewusst (Entscheidung des Orchestrators)." },
+  { "page": "impressum/index.xml", "path": "(Datei)", "reason": "Leere Bereichs-Feeds entfallen bewusst (Entscheidung des Orchestrators)." }
+]
