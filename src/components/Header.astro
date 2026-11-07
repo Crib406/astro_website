@@ -37,7 +37,7 @@ const blog = relUrl(pagePath('blog'));
 
           <div class="actions-area">
             <div class="tmp-side-collups-area d-block d-xl-none">
-              <button class="tmp-menu-bars humberger_menu_active" aria-label="Menü öffnen">
+              <button class="tmp-menu-bars humberger_menu_active" aria-label="Menü öffnen" aria-controls="mobile-menu" aria-expanded="false">
                 <i class="fa-regular fa-bars-staggered"></i>
               </button>
             </div>
@@ -52,7 +52,7 @@ const blog = relUrl(pagePath('blog'));
 
 <!-- mobile menu -->
 <div class="d-block d-xl-none">
-  <div class="tmp-popup-mobile-menu">
+  <div class="tmp-popup-mobile-menu" id="mobile-menu">
     <div class="inner">
       <div class="header-top">
         <div class="logo">

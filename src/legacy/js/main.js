@@ -329,12 +329,25 @@ function splitA11y(el, split, text) {
     },
 
     popupMobileMenu: function (e) {
-      $(".humberger_menu_active").on("click", function (e) {
-        $(".tmp-popup-mobile-menu").addClass("active");
-      });
+      // UX-Paket: Tastaturbedienung des mobilen Menues. aria-expanded am Burger,
+      // Fokus beim Oeffnen ins Menue, Escape/Schliessen-Button geben ihn an den
+      // Burger zurueck, Tab bleibt im offenen Menue (Fokusfang). Geschlossen ist
+      // das Menue visibility:hidden (_popupmenu.scss), also per Tab unerreichbar.
+      var $menu = $(".tmp-popup-mobile-menu");
+      var $burger = $(".humberger_menu_active");
+      var focusSelector = "a[href], button:not([disabled])";
 
-      $(".close-menu").on("click", function (e) {
-        $(".tmp-popup-mobile-menu").removeClass("active");
+      function openMenu() {
+        $menu.addClass("active");
+        $burger.attr("aria-expanded", "true");
+        var first = $menu.find(focusSelector).filter(":visible")[0];
+        if (first) first.focus();
+      }
+
+      function closeMenu(returnFocus) {
+        var wasOpen = $menu.hasClass("active");
+        $menu.removeClass("active");
+        $burger.attr("aria-expanded", "false");
         $(".tmp-popup-mobile-menu .tmp-mainmenu .has-dropdown > a")
           .siblings(".submenu")
           .removeClass("active")
@@ -342,6 +355,40 @@ function splitA11y(el, split, text) {
         $(".tmp-popup-mobile-menu .tmp-mainmenu .has-dropdown > a").removeClass(
           "open"
         );
+        if (wasOpen && returnFocus && $burger[0]) $burger[0].focus();
+      }
+
+      $burger.on("click", function (e) {
+        openMenu();
+      });
+
+      $(".close-menu").on("click", function (e) {
+        closeMenu(true);
+      });
+
+      $(document).on("keydown", function (e) {
+        if (!$menu.hasClass("active")) return;
+        if (e.key === "Escape") {
+          e.preventDefault();
+          closeMenu(true);
+          return;
+        }
+        if (e.key !== "Tab") return;
+        var items = $menu.find(focusSelector).filter(":visible").toArray();
+        if (!items.length) return;
+        var first = items[0];
+        var last = items[items.length - 1];
+        var active = document.activeElement;
+        if (!$menu[0].contains(active)) {
+          e.preventDefault();
+          first.focus();
+        } else if (e.shiftKey && active === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && active === last) {
+          e.preventDefault();
+          first.focus();
+        }
       });
 
       $(".tmp-popup-mobile-menu .tmp-mainmenu .has-dropdown > a").on(
@@ -356,19 +403,11 @@ function splitA11y(el, split, text) {
       $(
         ".tmp-popup-mobile-menu, .tmp-popup-mobile-menu .tmp-mainmenu.onepagenav li a"
       ).on("click", function (e) {
-        e.target === this &&
-          $(".tmp-popup-mobile-menu").removeClass("active") &&
-          $(".tmp-popup-mobile-menu .tmp-mainmenu .has-dropdown > a")
-            .siblings(".submenu")
-            .removeClass("active")
-            .slideUp("400") &&
-          $(
-            ".tmp-popup-mobile-menu .tmp-mainmenu .has-dropdown > a"
-          ).removeClass("open");
+        e.target === this && closeMenu(true); // UX-Paket: gemeinsame Schliessen-Funktion
       });
 
       $(".onepagenav-click a").on("click", function (e) {
-        $(".tmp-popup-mobile-menu").removeClass("active");
+        closeMenu(false); // UX-Paket
         tmPk._html.css({
           overflow: "",
         });
