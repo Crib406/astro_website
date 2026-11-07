@@ -52,11 +52,13 @@ const js = await getJsBundle();
 
   <body>
 
+    <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
+
     <PreviewBanner />
 
     <Header />
 
-    <main>
+    <main id="inhalt" tabindex="-1">
       <slot />
     </main>
     <br>

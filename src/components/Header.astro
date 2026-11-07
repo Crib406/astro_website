@@ -5,7 +5,25 @@ import { pagePath } from '../lib/routes';
 const home = relUrl(pagePath('home'));
 const about = relUrl(pagePath('about'));
 const meinWeg = relUrl(pagePath('mein-weg'));
+const kontakt = relUrl(pagePath('kontakt'));
 const blog = relUrl(pagePath('blog'));
+
+// Menüeinträge zentral: Desktop- und Mobilmenü zeichnen dieselbe Liste.
+const items = [
+  { href: home, label: 'Start' },
+  { href: about, label: 'Über mich' },
+  { href: meinWeg, label: 'Mein Weg' },
+  ...(blogPublic ? [{ href: blog, label: 'Blog' }] : []),
+  { href: kontakt, label: 'Kontakt' },
+];
+
+// Aktuelle Seite serverseitig (base-fähig, mit oder ohne abschließenden Schrägstrich).
+// Die Startseite nur bei exakter Übereinstimmung, alle anderen auch für Unterseiten
+// (Blogbeitrag -> "Blog", sofern der Blog im Menü steht).
+const slash = (p: string) => (p.endsWith('/') ? p : `${p}/`);
+const here = slash(Astro.url.pathname);
+const isCurrent = (href: string) =>
+  href === home ? here === home : here.startsWith(slash(href));
 ---
 <!-- tpm-header-area start -->
 <header class="tmp-header-area-start header-one header--sticky header--transparent">
@@ -21,18 +39,10 @@ const blog = relUrl(pagePath('blog'));
 
           <nav class="tmp-mainmenu-nav d-none d-xl-block">
             <ul class="tmp-mainmenu">
-              <li><a href={home}>Start</a></li>
-              <li class="has-dropdown">
-                <a href="#">Über mich
-                  <i class="fa-regular fa-chevron-down"></i>
-                </a>
-                <ul class="submenu">
-                  <li><a href={about}>Über mich</a></li>
-                  <li><a href={meinWeg}>Mein Weg</a></li>
-                </ul>
-              </li>
-              {blogPublic && <li><a href={blog}>Blog</a></li>}
-            </ul>
+        {items.map((item) => (
+          <li><a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a></li>
+        ))}
+      </ul>
           </nav>
 
           <div class="actions-area">
