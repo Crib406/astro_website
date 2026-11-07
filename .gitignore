@@ -16,3 +16,6 @@ npm-debug.log*
 # Umgebung
 .env
 .env.*
+
+# Font Awesome Pro: Originaldateien (Lizenz), nur lokal
+tools/fontawesome-src/
