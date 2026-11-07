@@ -1,0 +1,53 @@
+---
+/* 404-Seite (Hugo: layouts/404.html). Nur base-fähige, wurzelabsolute Links. */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { relUrl, permalinkFor } from '../lib/site';
+---
+<BaseLayout title="404 Page not found" kind="404" permalink={permalinkFor('404.html')}>
+
+<div class="blog-classic-area-wrapper tmp-section-gap">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-10 col-xl-8 mx-auto">
+        <div class="blog-details-left-area text-center">
+
+          <br>
+
+          <h1 class="title">Seite nicht gefunden</h1>
+
+          <div class="our-portfolio-swiper">
+            <p class="disc" style="font-weight: bold;">
+              Die angeforderte Seite konnte ich leider nicht finden.
+            </p>
+
+
+          </div> <!-- .our-portfolio-swiper -->
+
+        </div> <!-- .blog-details-left-area -->
+      </div> <!-- .col -->
+    </div> <!-- .row -->
+  </div> <!-- .container -->
+
+<div class="about-content-area">
+        <div class="container tmp-section-gap">
+            <div class="text-para-doc-wrap">
+
+                {/* Button NICHT in ein .inv-title-animation-wrap-Element schachteln:
+                     die Split-Text-Animation zerlegt sonst auch den Buttontext in
+                     einzelne Buchstaben mit opacity:0 und der Button bleibt leer. */}
+                <div class="about-btn mt--40 text-center tmp-scroll-trigger tmp-fade-in animation-order-1">
+                    <a class="tmp-btn hover-icon-reverse" href={relUrl('')}>
+                        <span class="icon-reverse-wrapper">
+                            <span class="btn-text">Zur Startseite</span>
+                            <span class="btn-icon"><i class="fa-sharp fa-regular fa-arrow-right"></i></span>
+                            <span class="btn-icon"><i class="fa-sharp fa-regular fa-arrow-right"></i></span>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div> <!-- .blog-classic-area-wrapper -->
+
+</BaseLayout>
