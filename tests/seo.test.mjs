@@ -104,7 +104,7 @@ for (const file of allHtml()) {
     const robots = meta('meta[name="robots"]').replace(/\s+/g, '');
     if (file === specialPaths.notFound) assert.equal(robots, 'noindex,nofollow', '404 muss noindex sein');
     else if (base !== '/') assert.equal(robots, 'noindex,nofollow', 'Vorschauen müssen noindex sein');
-    else assert.equal(robots, 'index,follow');
+    else assert.equal(robots, 'index,follow,max-image-preview:large');
   });
 
   if (file !== 'index.html' && file !== '404.html') {

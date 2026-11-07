@@ -17,6 +17,7 @@ import {
   blogPublic,
   breadcrumbBgPath,
   canonicalUrl,
+  isoDate,
   isPreview,
   ogImagePath,
   ogLocale,
@@ -32,11 +33,10 @@ interface Props {
   /** Frontmatter `seo_title` */
   seoTitle?: string;
   kind: 'home' | 'section' | 'page' | '404';
-  section?: string;
   /** Seite zeigt die Breadcrumb: deren Hintergrundbild vorladen */
   breadcrumb?: boolean;
 }
-const { page, kind, section, breadcrumb = false } = Astro.props;
+const { page, kind, breadcrumb = false } = Astro.props;
 
 // Title: seo_title (Frontmatter) > Startseite: globaler SEO-Titel > "Seitentitel – Christoph B. Reimann"
 let title: string;
@@ -62,7 +62,8 @@ const canonical = canonicalUrl(page.permalink);
 
 // Social-Preview: 1200x630, wie von Facebook/LinkedIn/WhatsApp erwartet
 const ogImage = absUrl(ogImagePath);
-const ogType = section === 'blog' && kind === 'page' ? 'article' : 'website';
+const isPost = page.isPost ?? false;
+const ogType = isPost ? 'article' : 'website';
 
 const css = await getCssBundle();
 ---
@@ -78,10 +79,10 @@ const css = await getCssBundle();
   <!-- Meta Description: Page > global -->
   {desc && <meta name="description" content={desc}>}
 
-  <!-- Robots -->
+  <!-- Robots: max-image-preview:large erlaubt große Bildvorschauen (Discover, Suche) -->
   {isPreview || is404
     ? <meta name="robots" content="noindex, nofollow">
-    : <meta name="robots" content="index,follow">}
+    : <meta name="robots" content="index,follow,max-image-preview:large">}
 
   {/* Die 404-Seite hat keine kanonische Adresse (und keine strukturierten Daten):
       sie steht unter jeder falschen URL, nicht unter /404.html. */}
@@ -99,6 +100,8 @@ const css = await getCssBundle();
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Portrait von Christoph B. Reimann aus Bad Harzburg">
+  {isPost && page.date && <meta property="article:published_time" content={page.date}>}
+  {isPost && page.lastmod && <meta property="article:modified_time" content={isoDate(page.lastmod)}>}
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
