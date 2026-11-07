@@ -270,8 +270,9 @@ Prüfen: <https://search.google.com/test/rich-results> und <https://validator.sc
   mehr. Der Verweis `<link rel="alternate" type="application/rss+xml">` im `<head>` steht nur bei `blogPublic`.
 - **404:** `src/pages/404.astro` wird zu `dist/404.html`, GitHub Pages liefert sie mit Status 404 unter *beliebigen*
   Pfaden aus, auch unter `/preview/x/…`. Darum nur wurzelabsolute, base-fähige Links (`relUrl(…)`), nie relative.
-- **Barrierefreiheit:** reine Icon-Bedienelemente (LinkedIn in Header und Mobilmenü, Hamburger, Schließen,
-  „Nach oben“) tragen ein `aria-label`.
+- **Barrierefreiheit:** reine Icon-Bedienelemente (LinkedIn im Mobilmenü, im Footer und in der Autorenbox der
+  Beiträge, Hamburger, Schließen) tragen ein `aria-label`. Der „Nach oben“-Knopf ist nur mit der Maus bedienbar und
+  daher `aria-hidden="true"`. Im Desktop-Header gibt es keinen LinkedIn-Link.
 
 ### Blog öffentlich?
 

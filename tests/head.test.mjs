@@ -100,12 +100,15 @@ for (const file of htmlFiles) {
     });
   });
 
-  test(`${file}: Menü-Knöpfe, LinkedIn-Links und Nach-oben-Knopf sind beschriftet`, () => {
+  test(`${file}: Menü-Knöpfe und LinkedIn-Links sind beschriftet, der Nach-oben-Knopf ist ausgeblendet`, () => {
     const label = (sel) => $(sel).toArray().map((el) => $(el).attr('aria-label'));
     assert.deepEqual(label('button.humberger_menu_active'), ['Menü öffnen']);
     assert.deepEqual(label('button.close-button'), ['Menü schließen']);
-    assert.deepEqual(label('.scrollToTop'), ['Nach oben scrollen']);
-    assert.equal($('.scrollToTop').attr('role'), 'button');
+    // Der Nach-oben-Knopf ist nur mit der Maus bedienbar (kein Fokus, keine Tastatur):
+    // er ist für Hilfstechnik ausgeblendet statt als Schaltfläche ohne Tastaturbedienung ausgezeichnet.
+    assert.equal($('.scrollToTop').attr('aria-hidden'), 'true');
+    assert.equal($('.scrollToTop').attr('role'), undefined);
+    assert.equal($('.scrollToTop').attr('aria-label'), undefined);
     const linkedin = $('a[href*="linkedin.com"]').toArray();
     assert.ok(linkedin.length > 0);
     for (const a of linkedin) {
