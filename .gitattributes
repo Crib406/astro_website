@@ -1,0 +1,3 @@
+# Das Template unter src/legacy/ liegt so im Repo wie geliefert (teils CRLF).
+# Git soll dort keine Zeilenenden umwandeln.
+src/legacy/** -text
