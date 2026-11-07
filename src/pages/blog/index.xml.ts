@@ -4,7 +4,7 @@
 */
 import type { APIRoute } from 'astro';
 import { getEntry } from 'astro:content';
-import { absUrl, langRegion, permalinkFor, siteTitle } from '../../lib/site';
+import { absUrl, langRegion, siteTitle } from '../../lib/site';
 import { formatRfc822, getPosts, slugOf, summaryHtml } from '../../lib/blog';
 
 const xml = (s: string): string =>
@@ -20,11 +20,11 @@ export const GET: APIRoute = async () => {
   const posts = await getPosts();
 
   const title = page.data.title === siteTitle ? siteTitle : `${page.data.title} on ${siteTitle}`;
-  const link = permalinkFor('blog/');
+  const link = absUrl('blog/');
 
   const items = posts
     .map((post) => {
-      const url = permalinkFor(`blog/${slugOf(post)}/`);
+      const url = absUrl(`blog/${slugOf(post)}/`);
       return `
 			<item>
 				<title>${xml(post.data.title)}</title>

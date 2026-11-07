@@ -8,7 +8,7 @@
 
     <BaseLayout title={data.title} description={data.description}
                 seoTitle={data.seo_title} jsonld={data.jsonld}
-                lastmod={data.lastmod} isHome kind="home">
+                lastmod={data.lastmod} kind="home">
 */
 import Head from '../components/Head.astro';
 import PreviewBanner from '../components/PreviewBanner.astro';
@@ -24,8 +24,7 @@ interface Props {
   description?: string;
   /** Frontmatter `seo_title`: ersetzt den berechneten <title> */
   seoTitle?: string;
-  isHome?: boolean;
-  /** Hugo-Kind der Seite: home, section (z. B. Blog-Übersicht), page (Einzelseite/Beitrag), 404 */
+  /** Hugo-Kind der Seite (`home` = Startseite): home, section (z. B. Blog-Übersicht), page (Einzelseite/Beitrag), 404 */
   kind?: 'home' | 'section' | 'page' | '404';
   /** Hugo-Section, z. B. 'blog'. Mit kind 'page' ergibt das einen Blogbeitrag (BlogPosting, og:type article) */
   section?: string;
@@ -37,7 +36,7 @@ interface Props {
   lastmod?: Date | string;
   /** Titelbild eines Beitrags (Pfad oder URL) */
   image?: string;
-  /** absolute Seiten-URL; Standard: aus der Request-URL (für 404 `permalinkFor('404.html')` übergeben) */
+  /** absolute Seiten-URL; Standard: aus der Request-URL (für 404 `absUrl('404.html')` übergeben) */
   permalink?: string;
 }
 
@@ -45,8 +44,7 @@ const {
   title,
   description,
   seoTitle,
-  isHome = false,
-  kind = isHome ? 'home' : 'page',
+  kind = 'page',
   section,
   jsonld,
   date,
@@ -58,7 +56,7 @@ const permalink = Astro.props.permalink ?? permalinkFromUrl(Astro.url);
 const page = {
   title,
   description,
-  isHome,
+  isHome: kind === 'home',
   isPost: section === 'blog' && kind === 'page',
   permalink,
   lastmod,

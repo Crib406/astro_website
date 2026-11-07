@@ -30,19 +30,22 @@ export const ogLocale = 'de_DE';
 /** Social-Preview-Bild (1200x630), Pfad relativ zur Basis. */
 export const ogImagePath = 'assets/images/about/og-card.jpg';
 
-/** Ursprung der Seite ohne abschließenden Schrägstrich, z. B. `https://creimann.cc`. */
-const origin = (import.meta.env.SITE ?? 'https://creimann.cc').replace(/\/+$/, '');
+/** Ursprung der Seite ohne Pfad und ohne abschließenden Schrägstrich, z. B. `https://creimann.cc`. */
+const origin = new URL(import.meta.env.SITE ?? 'https://creimann.cc').origin;
 
 /** Basispfad mit führendem und abschließendem Schrägstrich, z. B. `/` oder `/preview/x/`. */
 const baseTrimmed = (import.meta.env.BASE_URL ?? '/').replace(/^\/+|\/+$/g, '');
 export const base = baseTrimmed ? `/${baseTrimmed}/` : '/';
 
-/** true, wenn die Seite unter /preview/<branch>/ ausgeliefert wird. */
-export const isPreview = base.includes('/preview/');
+/** Pfad der vollen Start-URL (Ursprung + base), z. B. `/preview/x/`. */
+const homePath = new URL(origin + base).pathname;
 
-/** Branch-Name aus dem Basispfad (nur in Vorschauen), sonst leer. */
+/** true, wenn die Seite unter /preview/<branch>/ ausgeliefert wird. */
+export const isPreview = homePath.startsWith('/preview/');
+
+/** Branch-Name aus der Start-URL (nur in Vorschauen), sonst leer. */
 export const previewBranch = isPreview
-  ? base.split('/preview/')[1].replace(/\/+$/, '')
+  ? homePath.slice('/preview/'.length).replace(/\/+$/, '')
   : '';
 
 const stripLead = (path: string) => path.replace(/^\/+/, '');
@@ -50,13 +53,22 @@ const stripLead = (path: string) => path.replace(/^\/+/, '');
 /**
  * Base-fähiger Pfad (Hugo: relURL, aber auch für die Startseite).
  * `relUrl('about/')` -> `/about/`, in Vorschau `/preview/x/about/`.
- * `relUrl('')` oder `relUrl('/')` -> die Startseite (`base`).
+ * `relUrl('')` -> die Startseite (`base`).
+ *
+ * Ein führender `/` wird bewusst als base-relativ behandelt (anders als bei
+ * Hugos relURL): `relUrl('/about/')` ergibt ebenfalls `<base>about/`, nie die
+ * Wurzel der Domain. So kann ein Pfad mit oder ohne `/` übergeben werden,
+ * ohne dass er in einer Vorschau aus dem Vorschauordner herausführt.
  */
 export function relUrl(path = ''): string {
   return base + stripLead(path);
 }
 
-/** Absolute URL mit Ursprung und base (Hugo: absURL). */
+/**
+ * Absolute URL mit Ursprung und base (Hugo: absURL). Dasselbe base-relative
+ * Verhalten wie `relUrl`, auch bei führendem `/`. Damit ist sie zugleich der
+ * Permalink einer Seite (`absUrl('about/')`).
+ */
 export function absUrl(path = ''): string {
   return origin + relUrl(path);
 }
@@ -66,24 +78,19 @@ export function homeUrl(): string {
   return absUrl('');
 }
 
-/** Ursprung der Hauptseite (in der Vorschau die Adresse vor `/preview/`). */
-export const productionOrigin = origin;
-
 /**
  * Canonical-URL zu einem Permalink (absolute Seiten-URL inkl. base).
  * In Vorschauen zeigt sie auf die Hauptseite: gleicher Pfad, aber ohne
  * `/preview/<branch>/`. Auf der Hauptseite ist sie der Permalink selbst.
+ * Ein Permalink außerhalb der Site (anderer Ursprung oder anderes base) ist
+ * ein Programmfehler und bricht den Bau ab.
  */
 export function canonicalUrl(permalink: string): string {
-  if (!isPreview) return permalink;
-  const homePrefix = homeUrl();
-  const path = permalink.startsWith(homePrefix) ? permalink.slice(homePrefix.length) : stripLead(permalink);
-  return `${origin}/${path}`;
-}
-
-/** Permalink einer Seite aus ihrem Pfad relativ zur Startseite (`about/`). */
-export function permalinkFor(path = ''): string {
-  return absUrl(path);
+  const home = homeUrl();
+  if (!permalink.startsWith(home)) {
+    throw new Error(`Permalink "${permalink}" liegt außerhalb der Site ${home}`);
+  }
+  return isPreview ? `${origin}/${permalink.slice(home.length)}` : permalink;
 }
 
 const isoFormat = (d: Date, timeZone: string | null): string => {
