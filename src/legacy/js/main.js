@@ -8,7 +8,7 @@
     06.tmpVedioActivation();
     07.stickyHeader();
     08.smoothScroll();
-    09.menuCurrentLink();
+    09.menuCurrentLink(); // UX-Paket: entfernt
     10.radialProgress();
     11.fonklsAnimation();
     12.rightDemo();
@@ -22,6 +22,43 @@
 ----*/
 
 
+
+// UX-Paket: Wer reduzierte Bewegung wuenscht, bekommt keine Text-/Einblend-
+// Animationen. Die Inhalte bleiben dann unangetastet und sofort sichtbar
+// (SplitText zerlegt nicht, gsap setzt kein opacity:0). Die CSS-Einblendungen
+// (.tmp-scroll-trigger) sind ohnehin nur unter no-preference aktiv.
+var prefersReducedMotion =
+  !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+// UX-Paket: SplitText zerlegt Text in hunderte Einzelbuchstaben-<div>s; Screen-
+// reader lesen das bruchstueckhaft. Darum vor dem Zerlegen den Klartext sichern
+// (plainText) und danach (splitA11y) den Klartext anbieten, die Teile verbergen.
+// Ueberschriften bekommen ein aria-label; auf einem span/p waere es wirkungslos
+// (generische Rolle), dort steht stattdessen ein unsichtbarer Klartext-span.
+// Enthaelt das Element Links/Buttons, bleibt alles wie es ist: aria-hidden darf
+// nichts Bedienbares verstecken.
+function plainText(el) {
+  return (el.textContent || "").replace(/\s+/g, " ").trim();
+}
+
+function splitA11y(el, split, text) {
+  if (!el || !split || !text || el.querySelector("a, button, input, select, textarea")) return;
+  [split.chars, split.words, split.lines].forEach(function (parts) {
+    (parts || []).forEach(function (part) {
+      part.setAttribute("aria-hidden", "true");
+    });
+  });
+  if (/^H[1-6]$/.test(el.tagName)) {
+    el.setAttribute("aria-label", text);
+  } else {
+    var sr = document.createElement("span");
+    sr.className = "split-sr-text";
+    sr.style.cssText =
+      "position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0";
+    sr.textContent = text;
+    el.insertBefore(sr, el.firstChild);
+  }
+}
 
 (function ($) {
   "use strict";
@@ -46,7 +83,6 @@
       tmPk.tmpVedioActivation();
       tmPk.stickyHeader();
       tmPk.smoothScroll();
-      tmPk.menuCurrentLink();
       tmPk.rollingText();
       tmPk.radialProgress();
       tmPk.fonklsAnimation();
@@ -255,18 +291,9 @@
       }
     },
 
-    // sticky header activation
-    menuCurrentLink: function () {
-      var currentPage = location.pathname.split("/"),
-        current = currentPage[currentPage.length - 1];
-      $(".tmp-mainmenu li a").each(function () {
-        var $this = $(this);
-        if ($this.attr("href") === current) {
-          $this.addClass("active");
-          $this.parents(".has-dropdown").addClass("menu-item-open");
-        }
-      });
-    },
+    // UX-Paket: menuCurrentLink entfernt. Sie verglich das letzte Pfadsegment
+    // (bei Adressen mit Schraegstrich leer) und traf nie. Die aktuelle Seite
+    // markiert jetzt der Server mit aria-current="page" (Header.astro).
 
     stickyHeader: function (e) {
       $(window).scroll(function () {
@@ -292,12 +319,36 @@
     },
 
     popupMobileMenu: function (e) {
-      $(".humberger_menu_active").on("click", function (e) {
-        $(".tmp-popup-mobile-menu").addClass("active");
-      });
+      // UX-Paket: Tastaturbedienung des mobilen Menues. aria-expanded am Burger,
+      // Fokus beim Oeffnen ins Menue, Escape/Schliessen-Button geben ihn an den
+      // Burger zurueck, Tab bleibt im offenen Menue (Fokusfang). Geschlossen ist
+      // das Menue visibility:hidden (_popupmenu.scss), also per Tab unerreichbar.
+      var $menu = $(".tmp-popup-mobile-menu");
+      var $burger = $(".humberger_menu_active");
+      var focusSelector = "a[href], button:not([disabled])";
 
-      $(".close-menu").on("click", function (e) {
-        $(".tmp-popup-mobile-menu").removeClass("active");
+      function openMenu() {
+        $menu.addClass("active");
+        $burger.attr("aria-expanded", "true");
+        // Nicht im selben Takt: Elemente im Menue haben transition: all, dabei
+        // laeuft auch das geerbte visibility ueber die Zeit, und im ersten Takt
+        // ist der Link noch nicht fokussierbar. Darum bis zu ~2 s alle 50 ms
+        // versuchen, bis der Fokus im Menue liegt.
+        var tries = 0;
+        (function focusFirst() {
+          if (!$menu.hasClass("active")) return;
+          var first = $menu.find(focusSelector).filter(":visible")[0];
+          if (first) first.focus();
+          if (!$menu[0].contains(document.activeElement) && tries++ < 40) {
+            setTimeout(focusFirst, 50);
+          }
+        })();
+      }
+
+      function closeMenu(returnFocus) {
+        var wasOpen = $menu.hasClass("active");
+        $menu.removeClass("active");
+        $burger.attr("aria-expanded", "false");
         $(".tmp-popup-mobile-menu .tmp-mainmenu .has-dropdown > a")
           .siblings(".submenu")
           .removeClass("active")
@@ -305,6 +356,40 @@
         $(".tmp-popup-mobile-menu .tmp-mainmenu .has-dropdown > a").removeClass(
           "open"
         );
+        if (wasOpen && returnFocus && $burger[0]) $burger[0].focus();
+      }
+
+      $burger.on("click", function (e) {
+        openMenu();
+      });
+
+      $(".close-menu").on("click", function (e) {
+        closeMenu(true);
+      });
+
+      $(document).on("keydown", function (e) {
+        if (!$menu.hasClass("active")) return;
+        if (e.key === "Escape") {
+          e.preventDefault();
+          closeMenu(true);
+          return;
+        }
+        if (e.key !== "Tab") return;
+        var items = $menu.find(focusSelector).filter(":visible").toArray();
+        if (!items.length) return;
+        var first = items[0];
+        var last = items[items.length - 1];
+        var active = document.activeElement;
+        if (!$menu[0].contains(active)) {
+          e.preventDefault();
+          first.focus();
+        } else if (e.shiftKey && active === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && active === last) {
+          e.preventDefault();
+          first.focus();
+        }
       });
 
       $(".tmp-popup-mobile-menu .tmp-mainmenu .has-dropdown > a").on(
@@ -319,19 +404,11 @@
       $(
         ".tmp-popup-mobile-menu, .tmp-popup-mobile-menu .tmp-mainmenu.onepagenav li a"
       ).on("click", function (e) {
-        e.target === this &&
-          $(".tmp-popup-mobile-menu").removeClass("active") &&
-          $(".tmp-popup-mobile-menu .tmp-mainmenu .has-dropdown > a")
-            .siblings(".submenu")
-            .removeClass("active")
-            .slideUp("400") &&
-          $(
-            ".tmp-popup-mobile-menu .tmp-mainmenu .has-dropdown > a"
-          ).removeClass("open");
+        e.target === this && closeMenu(true); // UX-Paket: gemeinsame Schliessen-Funktion
       });
 
       $(".onepagenav-click a").on("click", function (e) {
-        $(".tmp-popup-mobile-menu").removeClass("active");
+        closeMenu(false); // UX-Paket
         tmPk._html.css({
           overflow: "",
         });
@@ -461,7 +538,7 @@
       $(".onepagenav").onePageNav({
         currentClass: "current",
         changeHash: false,
-        scrollSpeed: 500,
+        scrollSpeed: prefersReducedMotion ? 0 : 500, // UX-Paket
         scrollThreshold: 0.2,
         filter: ":not(.external)",
         easing: "swing",
@@ -482,6 +559,7 @@
     },
 
     fonklsAnimation: function () {
+      if (prefersReducedMotion) return; // UX-Paket: keine Bewegung
       let endTl = gsap.timeline({
         repeat: -1,
         delay: 0.2,
@@ -503,9 +581,12 @@
           once: true,
         },
       });
+      let endText = document.querySelector(".end");
+      let endPlain = endText ? plainText(endText) : "";
       let mySplitText = new SplitText(".end", {
         type: "words,chars",
       });
+      splitA11y(endText, mySplitText, endPlain); // UX-Paket
       let chars = mySplitText.chars;
       endTl.to(chars, {
         duration: 0.5,
@@ -566,6 +647,7 @@
     },
 
     preloaderWithBannerActivation: function () {
+      if (prefersReducedMotion) return; // UX-Paket: Hero-Kicker bleibt unzerlegt und sichtbar
       document.addEventListener("DOMContentLoaded", function () {
         // Select all title and subtitle elements
         const heroTitles = document.querySelectorAll(".tmp-title-split");
@@ -576,10 +658,14 @@
           const subtitle = heroSubtitles[index]; // Match title with subtitle (if in pairs)
       
           // Split the text for both title and subtitle
+          const titlePlain = plainText(title); // UX-Paket
           const splitTitle = new SplitText(title, { type: "chars" });
+          splitA11y(title, splitTitle, titlePlain); // UX-Paket
+          const subtitlePlain = subtitle ? plainText(subtitle) : ""; // UX-Paket
           const splitSubtitle = subtitle
             ? new SplitText(subtitle, { type: "chars words" })
             : null;
+          splitA11y(subtitle, splitSubtitle, subtitlePlain); // UX-Paket
       
           // Create a timeline for each title and subtitle
           gsap.timeline({
@@ -619,10 +705,14 @@
           const subtitle = heroSubtitles[index]; // Match title with subtitle (if in pairs)
       
           // Split the text for both title and subtitle
+          const titlePlain = plainText(title); // UX-Paket
           const splitTitle = new SplitText(title, { type: "chars" });
+          splitA11y(title, splitTitle, titlePlain); // UX-Paket
+          const subtitlePlain = subtitle ? plainText(subtitle) : ""; // UX-Paket
           const splitSubtitle = subtitle
             ? new SplitText(subtitle, { type: "chars words" })
             : null;
+          splitA11y(subtitle, splitSubtitle, subtitlePlain); // UX-Paket
       
           // Create a timeline for each title and subtitle
           gsap.timeline({
@@ -782,10 +872,12 @@
             element.split.revert();
           }
 
+          const plain = plainText(element); // UX-Paket
           element.split = new SplitText(element, {
             type: "lines,words,chars",
             linesClass: "split-line",
           });
+          splitA11y(element, element.split, plain); // UX-Paket
           gsap.set(element, { perspective: 400 });
 
           gsap.set(element.split.chars, {
@@ -807,7 +899,8 @@
         });
       };
 
-      if ($('.inv-title-animation-wrap').length) {
+      // UX-Paket: bei reduzierter Bewegung nicht zerlegen, der Text steht normal da
+      if (!prefersReducedMotion && $('.inv-title-animation-wrap').length) {
         const animatedTextElements = document.querySelectorAll('.inv-title-animation-wrap');
         if (document.fonts && document.fonts.ready) {
           document.fonts.ready.then(function () {
@@ -862,7 +955,7 @@ document.addEventListener('DOMContentLoaded', function() {
     box.addEventListener('click', function() {
       window.scrollTo({
         top: 0,
-        behavior: 'smooth'
+        behavior: prefersReducedMotion ? 'auto' : 'smooth' // UX-Paket
       });
     });
   }

@@ -297,3 +297,28 @@ bauen (nach `document.fonts.ready`, bei Desktop- und Handybreite) und die Höhen
 verrutscht. Dabei ist zu beachten, dass die Buchstaben-Animation selbst nicht
 pixelgenau reproduzierbar ist — derselbe Build weicht von sich selbst ab.
 Aussagekräftig ist die **Seitenhöhe**, nicht die Zahl abweichender Pixel.
+
+## 13. Bewegung, Screenreader und mobiles Menü (UX-Paket)
+
+Alles in `src/legacy/js/main.js`, jeweils mit „UX-Paket“ kommentiert.
+
+- **Reduzierte Bewegung:** Die Konstante `prefersReducedMotion` steht am Dateianfang. Bei `true` laufen
+  weder die SplitText-/GSAP-Animationen (`splitAnimatedTitles`, `preloaderWithBannerActivation`,
+  `fonklsAnimation`) noch das weiche Hochscrollen; der Text wird gar nicht erst zerlegt und bleibt sofort
+  sichtbar. Das `opacity: 0` aus Punkt 1a setzt nur JS, nie CSS – ein übersprungener Zweig hinterlässt also
+  keinen unsichtbaren Text. Die CSS-Einblendungen (`.tmp-scroll-trigger`) gelten ohnehin nur unter
+  `prefers-reduced-motion: no-preference`. Neue Animationen müssen denselben Zweig beachten.
+- **SplitText und Screenreader:** `splitA11y()` sichert vor dem Zerlegen den Klartext (`plainText()`) und
+  setzt danach alle Buchstaben/Wörter/Zeilen auf `aria-hidden`. Überschriften bekommen `aria-label`; auf
+  `span`/`p` hat das keine Wirkung, dort steht ein unsichtbarer Klartext-`span`. Enthält das Element einen
+  Link oder Button (Schlusssatz der Startseite mit LinkedIn-Link), bleibt es unverändert: `aria-hidden`
+  darf nichts Bedienbares verstecken.
+- **SmoothScroll entfernt:** `plugins/smoothscroll.js` fing Mausrad und Pfeiltasten ab und steht nicht mehr
+  in `jsFiles`. Der Browser scrollt nativ. Die gleichnamige Methode `smoothScroll` in `main.js` ist etwas
+  anderes (Klick auf `.onepage a[href^="#"]`) und bleibt.
+- **Mobiles Menü** (`popupMobileMenu`): `aria-expanded` am Burger, Fokus beim Öffnen auf den ersten Link,
+  Escape und Schließen-Button geben ihn an den Burger zurück, Tab/Shift+Tab kreisen im offenen Menü.
+  Geschlossen ist das Menü `visibility: hidden` und damit nicht per Tab erreichbar (kein `inert` nötig).
+  Der Fokus wird mit Wiederholung gesetzt: Die Elemente im Menü haben `transition: all`, dabei läuft auch
+  das geerbte `visibility` über 0,5 s und der Link ist im ersten Takt noch nicht fokussierbar.
+- `menuCurrentLink` ist entfernt (traf nie); die aktuelle Seite markiert der Server mit `aria-current`.
