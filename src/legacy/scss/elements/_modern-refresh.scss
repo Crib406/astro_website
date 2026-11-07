@@ -829,3 +829,40 @@ p {
         height: 100%;
     }
 }
+
+/*----------------------------
+ Lichtkegel im Grund
+ Sehr flache Radialverlaeufe (Creme 3-7 %, Messing 6-9 % Deckung) als
+ background-image der bestehenden Abschnitte. Kein neues Element, keine
+ Hoehe: sie sind reine Hintergrundebenen. Werte aus dem Entwurf.
+----------------------------*/
+// Startseite: hinter dem Hero (Portraet-Bereich)
+.rpp-banner-two-area {
+    background-image:
+        radial-gradient(ellipse 40% 58% at 72% 36%, rgb(236 234 224 / 7%), transparent 70%),
+        radial-gradient(ellipse 34% 40% at 62% 74%, color-mix(in srgb, var(--color-accent-strong) 9%, transparent), transparent 72%);
+}
+
+// Startseite: hinter der Kernaussage ("Generalist mit praktischem ...")
+.about-content-area:not(.about-content-area--stand) {
+    background-image:
+        radial-gradient(ellipse 46% 42% at 34% 48%, color-mix(in srgb, var(--color-accent-strong) 6%, transparent), transparent 72%),
+        radial-gradient(ellipse 36% 30% at 30% 44%, rgb(236 234 224 / 3.5%), transparent 70%);
+}
+
+// Startseite: hinter "Wie ich arbeite" und dem Schlusssatz
+.home-section--traits,
+.about-content-area--stand {
+    background-image:
+        radial-gradient(ellipse 38% 56% at 50% 0%, color-mix(in srgb, var(--color-accent-strong) 7%, transparent), transparent 74%),
+        radial-gradient(ellipse 28% 40% at 50% 0%, rgb(236 234 224 / 4%), transparent 70%);
+}
+
+// Unterseiten: dezenter Kegel im Seitenkopf. Das Hintergrundbild des
+// Templates bleibt als unterste Ebene erhalten.
+.breadcrumb-area.breadcrumb-bg {
+    background-image:
+        radial-gradient(ellipse 42% 70% at 50% 0%, color-mix(in srgb, var(--color-accent-strong) 7%, transparent), transparent 72%),
+        radial-gradient(ellipse 30% 50% at 50% 0%, rgb(236 234 224 / 4%), transparent 70%),
+        url("../../assets/images/breadcrumb/breadcum-bg.png");
+}
