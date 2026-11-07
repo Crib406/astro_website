@@ -70,6 +70,10 @@ if (!inPreview) {
 
     if (!redirectPages.has(file)) {
       test(`${file}: canonical zeigt auf die Hauptseite (Produktions-URL ohne base)`, () => {
+        if (file === specialPaths.notFound) {
+          assert.equal($('link[rel="canonical"], meta[property="og:url"]').length, 0, 'die 404-Seite hat weder canonical noch og:url');
+          return;
+        }
         const expected = prod(urlPathOf(file));
         assert.equal($('link[rel="canonical"]').attr('href'), expected);
         assert.equal($('meta[property="og:url"]').attr('content'), expected);

@@ -18,6 +18,7 @@ for (const file of allHtml()) {
   if (redirectPages.has(file)) continue;
   const $ = loadHtml(file);
   const meta = (sel) => ($(sel).attr('content') ?? '').trim();
+  const is404 = file === specialPaths.notFound;
 
   test(`${file}: <html lang="de">`, () => {
     assert.equal($('html').attr('lang'), 'de');
@@ -35,6 +36,10 @@ for (const file of allHtml()) {
   test(`${file}: robots und absolutes canonical`, () => {
     assert.ok(meta('meta[name="robots"]').length > 0, 'meta robots fehlt');
     const canon = $('link[rel="canonical"]');
+    if (is404) {
+      assert.equal(canon.length, 0, 'die 404-Seite hat kein canonical');
+      return;
+    }
     assert.equal(canon.length, 1, 'genau ein canonical erwartet');
     assert.match(canon.attr('href'), /^https?:\/\/[^/]+\//, 'canonical muss absolut sein');
   });
@@ -45,7 +50,6 @@ for (const file of allHtml()) {
       'og:type',
       'og:title',
       'og:description',
-      'og:url',
       'og:site_name',
       'og:image',
       'og:image:type',
@@ -58,13 +62,21 @@ for (const file of allHtml()) {
     for (const n of ['twitter:card', 'twitter:title', 'twitter:description', 'twitter:image', 'twitter:image:alt']) {
       assert.ok(meta(`meta[name="${n}"]`), `${n} fehlt`);
     }
-    assert.match(meta('meta[property="og:url"]'), /^https?:\/\//, 'og:url muss absolut sein');
     assert.match(meta('meta[property="og:image"]'), /^https?:\/\//, 'og:image muss absolut sein');
-    assert.equal(meta('meta[property="og:url"]'), $('link[rel="canonical"]').attr('href'), 'og:url und canonical weichen ab');
+    if (is404) {
+      assert.equal($('meta[property="og:url"]').length, 0, 'die 404-Seite hat kein og:url');
+    } else {
+      assert.match(meta('meta[property="og:url"]'), /^https?:\/\//, 'og:url muss absolut sein');
+      assert.equal(meta('meta[property="og:url"]'), $('link[rel="canonical"]').attr('href'), 'og:url und canonical weichen ab');
+    }
     assert.equal(meta('meta[property="og:title"]'), $('title').text().trim(), 'og:title und title weichen ab');
   });
 
   test(`${file}: JSON-LD parsebar, @graph mit WebSite, Person und Seite`, () => {
+    if (is404) {
+      assert.equal($('script[type="application/ld+json"]').length, 0, 'die 404-Seite hat kein JSON-LD');
+      return;
+    }
     const blocks = $('script[type="application/ld+json"]')
       .map((_, e) => $(e).text())
       .get();

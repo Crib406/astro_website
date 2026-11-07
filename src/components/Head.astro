@@ -51,6 +51,8 @@ if (Astro.props.seoTitle) {
   title = siteTitle;
 }
 
+const is404 = kind === '404';
+
 // Meta Description: Seite > global
 const desc = page.description || seoDescription;
 
@@ -77,19 +79,20 @@ const css = await getCssBundle();
   {desc && <meta name="description" content={desc}>}
 
   <!-- Robots -->
-  {isPreview || kind === '404'
+  {isPreview || is404
     ? <meta name="robots" content="noindex, nofollow">
     : <meta name="robots" content="index,follow">}
 
-  <!-- Canonical -->
-  <link rel="canonical" href={canonical}>
+  {/* Die 404-Seite hat keine kanonische Adresse (und keine strukturierten Daten):
+      sie steht unter jeder falschen URL, nicht unter /404.html. */}
+  {!is404 && <link rel="canonical" href={canonical}>}
 
   <!-- Open Graph -->
   <meta property="og:locale" content={ogLocale}>
   <meta property="og:type" content={ogType}>
   <meta property="og:title" content={title}>
   {desc && <meta property="og:description" content={desc}>}
-  <meta property="og:url" content={canonical}>
+  {!is404 && <meta property="og:url" content={canonical}>}
   <meta property="og:site_name" content={siteTitle}>
   <meta property="og:image" content={ogImage}>
   <meta property="og:image:type" content="image/jpeg">
@@ -114,7 +117,7 @@ const css = await getCssBundle();
 
   {blogPublic && <link rel="alternate" type="application/rss+xml" title={siteTitle} href={absUrl(specialPaths.feed)}>}
 
-  <JsonLd page={page} image={ogImage} />
+  {!is404 && <JsonLd page={page} image={ogImage} />}
 
   {/* Früh laden, was sonst erst nach dem CSS entdeckt wird: die Text-Schriften
       (crossorigin ist bei Schriften Pflicht, sonst lädt der Browser sie doppelt)
