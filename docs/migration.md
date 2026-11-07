@@ -86,7 +86,10 @@ Nach dem Gleichheitsnachweis (siehe „Nachweise“) bewusst eingebaut, ohne sic
 
 Weil S1 bis S10 die Ausgabe gegenüber Hugo verändern, zeigt `npm run compare:hugo` sie als Abweichungen, sofern
 sie nicht in `scripts/compare-hugo.allow.json` stehen. Das ist beabsichtigt: eine Abweichung muss dort mit Wert
-benannt sein.
+benannt sein. Die Begründungen in dieser Datei verweisen mit „S1“ bis „S10“ auf die Tabelle oben. Ein Eintrag gilt
+für eine Seite oder, mit `"page": "*"`, für jede Seite; der Pfad muss genau passen (oder als Präfix an einer
+Leerzeichen-Grenze). Einträge ohne Treffer meldet das Skript am Ende und beendet sich mit Fehlercode 1, damit die
+Liste nicht verwildert.
 
 ## Nachweise
 

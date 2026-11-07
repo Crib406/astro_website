@@ -14,8 +14,10 @@
  * sortiert), Kommentaren und der Hugo-Generator-Meta. Nicht-HTML-Dateien
  * (sitemap.xml, robots.txt, RSS, statische Dateien) werden mitgeprüft.
  * Bewusst akzeptierte Abweichungen stehen in scripts/compare-hugo.allow.json
- * (page, path-Präfix, optional exp/act als genauer Wert, reason).
- * Exit-Code 1 bei Abweichungen, 2 bei falscher Bedienung.
+ * (page oder "*", path genau oder als Präfix an einer Leerzeichen-Grenze,
+ * optional exp/act als genauer Wert, reason). Ausnahmen ohne Treffer werden am
+ * Ende gemeldet und gelten als Fehler.
+ * Exit-Code 1 bei Abweichungen oder ungenutzten Ausnahmen, 2 bei falscher Bedienung.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -53,22 +55,39 @@ if (!fs.existsSync(distDir)) {
 /* ---------- Ausnahmen ---------- */
 
 const allowFile = path.join(here, 'compare-hugo.allow.json');
-/** @type {{page:string,path:string,reason?:string}[]} */
+/** @type {{page:string,path:string,exp?:string,act?:string,reason?:string}[]} */
 const allow = fs.existsSync(allowFile) ? JSON.parse(fs.readFileSync(allowFile, 'utf8')) : [];
+for (const [i, a] of allow.entries()) {
+  if (typeof a.page !== 'string' || typeof a.path !== 'string' || typeof a.reason !== 'string') {
+    console.error(`Fehler: Eintrag ${i + 1} in compare-hugo.allow.json braucht page, path und reason (Text).`);
+    process.exit(2);
+  }
+}
+/** Einträge der Ausnahmenliste, die mindestens eine Abweichung freigegeben haben. */
+const usedAllow = new Set();
 /**
- * Eine Ausnahme gilt nur, wenn Seite und Pfad-Präfix passen und, falls
+ * Eine Ausnahme gilt nur, wenn die Seite passt (`page`, `*` = jede Seite), der
+ * Pfad genau oder als Präfix an einer Grenze (Leerzeichen) passt und, falls
  * angegeben, auch der erwartete (`exp`) bzw. tatsächliche (`act`) Wert genau
  * dem Eintrag entspricht. So sind bewusste Abweichungen einzeln benannt und
- * keine Pauschalfreigabe für ganze Pfade.
+ * keine Pauschalfreigabe für ganze Pfade. Jeder Treffer wird vermerkt, damit
+ * am Ende ungenutzte Einträge gemeldet werden können.
  */
-const isAllowed = (d) =>
-  allow.some(
-    (a) =>
+const isAllowed = (d) => {
+  let allowed = false;
+  for (const a of allow) {
+    if (
       (a.page === '*' || a.page === d.page) &&
-      d.path.startsWith(a.path ?? '') &&
+      (d.path === a.path || d.path.startsWith(a.path + ' ')) &&
       (a.exp === undefined || a.exp === d.exp) &&
-      (a.act === undefined || a.act === d.act),
-  );
+      (a.act === undefined || a.act === d.act)
+    ) {
+      usedAllow.add(a);
+      allowed = true;
+    }
+  }
+  return allowed;
+};
 
 /* ---------- Dateien ---------- */
 
@@ -381,11 +400,11 @@ const results = []; // { page, diffs[], allowed[] }
 const isText = (f) => /\.(html|xml|txt)$/.test(f);
 
 function record(page, diffs) {
-  const tagged = diffs.map((d) => ({ ...d, page }));
+  const tagged = diffs.map((d) => ({ ...d, page, allowed: isAllowed({ ...d, page }) }));
   results.push({
     page,
-    diffs: tagged.filter((d) => !isAllowed(d)),
-    allowed: tagged.filter(isAllowed),
+    diffs: tagged.filter((d) => !d.allowed),
+    allowed: tagged.filter((d) => d.allowed),
   });
 }
 
@@ -458,4 +477,13 @@ console.log(
     (allowedCount ? `, ${allowedCount} Abweichungen laut compare-hugo.allow.json akzeptiert` : '') +
     '.',
 );
-process.exit(bad ? 1 : 0);
+
+// Ungenutzte Ausnahmen (nur bei vollem Lauf aussagekräftig): die Liste soll sauber bleiben.
+const unused = onlyPages.length === 0 ? allow.filter((a) => !usedAllow.has(a)) : [];
+if (unused.length) {
+  console.warn(`\nWARNUNG: ${unused.length} Eintrag${unused.length === 1 ? '' : 'e'} in compare-hugo.allow.json ohne Wirkung (entfernen oder korrigieren):`);
+  for (const a of unused) {
+    console.warn(`  page=${a.page}  path=${short(a.path, 100)}${a.exp !== undefined ? `\n    exp=${short(a.exp)}` : ''}${a.act !== undefined ? `\n    act=${short(a.act)}` : ''}`);
+  }
+}
+process.exit(bad || unused.length ? 1 : 0);
