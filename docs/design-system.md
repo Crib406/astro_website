@@ -14,12 +14,12 @@ Die eigene Palette steht ganz oben in der Datei:
 | `--color-surface-2` | `#262D1E` | eine Stufe heller |
 | `--color-ink` | `#ECEAE0` | Überschriften, heller Text |
 | `--color-ink-soft` | `#A8AD9A` | Fließtext |
-| `--color-line` | `#333A29` | Linien, Ränder |
+| `--color-line` | `#2E3526` | Linien, Ränder |
 | `--color-accent` | `#8FB89A` | Buttons, Icon-Kacheln |
-| `--color-accent-strong` | `#2BFF8A` | hervorgehobene Wörter |
-| `--color-accent-tint` | `#26332A` | Fläche hinter Icons |
-| `--color-brass` | `#D6AA62` | Eyebrow, Ortschip, Vorschau-Leiste |
-| `--color-brass-tint` | `#3A331E` | Fläche dazu |
+| `--color-accent-strong` | `#E6A94A` | Messing: hervorgehobene Wörter, Links, Fokus, aktueller Menüpunkt |
+| `--color-accent-tint` | `#26332A` | Moos-Fläche hinter den Icon-Kacheln (Icon bleibt Moos) |
+| `--color-brass` | = `--color-accent-strong` | Eyebrow, Ortschip, Vorschau-Leiste (ein Messing, kein zweiter Ton) |
+| `--color-brass-tint` | `#39321C` | Fläche dazu |
 
 ## Zuordnung auf die Template-Variablen
 
@@ -60,13 +60,24 @@ Gemessen wurde der Farbabstand (ΔE) zum Fließtext und der Kontrast zum Grund:
 |---|---|---|---|
 | `#6BE6A0` | 53 | 11,3:1 | zu **dunkel**, fällt zurück |
 | `#8CFFC0` | 48 | 14,4:1 | Helligkeit passt, aber zu **blass** |
-| `#2BFF8A` | **81** | 13,2:1 | richtig |
+| `#2BFF8A` (früher) | 81 | 13,2:1 | stark, aber Neon |
+| `#E6A94A` (Messing, jetzt) | **56** (zu Creme `#ECEAE0`), **51** (zu Fließtext `#A8AD9A`) | 8,5:1 | richtig; Hervorhebungen sind zusätzlich fett (700) |
 
-Die Lehre: Nicht an der Helligkeit drehen, sondern an der **Sättigung**. Zu viel
+Die Lehre (gilt für jede Hervorhebungsfarbe): Nicht an der Helligkeit drehen, sondern an der **Sättigung**. Zu viel
 Weißanteil nähert die Farbe dem Creme an, egal wie hell sie ist.
 
 Wer die Farbe ändert, sollte nachrechnen. Ein kurzes Python-Skript mit ΔE in
 CIE-Lab genügt; die Werte oben stammen daraus.
+
+### Lichtkegel im Grund
+
+Sehr flache Radialverläufe (Creme 3,5–7 %, Messing 6–9 % Deckung) liegen als
+`background-image` hinter dem Hero (`.rpp-banner-two-area`), der Kernaussage
+(`.about-content-area`), „Wie ich arbeite“ und dem Schlusssatz
+(`.home-section--traits`, `.about-content-area--stand`) sowie im Seitenkopf der
+Unterseiten (`.breadcrumb-area.breadcrumb-bg`, das Template-Bild bleibt darunter).
+Reine Hintergrundebenen: keine Höhe, kein Markup. Stehen am Ende von
+`_modern-refresh.scss`.
 
 ## Schriften
 

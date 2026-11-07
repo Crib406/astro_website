@@ -122,6 +122,15 @@ Paket B (Template-JS, Einzelheiten in `docs/template-fallen.md`, Punkt 13):
 | 7 | Mobiles Menü: Burger mit `aria-controls`/`aria-expanded`, Fokus springt ins Menü (erster Link ist das Logo, dann Start usw.), Tab bleibt darin, Escape schließt und gibt den Fokus zurück | per Tastatur landete man hinter dem offenen Menü |
 | 11 | `menuCurrentLink` entfernt | traf nie; ersetzt durch serverseitiges `aria-current` (Paket A) |
 
+### Farben modernisiert
+
+Reine Farbänderung (Branch `feature/farben-messing`), Aufbau, Schriften, Texte und Abstände unverändert
+(Seitenhöhen vor und nach der Änderung bei 1440 und 375 px gleich): Akzent Messing `#E6A94A` statt Neongrün
+`#2BFF8A` (Hervorhebungen, Links, Fokus, Menü), ein Messing statt zwei, Linien `#2E3526`, sanfte Lichtkegel im
+Grund. Moos `#8FB89A` bleibt für Buttons und Icon-Kacheln. Die Seiten-`<style>`-Blöcke enthielten keine festen
+Grüntöne, die Allowlist musste nicht angepasst werden. Test: `tests/colors.test.mjs`. `lastmod` nicht angehoben.
+Dass im Text „Akzentgrün“ steht (Tabelle oben), meint seitdem Messing.
+
 ## Nachweise
 
 1. **`npm run compare:hugo`** (mit `HUGO_REF_DIR` = unminifizierter Hugo-Referenzbau, erzeugt aus dem alten
