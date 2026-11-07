@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { load } from 'cheerio';
-import { read, homeAbs, publishedPosts, unpublishedPosts, specialPaths } from './helpers.mjs';
+import { read, homeAbs, publishedPosts, unpublishedPosts, specialPaths, pages } from './helpers.mjs';
 
 const xml = read(specialPaths.feed);
 const $ = load(xml, { xmlMode: true });
@@ -62,4 +62,13 @@ test('RSS: Titel und Beschreibung sind nicht leer', () => {
     assert.ok(i.title.trim().length > 0, `${i.link}: Titel leer`);
     assert.ok(i.description.trim().length > 0, `${i.link}: Beschreibung leer`);
   }
+});
+
+test('RSS: Kanaltitel und -beschreibung deutsch aus der Blog-Seite, kein generator', () => {
+  const blog = pages.find((p) => p.id === 'blog').data;
+  assert.equal($('channel > title').text(), blog.title);
+  assert.equal($('channel > description').text(), blog.description);
+  assert.equal($('channel > generator').length, 0, 'generator soll fehlen');
+  assert.ok(!/Recent content| on /.test($('channel > title').text() + $('channel > description').text()), 'englischer Hugo-Standardtext');
+  assert.equal($('channel > language').text(), 'de-de');
 });
