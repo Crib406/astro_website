@@ -8,7 +8,7 @@
     06.tmpVedioActivation();
     07.stickyHeader();
     08.smoothScroll();
-    09.menuCurrentLink();
+    09.menuCurrentLink(); // UX-Paket: entfernt
     10.radialProgress();
     11.fonklsAnimation();
     12.rightDemo();
@@ -83,7 +83,6 @@ function splitA11y(el, split, text) {
       tmPk.tmpVedioActivation();
       tmPk.stickyHeader();
       tmPk.smoothScroll();
-      tmPk.menuCurrentLink();
       tmPk.rollingText();
       tmPk.radialProgress();
       tmPk.fonklsAnimation();
@@ -292,18 +291,9 @@ function splitA11y(el, split, text) {
       }
     },
 
-    // sticky header activation
-    menuCurrentLink: function () {
-      var currentPage = location.pathname.split("/"),
-        current = currentPage[currentPage.length - 1];
-      $(".tmp-mainmenu li a").each(function () {
-        var $this = $(this);
-        if ($this.attr("href") === current) {
-          $this.addClass("active");
-          $this.parents(".has-dropdown").addClass("menu-item-open");
-        }
-      });
-    },
+    // UX-Paket: menuCurrentLink entfernt. Sie verglich das letzte Pfadsegment
+    // (bei Adressen mit Schraegstrich leer) und traf nie. Die aktuelle Seite
+    // markiert jetzt der Server mit aria-current="page" (Header.astro).
 
     stickyHeader: function (e) {
       $(window).scroll(function () {
