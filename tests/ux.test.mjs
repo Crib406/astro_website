@@ -102,3 +102,35 @@ test('CSS-Bündel enthält eine :focus-visible-Regel mit sichtbarer Linie', () =
   const css = read(href.slice(base.length));
   assert.match(css, /:focus-visible\s*\{[^}]*outline:\s*2px solid/);
 });
+
+/** Gebündeltes CSS der Startseite. */
+function bundledCss() {
+  const $ = loadHtml('index.html');
+  const href = $('link[rel="stylesheet"][href*="bundle.min"]').attr('href');
+  assert.ok(href, 'kein CSS-Bündel verlinkt');
+  return read(href.slice(base.length));
+}
+
+test('CSS-Bündel: Links im Fließtext sind unterstrichen, Skip-Link und Fokus-Sonderfälle sind da', () => {
+  const css = bundledCss();
+  assert.match(css, /text-para-documents a:not\(\.tmp-btn\)\s*\{[^}]*text-decoration:\s*underline/);
+  assert.match(css, /\.disc a:not\(\.tmp-btn\)/);
+  assert.match(css, /\.skip-link\s*\{[^}]*transform:\s*translateY/);
+  // Fokusrahmen am Kind bei Links um Block-Inhalt (Logo, Kontaktkarten)
+  assert.match(css, /\.logo a:focus-visible\s*>\s*p\s*\{[^}]*outline:\s*2px solid/);
+  assert.match(css, /\.service-card-link:focus-visible\s*>\s*\.service-card-v1\s*\{[^}]*outline:\s*2px solid/);
+});
+
+test('CSS-Bündel: Kontaktkarten füllen die Spalte (gleich hohe Karten)', () => {
+  const css = bundledCss();
+  assert.match(css, /\.service-card-link\s*\{[^}]*height:\s*100%/);
+  assert.match(css, /\.service-card-link\s*>\s*\.service-card-v1\s*\{[^}]*height:\s*100%/);
+});
+
+test('Startseite: Schlusssatz ist nicht zerlegt (kein inv-title-animation-wrap) und enthält den LinkedIn-Link', () => {
+  const $ = loadHtml('index.html');
+  const p = $('p.text-para-documents').filter((_, el) => $(el).text().includes('Woran ich aktuell arbeite'));
+  assert.equal(p.length, 1);
+  assert.equal(p.hasClass('inv-title-animation-wrap'), false);
+  assert.equal(p.find('a[href*="linkedin.com"]').length, 1);
+});

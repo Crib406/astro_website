@@ -33,3 +33,10 @@ test('JS-Bündel: kein SmoothScroll-Plugin mehr, reduzierte Bewegung wird beacht
   assert.doesNotMatch(js, /SmoothScroll/, 'SmoothScroll steckt noch im Bündel');
   assert.match(js, /prefers-reduced-motion/);
 });
+
+test('JS-Bündel: menuCurrentLink ist entfernt, splitA11y und aria-expanded sind da', () => {
+  const js = read(jsBundles[0]);
+  assert.doesNotMatch(js, /menuCurrentLink/);
+  assert.match(js, /splitA11y/);
+  assert.match(js, /aria-expanded/);
+});

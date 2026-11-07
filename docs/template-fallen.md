@@ -311,14 +311,37 @@ Alles in `src/legacy/js/main.js`, jeweils mit „UX-Paket“ kommentiert.
 - **SplitText und Screenreader:** `splitA11y()` sichert vor dem Zerlegen den Klartext (`plainText()`) und
   setzt danach alle Buchstaben/Wörter/Zeilen auf `aria-hidden`. Überschriften bekommen `aria-label`; auf
   `span`/`p` hat das keine Wirkung, dort steht ein unsichtbarer Klartext-`span`. Enthält das Element einen
-  Link oder Button (Schlusssatz der Startseite mit LinkedIn-Link), bleibt es unverändert: `aria-hidden`
-  darf nichts Bedienbares verstecken.
+  Link oder Button, bleibt es unverändert: `aria-hidden` darf nichts Bedienbares verstecken. Der Schlusssatz
+  der Startseite (mit LinkedIn-Link) trägt darum gar kein `inv-title-animation-wrap` mehr: Buchstaben-divs
+  sind `inline-block`, `text-decoration` des Links erbt nicht hinein, die Unterstreichung ginge verloren.
+  **Texte mit Links nie zerlegen.**
 - **SmoothScroll entfernt:** `plugins/smoothscroll.js` fing Mausrad und Pfeiltasten ab und steht nicht mehr
   in `jsFiles`. Der Browser scrollt nativ. Die gleichnamige Methode `smoothScroll` in `main.js` ist etwas
   anderes (Klick auf `.onepage a[href^="#"]`) und bleibt.
-- **Mobiles Menü** (`popupMobileMenu`): `aria-expanded` am Burger, Fokus beim Öffnen auf den ersten Link,
+- **Mobiles Menü** (`popupMobileMenu`): `aria-expanded` am Burger, Fokus beim Öffnen auf den ersten Link
+  (das ist das Logo im Menükopf, danach Start usw.),
   Escape und Schließen-Button geben ihn an den Burger zurück, Tab/Shift+Tab kreisen im offenen Menü.
   Geschlossen ist das Menü `visibility: hidden` und damit nicht per Tab erreichbar (kein `inert` nötig).
-  Der Fokus wird mit Wiederholung gesetzt: Die Elemente im Menü haben `transition: all`, dabei läuft auch
-  das geerbte `visibility` über 0,5 s und der Link ist im ersten Takt noch nicht fokussierbar.
+  Falle: Die Elemente im Menü haben `transition: all`, dabei lief auch das geerbte `visibility` über die Zeit
+  und der Link war im ersten Takt noch nicht fokussierbar. `_modern-refresh.scss` nimmt `visibility` aus der
+  Transition der Menü-Kinder (Einfahren und Einblenden unverändert); der Fokus wird dann direkt gesetzt, mit
+  einer `requestAnimationFrame`-Schleife als Rückfall (ohne feste Grenze, aber nur solange das Menü offen ist und
+  der Fokus noch nicht darin liegt).
+- **Mausbewegungs-Effekte** (`animationOnHover` für `.tmponhover`, `tiltAnimation`) starten bei
+  `prefers-reduced-motion: reduce` nicht.
+- **Zeilenenden:** `src/legacy/js/*.js` liegt wie geliefert mit CRLF im Repo (auch `main.js`). `.gitattributes`
+  setzt `src/legacy/** -text`, damit Git dort nichts umwandelt; ein Editor, der auf LF speichert, macht aus
+  einer kleinen Änderung einen Diff über die ganze Datei. `bundles.ts` baut mit CRLF unverändert.
 - `menuCurrentLink` ist entfernt (traf nie); die aktuelle Seite markiert der Server mit `aria-current`.
+
+### 13a. Fokusrahmen unsichtbar bei Links um Block-Inhalt
+
+**Symptom:** Ein Link wird per Tab fokussiert, aber es erscheint kein Rahmen (betraf Logo und Kontaktkarten).
+
+**Ursache:** Ein inline-`<a>` mit Block-Kindern (`<a><p>…</p></a>`, `<a><div>…</div></a>`): Chrome zeichnet die
+Outline des `<a>` nicht, obwohl `:focus-visible` zutrifft.
+
+**Lösung** (in `_modern-refresh.scss`, ohne Layoutänderung): am `<a>` `outline: none`, den Rahmen auf das Kind
+legen: `.logo a:focus-visible > p`, `.service-card-link:focus-visible > .service-card-v1`. Im gebauten HTML gibt es
+nur diese beiden Muster (geprüft mit einem Cheerio-Lauf über `dist/`). Wer einen neuen Link um Block-Inhalt legt,
+ergänzt die Regel für sein Kind.

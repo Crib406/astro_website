@@ -103,11 +103,11 @@ darauf. Paket A (Markup, Inhalt, Gestaltung):
 |---|---|---|
 | 1 | Sichtbarer Tastaturfokus (`:focus-visible`, 2 px Akzentgrün) und Skip-Link „Zum Inhalt springen“ (Ziel `<main id="inhalt">`) | das Template setzte überall `outline: none`; Tastaturbedienung war nicht nachvollziehbar |
 | 2, 3 | Menü flach: Start · Über mich · Mein Weg · (Blog) · Kontakt, ohne Dropdown und ohne `href="#"` | „Kontakt“ fehlte im Menü, das Untermenü war nur per Maus erreichbar und mobil zwei Tipps tief |
-| 4 | Links im Fließtext dauerhaft fein unterstrichen (Startseite: Schlusssatz; Mein Weg und Impressum: Links in Absätzen) | Akzentgrün gegen Fließtext hat nur 1,73:1 Kontrast (WCAG 1.4.1); nicht klickbare Hervorhebungen tragen dieselbe Farbe |
-| 6 | Schlusssatz der Startseite („Woran ich aktuell arbeite …“) ist ein `<p>` statt `<h2>` | keine Abschnittsüberschrift; Optik und Animation unverändert |
+| 4 | Links im Fließtext dauerhaft fein unterstrichen (Startseite: Schlusssatz, nur „LinkedIn.“, nicht die Hervorhebung „Menschen“; Mein Weg und Impressum: Links in Absätzen) | Akzentgrün gegen Fließtext hat nur 1,73:1 Kontrast (WCAG 1.4.1); nicht klickbare Hervorhebungen tragen dieselbe Farbe |
+| 6 | Schlusssatz der Startseite („Woran ich aktuell arbeite …“) ist ein `<p>` statt `<h2>` und wird nicht mehr in Buchstaben zerlegt (kein `inv-title-animation-wrap`, Einblendung bleibt) | keine Abschnittsüberschrift; zerlegt verlor der LinkedIn-Link die Unterstreichung und Screenreader lasen Bruchstücke; Schrift, Größe, Farbe und Abstände unverändert |
 | 8 | Kontakt: Adresse hello@creimann.cc sichtbar unter „Per Mail“ | die Adresse stand nur im `mailto:`-Link |
 | 9 | Tippfehler in `mein-weg.md` (umsetzenden, Angst vor Fehlern, Ambient Innovation GmbH) | Textkorrektur |
-| 10 | Mobil (unter 768 px): Hero-Foto auf 44 % der Bildschirmhöhe begrenzt (`object-fit: cover`, Kopf bleibt) | auf dem ersten Bildschirm war nur das Foto zu sehen, Name und Tagline lagen darunter |
+| 10 | Mobil (unter 768 px, nur Hochformat): Hero-Foto auf 44 % der Bildschirmhöhe begrenzt (`object-fit: cover`, Kopf bleibt) | auf dem ersten Bildschirm war nur das Foto zu sehen, Name und Tagline lagen darunter |
 | 11 | Aktuelle Seite im Menü markiert (`aria-current="page"`, serverseitig; Blogbeitrag → „Blog“ nur bei `blogPublic`) | das alte JS (`menuCurrentLink`) traf bei Adressen mit Schrägstrich nie |
 | 12 | Footer „Seiten“ statt „Quick Link“; Zitate auf Mein Weg in Lesetextgröße; Beitragskopf (Autor, Kategorie, Datum) ohne `h4` vor der ersten `h2`; Überschriften in `integritaet.md` einheitlich nummeriert (1., 1.1, 1.2, 2.) | Kleinigkeiten: eine dritte Fließtextgröße, Überschriften-Sprung, uneinheitliche Nummern |
 
@@ -119,7 +119,7 @@ Paket B (Template-JS, Einzelheiten in `docs/template-fallen.md`, Punkt 13):
 |---|---|---|
 | 5 | `plugins/smoothscroll.js` entfernt (natives Scrollen); bei `prefers-reduced-motion: reduce` laufen Buchstaben-, Banner- und Einblend-Animationen nicht, Inhalte stehen sofort da | SmoothScroll fing Mausrad und Pfeiltasten ab (600 ms Verzögerung); die JS-Animationen ignorierten die Systemeinstellung |
 | 6 | Zerlegter Text bleibt für Screenreader lesbar: Überschriften bekommen `aria-label`, sonst ein unsichtbarer Klartext; die Buchstaben-Teile sind `aria-hidden` | Screenreader lasen Hunderte einzelne Buchstaben |
-| 7 | Mobiles Menü: Burger mit `aria-controls`/`aria-expanded`, Fokus springt ins Menü, Tab bleibt darin, Escape schließt und gibt den Fokus zurück | per Tastatur landete man hinter dem offenen Menü |
+| 7 | Mobiles Menü: Burger mit `aria-controls`/`aria-expanded`, Fokus springt ins Menü (erster Link ist das Logo, dann Start usw.), Tab bleibt darin, Escape schließt und gibt den Fokus zurück | per Tastatur landete man hinter dem offenen Menü |
 | 11 | `menuCurrentLink` entfernt | traf nie; ersetzt durch serverseitiges `aria-current` (Paket A) |
 
 ## Nachweise
