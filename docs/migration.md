@@ -22,6 +22,7 @@ Astro-Bau abweicht, womit die Gleichheit belegt ist und was noch zu tun ist.
 | `layouts/alias.html` | `src/pages/visitenkarte/index.astro` |
 | `layouts/sitemap.xml`, `robots.txt`, RSS-Vorlage | `sitemap.xml.ts`, `robots.txt.ts`, `blog/index.xml.ts` |
 | `layouts/partials/preview-banner.html`, Vorschau-Logik | `PreviewBanner.astro`, `site.ts` (`isPreview`) |
+| `tools/` (Icon-Teilmenge, Favicons, Original-Schriften) | `tools/` (Pfade auf `public/`, `src/legacy/scss/vendor/` und `src/` angepasst; nicht gebaut) |
 
 Übernommen sind Markup (Klassen, Reihenfolge, Attribute), alle Texte, URLs, Titel, Descriptions, Canonical,
 Robots, Open Graph, Twitter-Karten, der JSON-LD-Graph (WebSite, Person, Seitenknoten, BreadcrumbList),
@@ -43,6 +44,7 @@ Der Entwurf `loyalitaet.md` wurde als Entwurf (`draft: true`) übernommen.
 | Entwurf `test-post.md` | Demo aller Frontmatter-Felder | nicht übernommen | reine Entwicklungsvorlage; stattdessen die Vorlage in `docs/inhalte-pflegen.md` |
 | Shortcodes `checklist_normal_green`, `checklist_normal_green_check` | Hugo-Shortcodes | einmalig durch das fertige HTML im Beitrag `integritaet.md` ersetzt | Ausgabe entspricht der Referenz; Vorlagen für neue Listen in `docs/inhalte-pflegen.md` |
 | Frontmatter | `layout`, `type`, `url`, `cascade`, `categories`, `seo_description`, `canonicalURL` | entfernt, Schemas strikt (`z.strictObject`) | die URL steckt im Dateipfad; Tippfehler im Frontmatter brechen den Bau statt still Meta-Tags zu verlieren |
+| `author`, `category` im Blog | optional (leer ergab „Von “ und eine leere Überschrift) | Pflicht, nicht leer | ein fehlendes Feld bricht den Bau mit deutscher Meldung statt eine halbleere Seite zu erzeugen |
 | Blog-Sichtbarkeit | `sitemap_exclude` und `cascade` im Blog | ein Schalter `blogPublic` in `site.ts` (steuert Sitemap, Menü, Footer, RSS-Verweis) | eine dokumentierte Entscheidung statt zwei verstreuter Stellen. Verhalten bei `false` wie in Hugo |
 | `<meta name="generator">` | Hugo-Version | entfällt | |
 | `layout_lastmod` (CI-Schritt) | schrieb `data/layout_lastmod.json` | entfällt | `lastmod` kommt aus dem Frontmatter; `fetch-depth: 0` ist nicht mehr nötig |
@@ -98,7 +100,9 @@ Liste nicht verwildert.
    Feed und statische Dateien. Normalisiert werden Leerraum, Attributreihenfolge, Hashes der Bündel-URLs,
    Kommentare, die Hugo-`generator`-Meta und JSON-LD (geparst, Schlüssel sortiert). Stand nach der Härtungsphase,
    vor der SEO-Phase: 40 Dateien geprüft, 40 OK, 19 Abweichungen laut Ausnahmenliste akzeptiert (nur die
-   `lastmod`-/`dateModified`-Werte und die entfallenen Bereichs-Feeds).
+   `lastmod`-/`dateModified`-Werte und die entfallenen Bereichs-Feeds). Stand nach der letzten Fixrunde: 40 Dateien
+   geprüft, 40 OK, 123 Abweichungen akzeptiert (S1 bis S10, `lastmod`, Bereichs-Feeds, entfernte Quellkarte), keine
+   Einträge der Ausnahmenliste ohne Treffer (das Skript prüft das und meldet sonst Fehlercode 1).
 2. **`npm test` und `npm run check`** (`npm run verify`): Struktur, Meta-Tags, JSON-LD, Links, Sitemap, Feed,
    Weiterleitung, außerdem ein kompletter Vorschau-Bau (`BASE_PATH=/preview/x/`) gegen dieselbe Suite.
 3. **Layout-Messung in einem echten Browser**, Desktop- und Handybreite, Referenz und Astro nebeneinander: nach
@@ -106,7 +110,9 @@ Liste nicht verwildert.
    Seitenhöhe, Seitenbreite und die Oberkanten aller `h1`/`h2`/`h3`/`img`/`p` im `<main>` ausgelesen und
    verglichen. Aussagekräftig ist die Seitenhöhe, nicht ein Pixelvergleich: die Buchstaben-Animation ist selbst
    nicht pixelgenau reproduzierbar (`docs/template-fallen.md`, Punkt 12). Das Messskript ist ein Wegwerfskript und
-   nicht im Repo.
+   nicht im Repo. **Ergebnis: Layout-Messung im Browser, Stand nach SEO-Phase: alle 8 Seiten bei 1440 px und 375 px
+   identisch zu Hugo (Position und Größe jedes Elements, Seitenhöhe), 404 bei 1440 px identisch; keine horizontale
+   Scrollleiste mobil.**
 4. Ein Byte-Vergleich der Bündel mit Hugo ist nicht möglich (anderer Minifier); die Bündel wurden stattdessen per
    Aufbau (gleiche Quellen, gleiche Reihenfolge) und per Layout-Messung geprüft.
 
@@ -136,19 +142,21 @@ noch Entwurf bleibt. Was dann passiert: `docs/inhalte-pflegen.md`, „Blog öffe
 „Seitentitel – Christoph B. Reimann“. Ein Ortsbezug (z. B. „Über mich – Christoph B. Reimann, Bad Harzburg“) hilft
 bei Namens- und Ortssuche. Eintrag: Feld `seo_title` im Frontmatter der jeweiligen Seite.
 
-**O5. Deploy: `keep_files`-Falle.** Siehe nächster Abschnitt: Beim ersten Astro-Deploy bleiben alte Hugo-Dateien
-im Root von `gh-pages` liegen und werden weiter ausgeliefert. Einmalig aufräumen.
+**O5. Deploy: `keep_files`-Falle.** Siehe nächster Abschnitt: `keep_files: true` löscht im Root von `gh-pages`
+nie etwas, bei **jedem** Deploy von `main`. Alte Hugo-Dateien, alte Bündel und entfernte Seiten blieben online.
+Der Workflow muss den Root (außer `preview/`) vor dem Kopieren leeren.
+
+**O6. Beitragsbild in mindestens 1200 px Breite.** Das `BlogPosting` im JSON-LD nennt das Titelbild des Beitrags
+(`image`, derzeit 1000 × 600 px). Google empfiehlt bei `max-image-preview:large` (S10) Bilder von mindestens
+1200 px Breite. Für jeden Beitrag ein Titelbild in dieser Größe ablegen und unter `image` eintragen. Das
+Seitenverhältnis 5:3 sollte bleiben (die Seite setzt `width="1000" height="600"`), also z. B. 1500 × 900 px. Danach
+`lastmod` des Beitrags anheben.
 
 Weitere Beobachtungen, ohne Dringlichkeit:
 
 - Die Footer-Überschrift „Quick Link“ ist englisch (sichtbar, also nur auf Wunsch ändern).
 - `/visitenkarte/` hat `noindex` und zugleich ein Canonical: widersprüchliches Signal, ohne praktische Folge, für
   die Migration unverändert gelassen.
-- Die Werkzeuge `tools/build-fontawesome-subset.py`, `check-icons.py`, `build-favicons.py` samt
-  `tools/fontawesome-src/` liegen nur im alten Hugo-Repo. Sinnvoll: einmalig ins Astro-Repo holen und die Pfade
-  (`public/`, `src/legacy/scss/vendor/`, `src/`) dauerhaft anpassen (`CLAUDE.md`, „Font Awesome“).
-- Kommentare in `src/data/person.yaml` und `src/components/Favicons.astro` verweisen noch auf Hugo-Dateien
-  (`layouts/partials/jsonld.html`, `tools/build-favicons.py`).
 - Größter Hebel für die Ladezeit: das render-blockierende CSS (rund 700 KB roh). Ungenutztes CSS zu entfernen
   braucht einen Screenshot-Regressionstest, weil das JS Klassen setzt.
 
@@ -199,14 +207,37 @@ jobs:
       - run: npm ci
       - run: npm run verify         # build + check + test (mit SITE und BASE_PATH, auch für Vorschauen)
 
+      # Vorschau: nur den eigenen Unterordner ersetzen. Mit keep_files: false räumt die Action
+      # laut ihrer Dokumentation nur destination_dir; beim ersten Deploy kontrollieren.
       - uses: peaceiris/actions-gh-pages@v4
+        if: github.ref_name != 'main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: ./dist
           destination_dir: ${{ env.DEST_DIR }}
-          keep_files: true
+          keep_files: false
+
+      # main: den Root von gh-pages ersetzen, preview/ bleibt. keep_files: true würde nie etwas löschen
+      # (siehe „Einmalige Handgriffe und Fallen“), darum wird der Root vor dem Kopieren geleert.
+      - name: Root von gh-pages aktualisieren (preview/ bleibt)
+        if: github.ref_name == 'main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git clone --depth 1 --branch gh-pages \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" site
+          rsync -a --delete --exclude '/preview/' --exclude '/.git/' ./dist/ ./site/
+          touch site/.nojekyll
+          cd site
+          git add -A
+          git diff --cached --quiet && { echo "Keine Änderung"; exit 0; }
+          git -c user.name=github-actions -c user.email=github-actions@users.noreply.github.com \
+            commit -m "Deploy ${GITHUB_SHA}"
+          git push origin gh-pages
 ```
+
+Der Branch `gh-pages` muss dafür schon existieren (er tut es, solange die Hugo-Seite dort liegt).
 
 Hinweise:
 
@@ -224,19 +255,28 @@ Hinweise:
 
 ### Einmalige Handgriffe und Fallen
 
-- **`keep_files: true` löscht im Root nie etwas.** Nach der Umstellung bleiben die alten Hugo-Dateien auf
-  `gh-pages` liegen und werden weiter ausgeliefert: `about/index.xml`, `kontakt/index.xml`, `mein-weg/index.xml`,
-  `impressum/index.xml` und die alten Bündel `assets/css/bundle.min.<alter-hash>.css` und
-  `assets/js/bundle.min.<alter-hash>.js`. Beim ersten Astro-Deploy den Root gezielt aufräumen (alles außer
-  `preview/`): auf `gh-pages` auschecken, die genannten Dateien mit `git rm` entfernen, committen, pushen;
-  alternativ Root und `preview/` auf getrennte Ziele deployen. Ein Deploy mit `keep_files: false` ohne
-  `destination_dir` würde auch `preview/` löschen.
-- **`.nojekyll`:** `peaceiris/actions-gh-pages` legt die Datei standardmäßig an (`enable_jekyll: false`). Ohne sie
-  würde Jekyll Ordner mit führendem Unterstrich ignorieren. (Astro legt hier zwar keinen `_astro/`-Ordner an, weil
+- **`keep_files: true` löscht im Root nie etwas, und das gilt bei jedem Deploy von `main`, nicht nur beim
+  ersten.** Die Action kopiert `dist/` über den vorhandenen Stand. Was in `dist/` nicht mehr entsteht, bleibt auf
+  `gh-pages` liegen und wird weiter ausgeliefert. Folgen:
+  - Beim ersten Astro-Deploy: die alten Hugo-Dateien `about/index.xml`, `kontakt/index.xml`, `mein-weg/index.xml`,
+    `impressum/index.xml` und die alten Bündel.
+  - Danach bei jeder Änderung an CSS oder JS: der neue Fingerabdruck im Dateinamen lässt die alten
+    `assets/css/bundle.min.<alter-hash>.css` und `assets/js/bundle.min.<alter-hash>.js` zurück.
+  - Entfernte oder umbenannte Seiten und Beiträge (auch ein geänderter `slug`) bleiben unter der alten Adresse
+    erreichbar, bis jemand sie von Hand löscht.
+
+  Abhilfe steht im Workflow oben: für `main` den Root von `gh-pages` vor dem Kopieren leeren, `preview/` ausnehmen
+  (`rsync -a --delete --exclude '/preview/' dist/ site/`), `.nojekyll` danach neu anlegen. Vorschauen laufen über die
+  Action mit `keep_files: false` und `destination_dir`; das räumt nur den eigenen Ordner. Vorsicht: `keep_files:
+  false` **ohne** `destination_dir` leert auch `preview/`. Ohne diese Änderung muss der Root nach jedem Deploy
+  von Hand aufgeräumt werden (auf `gh-pages` auschecken, Reste mit `git rm` entfernen, pushen).
+- **`.nojekyll`:** `peaceiris/actions-gh-pages` legt die Datei bei den Vorschauen standardmäßig an
+  (`enable_jekyll: false`); beim Deploy von `main` legt sie der `touch`-Schritt an (`rsync --delete` würde sie
+  sonst entfernen). Ohne sie würde Jekyll Ordner mit führendem Unterstrich ignorieren. (Astro legt hier zwar keinen `_astro/`-Ordner an, weil
   alle Assets unter `assets/` liegen, die Datei bleibt trotzdem sinnvoll.)
 - **`CNAME`** liegt in `public/` und wird mitgebaut (`dist/CNAME`: `creimann.cc`). Er muss in `dist/` stehen, weil
-  `publish_dir` den Inhalt ersetzt; ein Test prüft das.
-- **Kein `actions/deploy-pages`:** Für `keep_files`-Vorschauen bleibt `peaceiris` passender.
+  der Deploy den Root ersetzt (sonst würde `rsync --delete` ihn entfernen); ein Test prüft das.
+- **Kein `actions/deploy-pages`:** Es ersetzt immer die ganze Seite; mit den Vorschauen unter `preview/` bleibt der Branch `gh-pages` das passendere Ziel.
 - **Cache:** GitHub Pages sendet `Cache-Control: max-age=600`. Der Fingerabdruck der Bündel verhindert veraltete
   Dateien; HTML ist bis zu zehn Minuten alt.
 - **Trailing Slash:** `/about` leitet GitHub Pages selbst auf `/about/` um (301). Das lässt sich nicht in Astro
@@ -250,6 +290,6 @@ Hinweise:
 3. Den **Rich-Results-Test** (<https://search.google.com/test/rich-results>) und den Schema-Validator
    (<https://validator.schema.org/>) auf Startseite, `/about/` (ProfilePage) und, sobald öffentlich, einem Beitrag
    laufen lassen.
-4. Prüfen, dass `https://creimann.cc/about/index.xml` 404 liefert (Aufräumen erfolgreich) und `/preview/` weiter
+4. Prüfen, dass `https://creimann.cc/about/index.xml` 404 liefert (Root wurde geleert) und `/preview/` weiter
    funktioniert.
-5. O1 bis O4 abarbeiten.
+5. O1 bis O4 und O6 abarbeiten.

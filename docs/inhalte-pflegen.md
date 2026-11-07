@@ -65,7 +65,7 @@ Text des Beitrags in Markdown …
 | `author`, `category` | **Pflicht** (nicht leer). `author` steht als „Von …“ im Beitragskopf und als Name in der Seitenleiste, `category` als Überschrift im Beitragskopf und in der Übersicht. Ein leeres Feld würde „Von “ bzw. eine leere Überschrift ergeben, darum bricht der Bau ab. |
 | `summary` | **Pflicht.** Ein Ersatz aus dem Text entfällt. In der Übersicht wird er nach 150 Zeichen gekürzt (` …`). Einfaches Markdown (`**fett**`, `*kursiv*`) geht, Links werden zu Text. |
 | `description` | Meta-Beschreibung für Suchmaschinen und Link-Vorschauen. Ohne Angabe gilt die allgemeine Beschreibung der Seite. |
-| `slug` | Adresse des Beitrags. Nachträglich ändern heißt: alte Adresse bricht. |
+| `slug` | Adresse des Beitrags. Nachträglich ändern heißt: die alte Adresse ist weg, eine Weiterleitung gibt es nicht (siehe „Beitrag oder Seite entfernen“). |
 | `image` | Titelbild: erscheint in der Übersicht, oben im Beitrag und im JSON-LD. Die Vorschau in WhatsApp/LinkedIn nutzt immer das allgemeine Bild der Seite (`og-card.jpg`). |
 | `jsonld` | Ergänzt die strukturierten Daten für Google. Das `BlogPosting` mit Titel, Datum, Autor und Beschreibung entsteht automatisch. Hier nur Abweichendes, z. B. `keywords`. Ein abweichendes `headline` sollte dem sichtbaren Titel (h1) entsprechen. |
 | `lastmod` | Pflicht, siehe „`lastmod` pflegen“. |
@@ -232,6 +232,17 @@ Beispiel: Seite „Angebot“ unter `/angebot/`.
    `relUrl(pagePath('angebot'))`.
 5. **Prüfen:** `npm run verify`. Sitemap und Tests erfassen die Seite automatisch (aus dem Content-Ordner und
    `routes.ts`); sie steht in der Sitemap, solange `sitemap_exclude` nicht gesetzt ist.
+
+## Beitrag oder Seite entfernen oder umbenennen
+
+Datei löschen, `draft: true` setzen, Dateinamen oder `slug` ändern: Die Seite unter der alten Adresse soll danach
+verschwinden (404). Das tut sie nur, wenn der Deploy den Root von `gh-pages` vor dem Kopieren leert. Mit
+`keep_files: true` (Einstellung des alten Hugo-Workflows) löscht der Deploy **nie** etwas, bei jedem Lauf von `main`:
+die alte Seite bliebe unter ihrer Adresse online, ebenso gelöschte Bilder und alte CSS-/JS-Bündel. Der geplante
+Workflow in `docs/migration.md` (Abschnitt „CI/CD und Deployment“) leert den Root deshalb mit
+`rsync --delete --exclude '/preview/'`; solange er nicht eingerichtet ist, muss man Reste von Hand von `gh-pages`
+entfernen. Nach dem Deploy die alte Adresse im Browser aufrufen und prüfen. Eine Weiterleitung auf die neue Adresse
+gibt es nicht (kein Astro-`redirects`); bekannte Adressen deshalb nur mit Bedacht ändern.
 
 ## Vor der Veröffentlichung prüfen
 
