@@ -1,6 +1,6 @@
 ---
 title: "Kontakt"
-lastmod: "2025-11-16T19:38:17Z"
+lastmod: "2026-11-07T14:30:00+01:00"
 description: "Kontakt zu Christoph B. Reimann aus Bad Harzburg – per E-Mail oder über LinkedIn."
 jsonld:
   "@type": "ContactPage"
@@ -30,6 +30,7 @@ jsonld:
               <i class="fa-solid fa-envelope"></i>
             </div>
             <h3 class="service-title">Per Mail</h3>
+            <p class="service-para">hello@creimann.cc</p>
           </div>
         </a>
       </div>
