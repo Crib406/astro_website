@@ -23,6 +23,13 @@
 
 
 
+// UX-Paket: Wer reduzierte Bewegung wuenscht, bekommt keine Text-/Einblend-
+// Animationen. Die Inhalte bleiben dann unangetastet und sofort sichtbar
+// (SplitText zerlegt nicht, gsap setzt kein opacity:0). Die CSS-Einblendungen
+// (.tmp-scroll-trigger) sind ohnehin nur unter no-preference aktiv.
+var prefersReducedMotion =
+  !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
 (function ($) {
   "use strict";
 
@@ -461,7 +468,7 @@
       $(".onepagenav").onePageNav({
         currentClass: "current",
         changeHash: false,
-        scrollSpeed: 500,
+        scrollSpeed: prefersReducedMotion ? 0 : 500, // UX-Paket
         scrollThreshold: 0.2,
         filter: ":not(.external)",
         easing: "swing",
@@ -482,6 +489,7 @@
     },
 
     fonklsAnimation: function () {
+      if (prefersReducedMotion) return; // UX-Paket: keine Bewegung
       let endTl = gsap.timeline({
         repeat: -1,
         delay: 0.2,
@@ -566,6 +574,7 @@
     },
 
     preloaderWithBannerActivation: function () {
+      if (prefersReducedMotion) return; // UX-Paket: Hero-Kicker bleibt unzerlegt und sichtbar
       document.addEventListener("DOMContentLoaded", function () {
         // Select all title and subtitle elements
         const heroTitles = document.querySelectorAll(".tmp-title-split");
@@ -807,7 +816,8 @@
         });
       };
 
-      if ($('.inv-title-animation-wrap').length) {
+      // UX-Paket: bei reduzierter Bewegung nicht zerlegen, der Text steht normal da
+      if (!prefersReducedMotion && $('.inv-title-animation-wrap').length) {
         const animatedTextElements = document.querySelectorAll('.inv-title-animation-wrap');
         if (document.fonts && document.fonts.ready) {
           document.fonts.ready.then(function () {
@@ -862,7 +872,7 @@ document.addEventListener('DOMContentLoaded', function() {
     box.addEventListener('click', function() {
       window.scrollTo({
         top: 0,
-        behavior: 'smooth'
+        behavior: prefersReducedMotion ? 'auto' : 'smooth' // UX-Paket
       });
     });
   }
