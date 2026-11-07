@@ -4,7 +4,7 @@
  *
  * Umgebung:
  *   DIST_DIR   Ausgabeverzeichnis (Standard: ./dist)
- *   SITE       Ursprung der Seite (Standard: https://creimann.cc)
+ *   SITE       Ursprung der Seite (Standard: defaultOrigin aus src/lib/origin.mjs)
  *   BASE_PATH  Basispfad des Baus (Standard: /), z. B. /preview/<branch>/
  */
 import fs from 'node:fs';
@@ -12,11 +12,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { load } from 'cheerio';
 import YAML from 'yaml';
+import { defaultOrigin } from '../src/lib/origin.mjs';
+import { tryParseLiteralDate } from '../src/lib/dates.ts';
 import { pagePath, specialPaths } from '../src/lib/routes.ts';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const distDir = path.resolve(process.env.DIST_DIR ?? path.join(root, 'dist'));
-export const origin = (process.env.SITE ?? 'https://creimann.cc').replace(/\/+$/, '');
+export const origin = (process.env.SITE ?? defaultOrigin).replace(/\/+$/, '');
 const baseTrim = (process.env.BASE_PATH ?? '/').replace(/^\/+|\/+$/g, '');
 export const base = baseTrim ? `/${baseTrim}/` : '/';
 export const homeAbs = origin + base;
@@ -57,8 +59,11 @@ export const posts = readCollection('blog').map((p) => ({
   path: `${pagePath('blog')}${p.data.slug ?? p.id}/`,
 }));
 
-/** Beitrag ist gebaut: kein Entwurf und Datum nicht in der Zukunft (Hugo: buildFuture=false). */
-export const isPublished = (p) => p.data.draft !== true && new Date(p.data.date) <= new Date();
+/**
+ * Beitrag ist gebaut: kein Entwurf und Datum nicht in der Zukunft (Hugo: buildFuture=false).
+ * Das Datum wird wie im Bau gelesen (src/lib/dates.ts): ein Datum ohne Versatz gilt als UTC.
+ */
+export const isPublished = (p) => p.data.draft !== true && tryParseLiteralDate(String(p.data.date))?.instant <= new Date();
 export const publishedPosts = posts.filter(isPublished);
 export const unpublishedPosts = posts.filter((p) => !isPublished(p));
 
