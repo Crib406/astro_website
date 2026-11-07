@@ -30,6 +30,36 @@
 var prefersReducedMotion =
   !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
+// UX-Paket: SplitText zerlegt Text in hunderte Einzelbuchstaben-<div>s; Screen-
+// reader lesen das bruchstueckhaft. Darum vor dem Zerlegen den Klartext sichern
+// (plainText) und danach (splitA11y) den Klartext anbieten, die Teile verbergen.
+// Ueberschriften bekommen ein aria-label; auf einem span/p waere es wirkungslos
+// (generische Rolle), dort steht stattdessen ein unsichtbarer Klartext-span.
+// Enthaelt das Element Links/Buttons, bleibt alles wie es ist: aria-hidden darf
+// nichts Bedienbares verstecken.
+function plainText(el) {
+  return (el.textContent || "").replace(/\s+/g, " ").trim();
+}
+
+function splitA11y(el, split, text) {
+  if (!el || !split || !text || el.querySelector("a, button, input, select, textarea")) return;
+  [split.chars, split.words, split.lines].forEach(function (parts) {
+    (parts || []).forEach(function (part) {
+      part.setAttribute("aria-hidden", "true");
+    });
+  });
+  if (/^H[1-6]$/.test(el.tagName)) {
+    el.setAttribute("aria-label", text);
+  } else {
+    var sr = document.createElement("span");
+    sr.className = "split-sr-text";
+    sr.style.cssText =
+      "position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0";
+    sr.textContent = text;
+    el.insertBefore(sr, el.firstChild);
+  }
+}
+
 (function ($) {
   "use strict";
 
@@ -511,9 +541,12 @@ var prefersReducedMotion =
           once: true,
         },
       });
+      let endText = document.querySelector(".end");
+      let endPlain = endText ? plainText(endText) : "";
       let mySplitText = new SplitText(".end", {
         type: "words,chars",
       });
+      splitA11y(endText, mySplitText, endPlain); // UX-Paket
       let chars = mySplitText.chars;
       endTl.to(chars, {
         duration: 0.5,
@@ -585,10 +618,14 @@ var prefersReducedMotion =
           const subtitle = heroSubtitles[index]; // Match title with subtitle (if in pairs)
       
           // Split the text for both title and subtitle
+          const titlePlain = plainText(title); // UX-Paket
           const splitTitle = new SplitText(title, { type: "chars" });
+          splitA11y(title, splitTitle, titlePlain); // UX-Paket
+          const subtitlePlain = subtitle ? plainText(subtitle) : ""; // UX-Paket
           const splitSubtitle = subtitle
             ? new SplitText(subtitle, { type: "chars words" })
             : null;
+          splitA11y(subtitle, splitSubtitle, subtitlePlain); // UX-Paket
       
           // Create a timeline for each title and subtitle
           gsap.timeline({
@@ -628,10 +665,14 @@ var prefersReducedMotion =
           const subtitle = heroSubtitles[index]; // Match title with subtitle (if in pairs)
       
           // Split the text for both title and subtitle
+          const titlePlain = plainText(title); // UX-Paket
           const splitTitle = new SplitText(title, { type: "chars" });
+          splitA11y(title, splitTitle, titlePlain); // UX-Paket
+          const subtitlePlain = subtitle ? plainText(subtitle) : ""; // UX-Paket
           const splitSubtitle = subtitle
             ? new SplitText(subtitle, { type: "chars words" })
             : null;
+          splitA11y(subtitle, splitSubtitle, subtitlePlain); // UX-Paket
       
           // Create a timeline for each title and subtitle
           gsap.timeline({
@@ -791,10 +832,12 @@ var prefersReducedMotion =
             element.split.revert();
           }
 
+          const plain = plainText(element); // UX-Paket
           element.split = new SplitText(element, {
             type: "lines,words,chars",
             linesClass: "split-line",
           });
+          splitA11y(element, element.split, plain); // UX-Paket
           gsap.set(element, { perspective: 400 });
 
           gsap.set(element.split.chars, {
