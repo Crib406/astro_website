@@ -1,0 +1,33 @@
+---
+/*
+  Weiterleitungsseite /visitenkarte/ -> Startseite (Hugo: layouts/alias.html).
+
+  Eigenständiges HTML-Dokument ohne BaseLayout. Wichtig ist das Favicon: ohne
+  <link rel="icon"> fragt der Browser von sich aus /favicon.ico an – eine
+  verschenkte Anfrage auf genau der Adresse, die auf der Visitenkarte steht.
+
+  Die Weiterleitung läuft über meta refresh UND location.replace. replace()
+  ersetzt den Eintrag im Verlauf, sodass der Zurück-Knopf nicht in der
+  Weiterleitungsschleife hängen bleibt.
+*/
+import Favicons from '../../components/Favicons.astro';
+import { homeUrl } from '../../lib/site';
+
+const target = homeUrl();
+const redirectScript = `window.location.replace(${JSON.stringify(target)});`;
+---
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Weiterleitung …</title>
+  <Favicons />
+  <link rel="canonical" href={target}>
+  <meta name="robots" content="noindex, nofollow">
+  <meta http-equiv="refresh" content={`0; url=${target}`}>
+  <script is:inline set:html={redirectScript}></script>
+</head>
+<body>
+  <p>Weiterleitung zu <a href={target}>{target}</a> …</p>
+</body>
+</html>
