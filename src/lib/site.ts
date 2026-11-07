@@ -48,6 +48,15 @@ export const previewBranch = isPreview
   ? homePath.slice('/preview/'.length).replace(/\/+$/, '')
   : '';
 
+/**
+ * Blog öffentlich? Ein Schalter für alles, was den Blog sichtbar macht:
+ * Aufnahme von Blog-Übersicht und Beiträgen in die Sitemap, Blog-Link in Menü
+ * und Footer und der RSS-Verweis im <head>. Bei `false` (Stand wie in Hugo)
+ * sind die Seiten gebaut und erreichbar (Robots: index,follow), aber weder
+ * verlinkt noch in der Sitemap.
+ */
+export const blogPublic = false;
+
 const stripLead = (path: string) => path.replace(/^\/+/, '');
 
 /**

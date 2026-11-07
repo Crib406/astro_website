@@ -7,16 +7,25 @@ import { parseLiteralDate, type LiteralDate } from './dates';
 
 export type BlogEntry = CollectionEntry<'blog'>;
 
-/** URL-Segment eines Beitrags (Hugo: Frontmatter `slug`). */
-export const slugOf = (entry: BlogEntry): string => entry.data.slug ?? entry.id;
-
 /** Veröffentlichungsdatum eines Beitrags, wörtlich mit dem Versatz aus dem Frontmatter. */
 export const postDate = (entry: BlogEntry): LiteralDate => parseLiteralDate(entry.data.date);
 
-/** Veröffentlichte Beiträge (ohne Entwürfe), Datum absteigend wie in Hugo. */
-export async function getPosts(): Promise<BlogEntry[]> {
+/**
+ * Veröffentlichte Beiträge: ohne Entwürfe und ohne Beiträge mit Datum in der
+ * Zukunft (Hugo: buildFuture=false). Sortierung wie Hugos Standard für Seiten
+ * ohne Gewicht: Datum absteigend, bei gleichem Datum nach Titel aufsteigend
+ * (ohne Beachtung der Groß-/Kleinschreibung). Die Blog-Übersicht, die
+ * Beitragsrouten, der RSS-Feed und die Sitemap nutzen alle diese Liste.
+ */
+export async function getPublishedPosts(now: Date = new Date()): Promise<BlogEntry[]> {
   const all = await getCollection('blog', ({ data }) => data.draft !== true);
-  return all.sort((a, b) => postDate(b).instant.getTime() - postDate(a).instant.getTime());
+  return all
+    .filter((post) => postDate(post).instant <= now)
+    .sort(
+      (a, b) =>
+        postDate(b).instant.getTime() - postDate(a).instant.getTime() ||
+        a.data.title.localeCompare(b.data.title, 'de', { sensitivity: 'base' }),
+    );
 }
 
 /** Kleiner Ersatz für Hugos Inline-Markdown (Goldmark mit Typographer) der Summary. */

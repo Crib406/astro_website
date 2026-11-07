@@ -1,20 +1,13 @@
 ---
 /* Startseite (Hugo: layouts/index.html). */
-import { getEntry } from 'astro:content';
+import { getPage, pageProps } from '../lib/pages';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { relUrl } from '../lib/site';
+import { pagePath } from '../lib/routes';
 
-const entry = (await getEntry('pages', 'home'))!;
-const { data } = entry;
+const entry = await getPage('home');
 ---
-<BaseLayout
-  title={data.title}
-  description={data.description}
-  seoTitle={data.seo_title}
-  jsonld={data.jsonld}
-  lastmod={data.lastmod}
-  kind="home"
->
+<BaseLayout {...pageProps(entry)}>
 
     <!-- tmp banner area start -->
     <div class="rpp-banner-two-area">
@@ -174,7 +167,7 @@ const { data } = entry;
                  die Split-Text-Animation zerlegt sonst den Buttontext in
                  Buchstaben mit opacity:0. */}
             <div class="home-cta tmp-scroll-trigger tmp-fade-in animation-order-1">
-                <a class="tmp-btn hover-icon-reverse" href={relUrl('about/')}>
+                <a class="tmp-btn hover-icon-reverse" href={relUrl(pagePath('about'))}>
                     <span class="icon-reverse-wrapper">
                         <span class="btn-text">Mehr über mich erfahren</span>
                         <span class="btn-icon"><i class="fa-sharp fa-regular fa-arrow-right"></i></span>

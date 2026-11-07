@@ -1,20 +1,13 @@
 ---
 /* Port von hugo/layouts/mein-weg/list.html: Breadcrumb + Rohinhalt (kein Markdown-Rendering) */
-import { getEntry } from 'astro:content';
+import { getPage, pageProps } from '../../lib/pages';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 
-const entry = (await getEntry('pages', 'mein-weg'))!;
+const entry = await getPage('mein-weg');
 const { data } = entry;
 ---
-<BaseLayout
-  title={data.title}
-  description={data.description}
-  seoTitle={data.seo_title}
-  jsonld={data.jsonld}
-  lastmod={data.lastmod}
-  kind="page"
->
+<BaseLayout {...pageProps(entry)}>
 
   <Breadcrumb pageTitle={data.title} />
 

@@ -7,12 +7,14 @@ import { render } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../../components/Breadcrumb.astro';
 import { relUrl } from '../../../lib/site';
-import { getPosts, postDate, slugOf } from '../../../lib/blog';
+import { getPublishedPosts, postDate } from '../../../lib/blog';
+import { postProps } from '../../../lib/pages';
+import { postSlug } from '../../../lib/routes';
 import { formatPostDate } from '../../../lib/dates';
 
 export async function getStaticPaths() {
-  const posts = await getPosts();
-  return posts.map((entry) => ({ params: { slug: slugOf(entry) }, props: { entry } }));
+  const posts = await getPublishedPosts();
+  return posts.map((entry) => ({ params: { slug: postSlug(entry) }, props: { entry } }));
 }
 
 const { entry } = Astro.props;
@@ -24,17 +26,7 @@ const bio =
   data.author_bio ||
   'Ich schreibe über Menschlichkeit, Werte und mutige Entscheidungen im Alltag mit dem Ziel, das Zugehörigkeitsgefühl zu steigern.';
 ---
-<BaseLayout
-  title={data.title}
-  description={data.description}
-  seoTitle={data.seo_title}
-  jsonld={data.jsonld}
-  date={data.date}
-  lastmod={data.lastmod}
-  image={data.image}
-  kind="page"
-  section="blog"
->
+<BaseLayout {...postProps(entry)}>
   <style is:inline>
     .blog-details-left-area {
       text-align: center;
@@ -288,7 +280,11 @@ const bio =
               </div>
               <div class="body">
                 <div class="tags-wrapper">
-                  {(data.tags ?? []).map((tag) => <span class="tag-link">{tag}</span>)}
+                  {(data.tags ?? []).map((tag) => (
+                    <Fragment>
+                      <span class="tag-link">{tag}</span>
+                    </Fragment>
+                  ))}
                 </div>
               </div>
             </div>

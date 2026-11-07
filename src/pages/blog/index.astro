@@ -3,33 +3,25 @@
   Blog-Übersicht (Hugo: layouts/blog/list.html). Seitendaten aus der
   Collection-Seite `blog`, Beiträge ohne Entwürfe, neueste zuerst.
 */
-import { getEntry } from 'astro:content';
+import { getPage, pageProps } from '../../lib/pages';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import { relUrl } from '../../lib/site';
-import { getPosts, listSummary, postDate, slugOf } from '../../lib/blog';
+import { postPath } from '../../lib/routes';
+import { getPublishedPosts, listSummary, postDate } from '../../lib/blog';
 import { formatListDate } from '../../lib/dates';
 
-const entry = (await getEntry('pages', 'blog'))!;
-const { data } = entry;
-const posts = await getPosts();
+const entry = await getPage('blog');
+const posts = await getPublishedPosts();
 ---
-<BaseLayout
-  title={data.title}
-  description={data.description}
-  seoTitle={data.seo_title}
-  jsonld={data.jsonld}
-  lastmod={data.lastmod}
-  kind="section"
-  section="blog"
->
-  <Breadcrumb pageTitle={data.title} crumbName="Blog" />
+<BaseLayout {...pageProps(entry)}>
+  <Breadcrumb pageTitle={entry.data.title} crumbName="Blog" />
 
   <div class="blog-classic-area-wrapper tmp-section-gap">
     <div class="container">
       <div class="row">
         {posts.map((post, i) => {
-          const href = relUrl(`blog/${slugOf(post)}/`);
+          const href = relUrl(postPath(post));
           const summary = listSummary(post);
           return (
             <div class="col-lg-4 col-md-6 col-sm-6">

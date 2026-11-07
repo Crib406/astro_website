@@ -3,12 +3,10 @@
   Grundlayout (Hugo: baseof.html): Kopf, Vorschau-Banner, Header, <main> (Slot),
   Footer und das JS-Bündel.
 
-  Seitendaten kommen als Props; die Seiten reichen sie aus dem Frontmatter
-  der Collection weiter, zum Beispiel:
+  Seitendaten kommen als Props; die Routen holen sie mit pageProps(entry)
+  bzw. postProps(entry) aus src/lib/pages.ts, zum Beispiel:
 
-    <BaseLayout title={data.title} description={data.description}
-                seoTitle={data.seo_title} jsonld={data.jsonld}
-                lastmod={data.lastmod} kind="home">
+    <BaseLayout {...pageProps(entry)}>
 */
 import Head from '../components/Head.astro';
 import PreviewBanner from '../components/PreviewBanner.astro';
@@ -16,29 +14,9 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { getJsBundle } from '../lib/bundles';
 import { lang, permalinkFromUrl } from '../lib/site';
-import type { Json } from '../lib/jsonld';
+import type { BaseLayoutProps } from '../lib/pages';
 
-interface Props {
-  /** Seitentitel (Frontmatter `title`) */
-  title: string;
-  description?: string;
-  /** Frontmatter `seo_title`: ersetzt den berechneten <title> */
-  seoTitle?: string;
-  /** Hugo-Kind der Seite (`home` = Startseite): home, section (z. B. Blog-Übersicht), page (Einzelseite/Beitrag), 404 */
-  kind?: 'home' | 'section' | 'page' | '404';
-  /** Hugo-Section, z. B. 'blog'. Mit kind 'page' ergibt das einen Blogbeitrag (BlogPosting, og:type article) */
-  section?: string;
-  /** Frontmatter `jsonld`: wird in den Seitenknoten des JSON-LD-Graphen gemischt */
-  jsonld?: Json;
-  /** Veröffentlichungsdatum (Blog) als ISO-Text, wörtlich aus dem Frontmatter */
-  date?: string;
-  /** Änderungsdatum (JSON-LD dateModified) */
-  lastmod?: Date | string;
-  /** Titelbild eines Beitrags (Pfad oder URL) */
-  image?: string;
-  /** absolute Seiten-URL; Standard: aus der Request-URL (für 404 `absUrl('404.html')` übergeben) */
-  permalink?: string;
-}
+type Props = BaseLayoutProps;
 
 const {
   title,

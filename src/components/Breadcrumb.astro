@@ -5,6 +5,7 @@
   erzeugt. Der letzte Eintrag ist immer die aktuelle Seite (ohne Link).
 */
 import { absUrl, homeUrl, permalinkFromUrl } from '../lib/site';
+import { pagePath } from '../lib/routes';
 import { toScriptJson } from '../lib/jsonld';
 
 interface Props {
@@ -21,7 +22,7 @@ const { pageTitle, crumbName = pageTitle, isBlogPost = false } = Astro.props;
 const permalink = Astro.props.permalink ?? permalinkFromUrl(Astro.url);
 
 const crumbs = [{ name: 'Start', url: homeUrl() }];
-if (isBlogPost) crumbs.push({ name: 'Blog', url: absUrl('blog/') });
+if (isBlogPost) crumbs.push({ name: 'Blog', url: absUrl(pagePath('blog')) });
 crumbs.push({ name: crumbName, url: permalink });
 
 const jsonld = {

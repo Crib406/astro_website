@@ -1,5 +1,6 @@
 ---
-import { relUrl } from '../lib/site';
+import { blogPublic, relUrl } from '../lib/site';
+import { pagePath } from '../lib/routes';
 import ScrollToTop from './ScrollToTop.astro';
 ---
 <!-- Start Footer Area -->
@@ -20,11 +21,11 @@ import ScrollToTop from './ScrollToTop.astro';
           <div class="quick-link-wrap">
             <h2 class="ft-title">Quick Link</h2>
             <ul class="ft-link tmp-scroll-trigger animation-order-1 tmp-link-animation">
-              <li><a href={relUrl('about/')}>Über mich</a></li>
-              <li><a href={relUrl('mein-weg/')}>Mein Weg</a></li>
-              <li><a href={relUrl('kontakt/')}>Kontakt</a></li>
-              {/* <li><a href={relUrl('blog/')}>Blog</a></li> */}
-              <li><a href={relUrl('impressum/')}>Impressum &amp; Datenschutz</a></li>
+              <li><a href={relUrl(pagePath('about'))}>Über mich</a></li>
+              <li><a href={relUrl(pagePath('mein-weg'))}>Mein Weg</a></li>
+              <li><a href={relUrl(pagePath('kontakt'))}>Kontakt</a></li>
+              {blogPublic && <li><a href={relUrl(pagePath('blog'))}>Blog</a></li>}
+              <li><a href={relUrl(pagePath('impressum'))}>Impressum &amp; Datenschutz</a></li>
             </ul>
           </div>
         </div>

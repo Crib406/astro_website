@@ -1,21 +1,14 @@
 ---
 /* Port von hugo/layouts/impressum/impressum.html: Breadcrumb + Rahmenmarkup,
    der Impressums-/Datenschutztext steht als Rohtext in content/pages/impressum.md */
-import { getEntry } from 'astro:content';
+import { getPage, pageProps } from '../../lib/pages';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 
-const entry = (await getEntry('pages', 'impressum'))!;
+const entry = await getPage('impressum');
 const { data } = entry;
 ---
-<BaseLayout
-  title={data.title}
-  description={data.description}
-  seoTitle={data.seo_title}
-  jsonld={data.jsonld}
-  lastmod={data.lastmod}
-  kind="page"
->
+<BaseLayout {...pageProps(entry)}>
 
   <Breadcrumb pageTitle={data.title} />
 

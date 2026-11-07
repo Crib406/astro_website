@@ -2,8 +2,9 @@
 /* 404-Seite (Hugo: layouts/404.html). Nur base-fähige, wurzelabsolute Links. */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { relUrl, absUrl } from '../lib/site';
+import { pagePath, specialPaths } from '../lib/routes';
 ---
-<BaseLayout title="404 Page not found" kind="404" permalink={absUrl('404.html')}>
+<BaseLayout title="404 Page not found" kind="404" permalink={absUrl(specialPaths.notFound)}>
 
 <div class="blog-classic-area-wrapper tmp-section-gap">
   <div class="container">
@@ -36,7 +37,7 @@ import { relUrl, absUrl } from '../lib/site';
                      die Split-Text-Animation zerlegt sonst auch den Buttontext in
                      einzelne Buchstaben mit opacity:0 und der Button bleibt leer. */}
                 <div class="about-btn mt--40 text-center tmp-scroll-trigger tmp-fade-in animation-order-1">
-                    <a class="tmp-btn hover-icon-reverse" href={relUrl('')}>
+                    <a class="tmp-btn hover-icon-reverse" href={relUrl(pagePath('home'))}>
                         <span class="icon-reverse-wrapper">
                             <span class="btn-text">Zur Startseite</span>
                             <span class="btn-icon"><i class="fa-sharp fa-regular fa-arrow-right"></i></span>

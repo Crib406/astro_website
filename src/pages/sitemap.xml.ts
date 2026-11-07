@@ -1,45 +1,59 @@
 import type { APIRoute } from 'astro';
-import { getCollection, getEntry } from 'astro:content';
-import { absUrl, isoDate } from '../lib/site';
-import { pagePath } from '../lib/routes';
+import { getCollection } from 'astro:content';
+import { absUrl, blogPublic, isoDate } from '../lib/site';
+import { getPublishedPosts } from '../lib/blog';
+import { getPage } from '../lib/pages';
+import { pagePath, postPath } from '../lib/routes';
 
 /**
  * Sitemap wie hugo/layouts/sitemap.xml: Startseite fest (weekly, 1.0), danach
- * alle weiteren Seiten und Beiträge (monthly, 0.7) ohne `sitemap_exclude`.
- * Reihenfolge: Seiten, dann Beiträge (Hugo ordnet nach Gewicht/Datum, das ist
- * für Suchmaschinen ohne Bedeutung).
+ * alle weiteren Seiten und Beiträge (monthly, 0.7). Ausgenommen sind Seiten mit
+ * `sitemap_exclude` und, solange `blogPublic` aus ist, Blog-Übersicht und
+ * Beiträge. Reihenfolge: Seiten, dann Beiträge (Hugo ordnet nach
+ * Gewicht/Datum, das ist für Suchmaschinen ohne Bedeutung). `lastmod` ist
+ * das Pflichtfeld aus dem Frontmatter.
  */
 const esc = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-type Entry = { loc: string; lastmod?: Date; changefreq: string; priority: string };
+type Entry = { loc: string; lastmod: Date; changefreq: string; priority: string };
 
 const urlXml = (e: Entry) =>
   [
     '  <url>',
     `    <loc>${esc(e.loc)}</loc>`,
-    ...(e.lastmod ? [`    <lastmod>${isoDate(e.lastmod)}</lastmod>`] : []),
+    `    <lastmod>${isoDate(e.lastmod)}</lastmod>`,
     `    <changefreq>${e.changefreq}</changefreq>`,
     `    <priority>${e.priority}</priority>`,
     '  </url>',
   ].join('\n');
 
 export const GET: APIRoute = async () => {
-  const home = await getEntry('pages', 'home');
+  const home = await getPage('home');
   const entries: Entry[] = [
-    { loc: absUrl(''), lastmod: home?.data.lastmod, changefreq: 'weekly', priority: '1.0' },
+    { loc: absUrl(pagePath('home')), lastmod: home.data.lastmod, changefreq: 'weekly', priority: '1.0' },
   ];
 
-  const pages = await getCollection('pages');
-  for (const page of pages) {
-    // Der Blog ist (wie in Hugo) nicht verlinkt und bleibt aus der Sitemap.
-    if (page.id === 'home' || page.id === 'blog' || page.data.sitemap_exclude) continue;
+  for (const page of await getCollection('pages')) {
+    if (page.id === 'home' || page.data.sitemap_exclude) continue;
+    if (page.id === 'blog' && !blogPublic) continue;
     entries.push({
       loc: absUrl(pagePath(page.id)),
       lastmod: page.data.lastmod,
       changefreq: 'monthly',
       priority: '0.7',
     });
+  }
+
+  if (blogPublic) {
+    for (const post of await getPublishedPosts()) {
+      entries.push({
+        loc: absUrl(postPath(post)),
+        lastmod: post.data.lastmod,
+        changefreq: 'monthly',
+        priority: '0.7',
+      });
+    }
   }
 
   const xml =

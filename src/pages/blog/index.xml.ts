@@ -3,9 +3,10 @@
   Gleiche Felder und Reihenfolge wie in der Hugo-Ausgabe.
 */
 import type { APIRoute } from 'astro';
-import { getEntry } from 'astro:content';
 import { absUrl, langRegion, siteTitle } from '../../lib/site';
-import { getPosts, postDate, slugOf, summaryHtml } from '../../lib/blog';
+import { getPublishedPosts, postDate, summaryHtml } from '../../lib/blog';
+import { getPage } from '../../lib/pages';
+import { pagePath, postPath, specialPaths } from '../../lib/routes';
 import { formatRfc822 } from '../../lib/dates';
 
 const xml = (s: string): string =>
@@ -17,15 +18,15 @@ const xml = (s: string): string =>
     .replace(/'/g, '&#39;');
 
 export const GET: APIRoute = async () => {
-  const page = (await getEntry('pages', 'blog'))!;
-  const posts = await getPosts();
+  const page = await getPage('blog');
+  const posts = await getPublishedPosts();
 
   const title = page.data.title === siteTitle ? siteTitle : `${page.data.title} on ${siteTitle}`;
-  const link = absUrl('blog/');
+  const link = absUrl(pagePath('blog'));
 
   const items = posts
     .map((post) => {
-      const url = absUrl(`blog/${slugOf(post)}/`);
+      const url = absUrl(postPath(post));
       return `
 			<item>
 				<title>${xml(post.data.title)}</title>
@@ -45,7 +46,7 @@ export const GET: APIRoute = async () => {
 		<description>Recent content in ${xml(title)}</description>
 		<generator>Astro</generator>
 		<language>${langRegion.toLowerCase()}</language>
-		<atom:link href="${absUrl('blog/index.xml')}" rel="self" type="application/rss+xml" />${items}
+		<atom:link href="${absUrl(specialPaths.feed)}" rel="self" type="application/rss+xml" />${items}
 	</channel>
 </rss>`;
 

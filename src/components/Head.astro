@@ -11,8 +11,10 @@ import Favicons from './Favicons.astro';
 import JsonLd from './JsonLd.astro';
 import { getCssBundle } from '../lib/bundles';
 import type { PageSeo } from '../lib/jsonld';
+import { specialPaths } from '../lib/routes';
 import {
   absUrl,
+  blogPublic,
   canonicalUrl,
   isPreview,
   ogImagePath,
@@ -104,6 +106,8 @@ const css = await getCssBundle();
 
   <!-- 100% privacy-first analytics -->
   <script is:inline async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+
+  {blogPublic && <link rel="alternate" type="application/rss+xml" title={siteTitle} href={absUrl(specialPaths.feed)}>}
 
   <JsonLd page={page} image={ogImage} />
 
