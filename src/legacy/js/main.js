@@ -36,7 +36,10 @@ var prefersReducedMotion =
 // Ueberschriften bekommen ein aria-label; auf einem span/p waere es wirkungslos
 // (generische Rolle), dort steht stattdessen ein unsichtbarer Klartext-span.
 // Enthaelt das Element Links/Buttons, bleibt alles wie es ist: aria-hidden darf
-// nichts Bedienbares verstecken.
+// nichts Bedienbares verstecken. Solche Texte sollten gar nicht erst zerlegt
+// werden (kein inv-title-animation-wrap, so beim Schlusssatz der Startseite):
+// Buchstaben-divs nehmen einem Link auch die Unterstreichung. Diese Abfrage ist
+// nur der Schutz fuer den Fall, dass es doch jemand tut.
 function plainText(el) {
   return (el.textContent || "").replace(/\s+/g, " ").trim();
 }
@@ -330,17 +333,17 @@ function splitA11y(el, split, text) {
       function openMenu() {
         $menu.addClass("active");
         $burger.attr("aria-expanded", "true");
-        // Nicht im selben Takt: Elemente im Menue haben transition: all, dabei
-        // laeuft auch das geerbte visibility ueber die Zeit, und im ersten Takt
-        // ist der Link noch nicht fokussierbar. Darum bis zu ~2 s alle 50 ms
-        // versuchen, bis der Fokus im Menue liegt.
-        var tries = 0;
+        // visibility ist in _modern-refresh.scss aus der Transition der Menue-
+        // Kinder genommen, der erste Link ist also sofort fokussierbar. Falls
+        // der Browser das Menue erst einen Takt spaeter darstellt, wird pro
+        // Frame wiederholt - ohne feste Grenze, aber nur, solange das Menue
+        // offen ist und der Fokus noch nicht darin liegt.
         (function focusFirst() {
-          if (!$menu.hasClass("active")) return;
+          if (!$menu.hasClass("active") || $menu[0].contains(document.activeElement)) return;
           var first = $menu.find(focusSelector).filter(":visible")[0];
           if (first) first.focus();
-          if (!$menu[0].contains(document.activeElement) && tries++ < 40) {
-            setTimeout(focusFirst, 50);
+          if (!$menu[0].contains(document.activeElement)) {
+            window.requestAnimationFrame(focusFirst);
           }
         })();
       }
@@ -748,6 +751,7 @@ function splitA11y(el, split, text) {
     },
 
     animationOnHover: function () {
+      if (prefersReducedMotion) return; // UX-Paket: keine Mausbewegungs-Effekte
       let cards = document.querySelectorAll('.tmponhover');
         cards.forEach((tmpOnHover) => {
           tmpOnHover.onmousemove = function (e) {
@@ -830,6 +834,7 @@ function splitA11y(el, split, text) {
 
     tiltAnimation: function(){
 
+      if (prefersReducedMotion) return; // UX-Paket: keine Mausbewegungs-Effekte
       $(document).ready(function(){
         let lengthTilt = document.getElementsByClassName('tilt-container');
         if(lengthTilt.length){
