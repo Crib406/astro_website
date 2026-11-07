@@ -1,9 +1,8 @@
 /**
- * CSS- und JS-Bündel, identisch zur Hugo-Pipeline.
+ * CSS- und JS-Bündel, aufgebaut wie früher in der Hugo-Pipeline.
  *
  * CSS: bootstrap.min.css + kompiliertes style.scss (Dart Sass), minifiziert.
- * JS:  die Skripte in der Reihenfolge aus hugo/layouts/partials/scripts.html,
- *      minifiziert, ohne Bündelung oder Modulumbau (klassische Skripte).
+ * JS:  die Skripte in der Reihenfolge von `jsFiles` (unten), minifiziert, ohne Bündelung oder Modulumbau (klassische Skripte).
  *
  * Beide werden einmal pro Prozess gebaut und im Speicher gehalten. Der
  * Dateiname trägt einen sha256-Fingerabdruck des Inhalts. Die Endpunkte unter
@@ -49,7 +48,7 @@ const jsSources: Record<string, string> = Object.fromEntries(
 /** Trenner zwischen den JS-Dateien wie bei Hugos resources.Concat: das Semikolon schützt vor offenen Anweisungen. */
 const JS_SEPARATOR = '\n;\n';
 
-/** Reihenfolge wie hugo/layouts/partials/scripts.html: jQuery zuerst, main.js zuletzt. */
+/** Reihenfolge der Skripte (wie im Hugo-Original): jQuery zuerst, main.js zuletzt. */
 export const jsFiles = [
   'vendor/jquery.js',
   'vendor/waypoints.min.js',

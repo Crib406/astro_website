@@ -3,9 +3,9 @@ import { absUrl } from '../lib/site';
 import { specialPaths } from '../lib/routes';
 
 /**
- * Wie hugo/layouts/robots.txt. Bewusst kein "Disallow: /preview/": ein
+ * robots.txt der Seite. Bewusst kein "Disallow: /preview/": ein
  * gesperrter Pfad wird nicht gelesen, Google sähe das noindex der
- * Vorschauseiten nicht (siehe Kommentar im Hugo-Template).
+ * Vorschauseiten nicht.
  */
 export const GET: APIRoute = () => {
   const body = `User-agent: *\nAllow: /\n\nSitemap: ${absUrl(specialPaths.sitemap)}\n`;

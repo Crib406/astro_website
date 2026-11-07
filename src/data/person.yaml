@@ -1,9 +1,9 @@
 # Wer hinter der Website steht, als schema.org-Person.
 #
-# Wird von layouts/partials/jsonld.html als Knoten mit der @id
+# Wird von src/lib/jsonld.ts als Knoten mit der @id
 # <Startseite>#person ausgegeben und von jeder Seite per @id referenziert.
 # Die Schluessel muessen der schema.org-Schreibweise folgen (camelCase);
-# @type, @id, url und image setzt das Partial selbst.
+# @type, @id, url und image setzt src/lib/jsonld.ts selbst.
 # areaServed fehlt mit Absicht: schema.org kennt es nicht an Person (nur an
 # Organisation, Service, ContactPoint u. a.); der Ort steckt in homeLocation.
 #
