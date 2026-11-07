@@ -1,10 +1,10 @@
 ---
-/* 404-Seite (Hugo: layouts/404.html). Nur base-fähige, wurzelabsolute Links. */
+/* 404-Seite. Nur base-fähige, wurzelabsolute Links. */
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { relUrl, absUrl } from '../lib/site';
-import { pagePath, specialPaths } from '../lib/routes';
+import { relUrl } from '../lib/site';
+import { pagePath } from '../lib/routes';
 ---
-<BaseLayout title="Seite nicht gefunden" kind="404" permalink={absUrl(specialPaths.notFound)}>
+<BaseLayout title="Seite nicht gefunden" kind="404">
 
 <div class="blog-classic-area-wrapper tmp-section-gap">
   <div class="container">

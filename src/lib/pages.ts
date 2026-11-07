@@ -6,7 +6,7 @@
 import { getEntry, type CollectionEntry } from 'astro:content';
 import type { BlogEntry } from './blog';
 import type { Json } from './jsonld';
-import { pageKind, type PageId } from './routes';
+import { pageKind, type LayoutKind, type PageId } from './routes';
 
 export type PageEntry = CollectionEntry<'pages'>;
 
@@ -18,7 +18,7 @@ export interface BaseLayoutProps {
   /** Frontmatter `seo_title`: ersetzt den berechneten <title> */
   seoTitle?: string | undefined;
   /** Hugo-Kind der Seite (`home` = Startseite): home, section (z. B. Blog-Übersicht), page (Einzelseite/Beitrag), 404 */
-  kind?: 'home' | 'section' | 'page' | '404';
+  kind?: LayoutKind;
   /** Hugo-Section, z. B. 'blog'. Mit kind 'page' ergibt das einen Blogbeitrag (BlogPosting, og:type article) */
   section?: string | undefined;
   /** Frontmatter `jsonld`: wird in den Seitenknoten des JSON-LD-Graphen gemischt */
@@ -31,7 +31,7 @@ export interface BaseLayoutProps {
   image?: string | undefined;
   /** Die Seite zeigt die Breadcrumb (Seitenkopf mit Hintergrundbild): dessen Bild wird vorgeladen */
   breadcrumb?: boolean | undefined;
-  /** absolute Seiten-URL; Standard: aus der Request-URL (für 404 `absUrl('404.html')` übergeben) */
+  /** absolute Seiten-URL; Standard: aus der Request-URL (`Astro.url`), nur zum Überschreiben gedacht */
   permalink?: string | undefined;
 }
 

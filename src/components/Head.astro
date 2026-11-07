@@ -1,7 +1,7 @@
 ---
 /*
   <head> der Seite: Titel, Beschreibung, Robots, Canonical, Open Graph,
-  Twitter, Zählskript, JSON-LD und das CSS-Bündel (Hugo: head.html).
+  Twitter, Zählskript, JSON-LD und das CSS-Bündel.
 
   CSS und JS tragen einen Fingerabdruck aus dem Dateiinhalt (siehe
   src/lib/bundles.ts); Favicon und Vorschaubild bleiben ohne Anhängsel, damit
@@ -11,7 +11,7 @@ import Favicons from './Favicons.astro';
 import JsonLd from './JsonLd.astro';
 import { getCssBundle } from '../lib/bundles';
 import type { PageSeo } from '../lib/jsonld';
-import { specialPaths } from '../lib/routes';
+import { specialPaths, type LayoutKind } from '../lib/routes';
 import {
   absUrl,
   blogPublic,
@@ -32,7 +32,7 @@ interface Props {
   page: PageSeo;
   /** Frontmatter `seo_title` */
   seoTitle?: string;
-  kind: 'home' | 'section' | 'page' | '404';
+  kind: LayoutKind;
   /** Seite zeigt die Breadcrumb: deren Hintergrundbild vorladen */
   breadcrumb?: boolean;
 }
@@ -57,8 +57,8 @@ const is404 = kind === '404';
 const desc = page.description || seoDescription;
 
 // Branch-Vorschauen (/preview/<branch>/) bekommen noindex und verweisen per
-// canonical auf die Hauptseite.
-const canonical = canonicalUrl(page.permalink);
+// canonical auf die Hauptseite. Die 404-Seite hat keine (siehe unten).
+const canonical = is404 ? undefined : canonicalUrl(page.permalink);
 
 // Social-Preview: 1200x630, wie von Facebook/LinkedIn/WhatsApp erwartet
 const ogImage = absUrl(ogImagePath);

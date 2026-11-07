@@ -10,6 +10,9 @@
 /** Hugo-Kind einer Seite, wie BaseLayout es erwartet. */
 export type PageKind = 'home' | 'section' | 'page';
 
+/** Kind, das BaseLayout und Head kennen: die Seiten aus `pageRoutes` plus die 404-Seite. */
+export type LayoutKind = PageKind | '404';
+
 interface PageRoute {
   /** Pfad der Seite relativ zur Startseite */
   path: string;
