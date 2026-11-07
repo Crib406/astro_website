@@ -17,11 +17,7 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
-const data = entry.data as typeof entry.data & {
-  featured_image?: string;
-  author_role?: string;
-  author_bio?: string;
-};
+const { data } = entry;
 const img = data.featured_image || data.image;
 const author = data.author || 'Christoph B. Reimann';
 const bio =

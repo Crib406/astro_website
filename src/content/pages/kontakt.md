@@ -1,7 +1,6 @@
 ---
 title: "Kontakt"
-lastmod: 2026-10-23T13:33:40Z
-layout: "kontakt"
+lastmod: 2025-11-16T19:38:17Z
 description: "Kontakt zu Christoph B. Reimann aus Bad Harzburg – per E-Mail oder über LinkedIn."
 jsonld:
   "@type": "ContactPage"

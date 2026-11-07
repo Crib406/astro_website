@@ -21,8 +21,6 @@ tags:
   - "Vertrauen"
   - "Zugehörigkeit"
 
-type: "blog"
-layout: "single"
 
 jsonld:
   headline: "Integrität – der Grundstein für echtes Vertrauen"
@@ -36,7 +34,7 @@ jsonld:
     - "Mut"
     - "Glück"
     - "Zufriedenheit"
-lastmod: 2026-10-23T13:33:40Z
+lastmod: 2025-12-09T19:03:30Z
 ---
 
 ## Einleitung

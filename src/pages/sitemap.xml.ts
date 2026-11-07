@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getCollection, getEntry } from 'astro:content';
 import { absUrl, isoDate } from '../lib/site';
-import { blogPostPath, pagePath } from '../lib/routes';
+import { pagePath } from '../lib/routes';
 
 /**
  * Sitemap wie hugo/layouts/sitemap.xml: Startseite fest (weekly, 1.0), danach
@@ -32,26 +32,11 @@ export const GET: APIRoute = async () => {
 
   const pages = await getCollection('pages');
   for (const page of pages) {
-    if (page.id === 'home' || page.data.sitemap_exclude) continue;
+    // Der Blog ist (wie in Hugo) nicht verlinkt und bleibt aus der Sitemap.
+    if (page.id === 'home' || page.id === 'blog' || page.data.sitemap_exclude) continue;
     entries.push({
       loc: absUrl(pagePath(page.id)),
       lastmod: page.data.lastmod,
-      changefreq: 'monthly',
-      priority: '0.7',
-    });
-  }
-
-  // Hugo-`cascade` aus blog.md: sitemap_exclude gilt für alle Beiträge, sofern
-  // der Beitrag es nicht selbst setzt. Hier explizit nachgebildet.
-  const blogIndex = pages.find((p) => p.id === 'blog');
-  const cascaded: boolean | undefined = blogIndex?.data.cascade?.sitemap_exclude;
-  const posts = await getCollection('blog', (p) => !p.data.draft);
-  for (const post of posts) {
-    const exclude = post.data.sitemap_exclude ?? cascaded ?? false;
-    if (exclude) continue;
-    entries.push({
-      loc: absUrl(blogPostPath(post.id)),
-      lastmod: post.data.lastmod ?? new Date(post.data.date),
       changefreq: 'monthly',
       priority: '0.7',
     });

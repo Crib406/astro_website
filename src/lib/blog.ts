@@ -22,7 +22,7 @@ export async function getPosts(): Promise<BlogEntry[]> {
 /** Kleiner Ersatz für Hugos Inline-Markdown (Goldmark mit Typographer) der Summary. */
 function inlineHtml(md: string): string {
   let s = md
-    .replace(/<[^>]*>/g, '') // rohes HTML wird (wie in Hugo ohne unsafe) nicht übernommen
+    .replace(/<[^>]*>/g, '') // eingebettete Tags verwerfen
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
@@ -44,18 +44,10 @@ function inlineHtml(md: string): string {
 
 /**
  * Hugos `.Summary` eines Beitrags als Inline-HTML: das Frontmatter-Feld
- * `summary`, sonst die ersten 70 Wörter des Textes (Hugo-Standard).
+ * `summary` (Pflichtfeld im Schema, ein Ersatz aus dem Text entfällt).
  */
 export function summaryHtml(entry: BlogEntry): string {
-  const fm = entry.data.summary;
-  if (fm) return inlineHtml(fm.trim());
-  const text = (entry.body ?? '')
-    .replace(/^#+\s.*$/gm, ' ')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/[*_`>#-]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-  return inlineHtml(text.split(' ').slice(0, 70).join(' '));
+  return inlineHtml(entry.data.summary);
 }
 
 /** Hugo `plainify`: Tags entfernen, Entitäten bleiben stehen. */

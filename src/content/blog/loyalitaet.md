@@ -22,8 +22,6 @@ tags:
   - "Zugehörigkeit"
   - "Menschlichkeit"
 
-type: "blog"
-layout: "single"
 
 jsonld:
   headline: "Loyalität – Treue zu anderen, ohne sich selbst zu verlieren"
@@ -35,7 +33,7 @@ jsonld:
     - "Wahrhaftigkeit"
     - "Mut zur Konsequenz"
     - "Mensch sein"
-lastmod: 2026-10-23T13:33:40Z
+lastmod: 2025-12-07T16:48:45Z
 ---
 
 ## Einleitung

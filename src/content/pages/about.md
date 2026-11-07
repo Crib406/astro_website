@@ -1,7 +1,6 @@
 ---
 title: "Über mich"
-lastmod: 2026-10-23T13:33:40Z
-layout: "about"
+lastmod: 2026-08-12T16:51:04Z
 description: "Über Christoph B. Reimann aus Bad Harzburg: Hintergrund, Haltung und Schwerpunkte eines Betriebswirts und Generalisten. Klar, verbindlich, menschlich."
 # Profilseite: macht die Person zum Hauptgegenstand dieser Seite.
 # Alles Weitere (Name, URL, Bezug zur Person) leitet layouts/partials/jsonld.html ab.
