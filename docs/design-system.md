@@ -1,7 +1,7 @@
 # Design-System
 
 Farben, Schriften und Größen. Alles in
-`assets/scss/default/_variables.scss` unter `:root`.
+`src/legacy/scss/default/_variables.scss` unter `:root`.
 
 ## Farben
 
@@ -75,14 +75,15 @@ CIE-Lab genügt; die Werte oben stammen daraus.
 --font-secondary: 'Source Sans 3', ui-sans-serif, system-ui;   // Fließtext
 ```
 
-Beide liegen selbst gehostet unter `static/assets/fonts/` als variable
-`.woff2`. Kein Google-Fonts-Aufruf — passend zum privacy-first-Anspruch im
-`head.html`.
+Beide liegen selbst gehostet unter `public/assets/fonts/` als variable
+`.woff2`. Kein Google-Fonts-Aufruf — passend zum privacy-first-Anspruch in
+`src/components/Head.astro`. Beide Dateien werden dort per `<link rel="preload">` vorab geladen, damit der
+Schriftwechsel früh passiert.
 
 **Achtung:** Das Template setzt global `body { font-family: var(--font-primary) }`
 und `h1–h6 { font-family: var(--font-secondary) }` — also Display-Schrift für
 Fließtext und umgekehrt. Das ist in
-`assets/scss/elements/_modern-refresh.scss` geradegezogen. Nicht wieder
+`src/legacy/scss/elements/_modern-refresh.scss` geradegezogen. Nicht wieder
 umdrehen.
 
 ## Größen

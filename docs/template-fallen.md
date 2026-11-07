@@ -1,8 +1,13 @@
 # Fallstricke des Templates
 
-Das Template ist ein gekauftes Agentur-Paket, direkt ins Projekt kopiert. Es
+Das Template ist ein gekauftes Agentur-Paket, direkt ins Projekt kopiert (heute unter `src/legacy/`). Es
 bringt Eigenheiten mit, die beim Anpassen wiederholt Zeit gekostet haben. Jeder
 Eintrag: **Symptom → Ursache → Lösung.**
+
+Die Einträge stammen aus der Hugo-Zeit. Das Template selbst ist unverändert übernommen, die Fallen 1 bis 5
+und 9 bis 12 gelten also weiter. Die Punkte 6 bis 8 beschrieben Hugo-Eigenheiten; sie sind je mit der
+Astro-Entsprechung ergänzt. Pfade: `static/assets/js/` ist jetzt `src/legacy/js/`, `assets/scss/` ist
+`src/legacy/scss/`, `layouts/` ist `src/`, `content/` ist `src/content/`.
 
 ---
 
@@ -11,7 +16,7 @@ Eintrag: **Symptom → Ursache → Lösung.**
 Elemente mit der Klasse `inv-title-animation-wrap` werden von GSAP `SplitText`
 in Zeilen, Wörter und **einzelne Buchstaben** zerlegt. Jeder Buchstabe bekommt
 `opacity: 0` und wird beim Scrollen gestaffelt eingeblendet
-(`static/assets/js/main.js`, ab Zeile 757).
+(`src/legacy/js/main.js`, Funktion `splitAnimatedTitles`, ab Zeile 777).
 
 Das erklärt drei verschiedene Fehlerbilder.
 
@@ -24,7 +29,7 @@ Das erklärt drei verschiedene Fehlerbilder.
 `opacity: 0`.
 
 **Lösung:** Den Button aus dem Element herausziehen. Zusätzlich gibt es in
-`_modern-refresh.scss` ein Sicherheitsnetz:
+`src/legacy/scss/elements/_modern-refresh.scss` ein Sicherheitsnetz:
 
 ```scss
 .tmp-btn .btn-text div { opacity: 1 !important; transform: none !important; }
@@ -61,7 +66,7 @@ der richtige Weg.
 
 ## 2. Spezifitätsfallen
 
-Eigene Regeln stehen in `_modern-refresh.scss`, das als letztes geladen wird.
+Eigene Regeln stehen in `src/legacy/scss/elements/_modern-refresh.scss`, das als letztes geladen wird.
 Bei gleicher Spezifität gewinnt es dadurch. Bei **höherer** Spezifität im
 Template gewinnt das Template — auch wenn die eigene Regel später kommt.
 
@@ -93,11 +98,11 @@ Code statt als Variable — die überleben einen Palettenwechsel.
 | `.rpp-banner-two-area::before/::after` | zwei `#FF014F`-Blurflächen | roter Schimmer hinter dem Hero |
 | `.main-img::after` | Verlauf nach `#060606` | Überlagerung über dem Portrait |
 
-Beide sind in `_modern-refresh.scss` überschrieben. **Wenn irgendwo eine Farbe
+Beide sind in `src/legacy/scss/elements/_modern-refresh.scss` überschrieben. **Wenn irgendwo eine Farbe
 auftaucht, die nicht zur Palette gehört: nach fest verdrahteten Werten suchen.**
 
 ```bash
-grep -rn "#FF014F\|#060606" assets/scss
+grep -rn "#FF014F\|#060606" src/legacy/scss
 ```
 
 ---
@@ -130,13 +135,13 @@ bewusste Entscheidung — die dunkle Palette ist gesetzt, die Klasse entfernt.
 
 ---
 
-## 6. `{{ "/" | relURL }}` liefert nur `/`
+## 6. Startseiten-Link: `{{ "/" | relURL }}` (Hugo) und `relUrl` (Astro)
 
 **Symptom:** In einer Branch-Vorschau führen „Start", Logo und Breadcrumb auf
 die Hauptseite statt in die Vorschau.
 
-**Ursache:** Hugo behandelt einen nackten Schrägstrich als bereits absolut und
-hängt den Basispfad nicht an:
+**Ursache (Hugo, historisch):** Hugo behandelte einen nackten Schrägstrich als bereits absolut und
+hängte den Basispfad nicht an:
 
 | Ausdruck | Ergebnis in der Vorschau |
 |---|---|
@@ -148,13 +153,28 @@ hängt den Basispfad nicht an:
 Deshalb funktionierten alle anderen Links und ausgerechnet die zur Startseite
 nicht.
 
-**Lösung:** Für den Startseiten-Link immer `{{ site.Home.RelPermalink }}`.
+**Heute (Astro):** Alle Links laufen über `relUrl` und `absUrl` aus `src/lib/site.ts`; die Pfade stehen in
+`src/lib/routes.ts`. Beide kennen den Basispfad (`BASE_PATH`) und behandeln einen führenden `/` bewusst
+base-relativ, die Falle gibt es dort nicht mehr:
+
+| Ausdruck | Hauptseite | Vorschau `/preview/<branch>/` |
+|---|---|---|
+| `relUrl(pagePath('home'))` bzw. `relUrl('')` | `/` | `/preview/<branch>/` ✓ |
+| `relUrl('about/')` | `/about/` | `/preview/<branch>/about/` ✓ |
+| `relUrl('/about/')` | `/about/` | `/preview/<branch>/about/` ✓ |
+| `absUrl('about/')` | `https://creimann.cc/about/` | `https://creimann.cc/preview/<branch>/about/` ✓ |
+| `homeUrl()` | `https://creimann.cc/` | `https://creimann.cc/preview/<branch>/` ✓ |
+
+**Lösung:** Nie `href="/…"` von Hand in `.astro`-Dateien schreiben, immer `relUrl(pagePath('…'))`. Die Tests
+(`tests/preview.test.mjs`) bauen eine Vorschau und prüfen, dass jeder wurzelabsolute Verweis mit dem Basispfad
+beginnt. Einzige Ausnahme: der Link „Alle Vorschauen" in `PreviewBanner.astro` zeigt bewusst hart auf `/preview/`.
 
 ---
 
 ## 7. Content-Dateien sind keine Templates
 
-In `content/**/*.md` wertet Hugo **keine** `{{ }}`-Ausdrücke aus — sie
+In `src/content/pages/*.md` steht der Rohtext als fertiges HTML; Astro gibt ihn unverändert aus
+(`<Fragment set:html={entry.body} />`). Es werden **keine** Ausdrücke ausgewertet, `{{ }}` und `{ }`
 erscheinen als Text. Interne Links dort deshalb relativ setzen:
 
 ```html
@@ -162,18 +182,20 @@ erscheinen als Text. Interne Links dort deshalb relativ setzen:
 <a href="/kontakt/">…</a>     <!-- führt aus der Vorschau heraus -->
 ```
 
-Wer dort Hugo-Logik braucht, muss einen Shortcode benutzen
-(`layouts/shortcodes/`).
+Wer dort Logik braucht, setzt sie in der Route (`src/pages/<seite>/index.astro`) oder in einer Komponente um,
+nicht im Content. (In Hugo war der Weg ein Shortcode unter `layouts/shortcodes/`; die beiden früheren
+Checklisten-Shortcodes sind im Beitrag `integritaet.md` durch fertiges HTML ersetzt, siehe
+`docs/inhalte-pflegen.md`.)
 
 ---
 
 ## 8. HTML und CSS in den Content-Dateien
 
-`content/about/_index.md` und `content/mein-weg/_index.md` enthalten
-vollständige HTML-Blöcke samt eigener `<style>`-Bereiche. Deshalb steht in
-`hugo.toml` `unsafe = true`.
+`src/content/pages/about.md` und `mein-weg.md` enthalten
+vollständige HTML-Blöcke samt eigener `<style>`-Bereiche. (In Hugo war dafür `unsafe = true` in `hugo.toml`
+nötig; in Astro entfällt das, der Rohtext geht per `set:html` durch.)
 
-Das ist die größte Abweichung vom üblichen Hugo-Aufbau: Inhalt und Gestaltung
+Das ist die größte Abweichung vom üblichen Aufbau: Inhalt und Gestaltung
 sind vermischt, und Seiten-CSS steht außerhalb der SCSS-Pipeline. **Bewusst so
 belassen.** Wer dort Typografie ändert, muss in die Content-Datei — nicht ins
 SCSS.
@@ -258,7 +280,7 @@ meist erst nach den Schriften dran. Das war Glück, keine Absicht. Seit die
 Skripte mit `defer` laufen, kommen sie früher — und das Rennen ging
 regelmäßig verloren.
 
-**Lösung:** In `assets/js/main.js` wird erst gespalten, wenn die Schriften
+**Lösung:** In `src/legacy/js/main.js` wird erst gespalten, wenn die Schriften
 wirklich da sind:
 
 ```js
@@ -270,8 +292,8 @@ document.fonts.ready.then(function () {
 **Merke:** Jede Messung von Textmaßen — Umbruch, Höhe, Zeilenzahl — gehört
 hinter `document.fonts.ready`. Vorher misst man die Ersatzschrift.
 
-Zum Nachprüfen taugt der Bildvergleich: alte und neue Fassung nebeneinander
-bauen und die Seitenhöhen vergleichen. Weicht eine Seite ab, ist etwas
+Zum Nachprüfen taugt der Vergleich der Seitenhöhen: alte und neue Fassung nebeneinander
+bauen (nach `document.fonts.ready`, bei Desktop- und Handybreite) und die Höhen vergleichen. Weicht eine Seite ab, ist etwas
 verrutscht. Dabei ist zu beachten, dass die Buchstaben-Animation selbst nicht
 pixelgenau reproduzierbar ist — derselbe Build weicht von sich selbst ab.
 Aussagekräftig ist die **Seitenhöhe**, nicht die Zahl abweichender Pixel.
