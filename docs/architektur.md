@@ -129,9 +129,9 @@ Projektstamm).
 ### Font Awesome
 
 Als Teilmenge: `src/legacy/scss/vendor/_fontawesome-subset.scss` (2,6 KB) und vier
-`public/assets/fonts/fa-subset-*.woff2` (zusammen 7,3 KB). Die Erzeugungs-Werkzeuge aus Hugo
-(`tools/build-fontawesome-subset.py`, `check-icons.py`) sind nicht migriert, Vorgehen bei einem neuen Icon steht
-in `CLAUDE.md`.
+`public/assets/fonts/fa-subset-*.woff2` (zusammen 7,3 KB). Die Erzeugungs-Werkzeuge liegen in `tools/` (siehe
+unten), Vorgehen bei einem neuen Icon steht in `CLAUDE.md`. Ausgeliefert werden nur diese Teilmengen; die
+Pro-Originaldateien gehören nicht zum Auslieferungsstand und nicht ins Repo.
 
 ## Content Layer
 
@@ -339,15 +339,26 @@ Hugo-Referenzbau auf DOM-Ebene (`HUGO_REF_DIR`, am besten der unminifizierte Bau
 Normalisiert werden Leerraum, Attributreihenfolge, Hashes der Bündel-URLs, Kommentare, die Hugo-`generator`-Meta
 und JSON-LD (geparst, Schlüssel sortiert, weil Hugo Map-Schlüssel alphabetisch ausgibt). Bewusste Abweichungen
 stehen in `scripts/compare-hugo.allow.json` (`page`, oder `*` für jede Seite; `path` genau oder als Präfix an einer
-Leerzeichen-Grenze; optional `exp`/`act` als genauer Wert; `reason`); eine Ausnahme gilt nur für genau diesen Wert.
-Einträge ohne Treffer meldet das Skript am Ende und beendet sich mit Exit-Code 1. Gedacht war der Vergleich für
+Leerzeichen-Grenze; `exp`/`act` als genauer Wert, Pflicht außer bei `path: "(Datei)"` (eine ganz entfallene Datei); `reason`); eine Ausnahme gilt nur für genau diesen Wert. Ein Eintrag ohne Wert für einen anderen Pfad ist ein Bedienfehler (Exit-Code 2).
+Einträge ohne Treffer meldet das Skript am Ende und beendet sich mit Exit-Code 1.
+Die Preload-Ausnahmen (`html > head > link[preload]…`) gleichen nur die Existenz der Links ab (Hugo: fehlt, Astro:
+vorhanden); Inhalt und Anzahl der Preloads prüft `tests/head.test.mjs`. Gedacht war der Vergleich für
 die Migration. Wo der Astro-Bau später bewusst abweicht (SEO-Verbesserungen, siehe `docs/migration.md`), muss jede
 Abweichung mit Wert in der Ausnahmenliste stehen, sonst meldet der Vergleich sie als Fehler.
 
 ## Werkzeuge (`tools/`)
 
 Python-Skripte für Dinge, die selten und von Hand anfallen. Sie liegen außerhalb von `src/` und `public/`, also
-nicht im Bau. Voraussetzung: `pip install fonttools brotli pillow`. Aufruf immer aus dem Projektwurzelverzeichnis.
+nicht im Bau. Voraussetzung: `pip install fonttools brotli pillow`. Die Skripte bestimmen das Projektwurzelverzeichnis
+selbst (relativ zu ihrer Datei, `ROOT`); der Aufruf funktioniert daher aus jedem Verzeichnis, in der Doku steht
+`python3 tools/…` aus der Wurzel nur der Kürze halber.
+
+**Lizenz:** `tools/fontawesome-src/` (Font Awesome Pro: `fontawesome.css` und vier `.ttf`) ist Voraussetzung für
+`build-fontawesome-subset.py`, liegt aber **nicht im Repo**. Die kommerzielle Lizenz erlaubt keine öffentliche
+Weitergabe, das Verzeichnis steht in `.gitignore`. Es muss lokal vorhanden sein, entweder aus dem eigenen
+Font-Awesome-Pro-Konto oder aus der Kopie im Hugo-Repo-Arbeitsverzeichnis. Ausgeliefert werden nur die erzeugten
+Teilmengen in `public/assets/fonts/` und `src/legacy/scss/vendor/`. `check-icons.py` und `build-favicons.py`
+brauchen die Pro-Dateien nicht.
 
 | Datei | Zweck |
 |---|---|

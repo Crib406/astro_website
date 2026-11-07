@@ -77,6 +77,13 @@ Die Teilmenge besteht aus `src/legacy/scss/vendor/_fontawesome-subset.scss` und 
 `public/assets/fonts/fa-subset-*.woff2`. Erzeugt wird sie mit `tools/build-fontawesome-subset.py`
 (Original-Schriften in `tools/fontawesome-src/`), geprüft mit `tools/check-icons.py`. `tools/` liegt außerhalb
 von `src/` und `public/` und wird nicht gebaut. Beide Skripte brauchen `pip install fonttools brotli`.
+
+**Lizenz: `tools/fontawesome-src/` ist nicht im Repo.** Die Originaldateien sind Font Awesome Pro (kommerzielle
+Lizenz, keine öffentliche Weitergabe) und werden darum nicht versioniert (`.gitignore`). Wer ein Icon ergänzen
+will, legt sie lokal dort ab (`fontawesome.css` und die vier `.ttf`: `fa-brands-400`, `fa-light-300`,
+`fa-regular-400`, `fa-solid-900`), entweder aus dem eigenen Font-Awesome-Pro-Konto oder aus der Kopie im
+Hugo-Repo-Arbeitsverzeichnis. Nur die erzeugten Teilmengen in `src/legacy/scss/vendor/` und
+`public/assets/fonts/` werden ausgeliefert. Die Dateien nie committen (auch nicht mit `git add -f`).
 Vorgehen bei einem neuen Icon:
 
 1. Icon in die Liste `ICONS` in `tools/build-fontawesome-subset.py` eintragen.

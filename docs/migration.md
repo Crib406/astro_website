@@ -152,6 +152,13 @@ Der Workflow muss den Root (außer `preview/`) vor dem Kopieren leeren.
 Seitenverhältnis 5:3 sollte bleiben (die Seite setzt `width="1000" height="600"`), also z. B. 1500 × 900 px. Danach
 `lastmod` des Beitrags anheben.
 
+**O7. Font-Awesome-Pro-Originaldateien im öffentlichen Hugo-Repo.** Das öffentliche Repo `Crib406/hugo_website`
+enthält unter `tools/fontawesome-src/` dieselben Font-Awesome-Pro-Originaldateien (`fontawesome.css`, vier `.ttf`).
+Die Pro-Lizenz erlaubt keine öffentliche Weitergabe der Quelldateien. Prüfen und ggf. aus dem Repo entfernen (aus der
+Historie, nicht nur im Arbeitsstand) oder das Repo privat schalten. Das ist im Hugo-Repo von uns nicht geändert
+worden. Im Astro-Repo sind die Dateien nicht versioniert (`.gitignore`), und die Historie wurde vor dem ersten Push
+bereinigt.
+
 Weitere Beobachtungen, ohne Dringlichkeit:
 
 - Die Footer-Überschrift „Quick Link“ ist englisch (sichtbar, also nur auf Wunsch ändern).
@@ -318,4 +325,4 @@ Hinweise:
    laufen lassen.
 4. Prüfen, dass `https://creimann.cc/about/index.xml` 404 liefert (Root wurde geleert) und `/preview/` weiter
    funktioniert.
-5. O1 bis O4 und O6 abarbeiten.
+5. O1 bis O4, O6 und O7 abarbeiten.
