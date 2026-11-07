@@ -330,8 +330,19 @@ function splitA11y(el, split, text) {
       function openMenu() {
         $menu.addClass("active");
         $burger.attr("aria-expanded", "true");
-        var first = $menu.find(focusSelector).filter(":visible")[0];
-        if (first) first.focus();
+        // Nicht im selben Takt: Elemente im Menue haben transition: all, dabei
+        // laeuft auch das geerbte visibility ueber die Zeit, und im ersten Takt
+        // ist der Link noch nicht fokussierbar. Darum bis zu ~2 s alle 50 ms
+        // versuchen, bis der Fokus im Menue liegt.
+        var tries = 0;
+        (function focusFirst() {
+          if (!$menu.hasClass("active")) return;
+          var first = $menu.find(focusSelector).filter(":visible")[0];
+          if (first) first.focus();
+          if (!$menu[0].contains(document.activeElement) && tries++ < 40) {
+            setTimeout(focusFirst, 50);
+          }
+        })();
       }
 
       function closeMenu(returnFocus) {
