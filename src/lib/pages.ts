@@ -29,6 +29,8 @@ export interface BaseLayoutProps {
   lastmod?: Date | string | undefined;
   /** Titelbild eines Beitrags (Pfad oder URL) */
   image?: string | undefined;
+  /** Die Seite zeigt die Breadcrumb (Seitenkopf mit Hintergrundbild): dessen Bild wird vorgeladen */
+  breadcrumb?: boolean | undefined;
   /** absolute Seiten-URL; Standard: aus der Request-URL (für 404 `absUrl('404.html')` übergeben) */
   permalink?: string | undefined;
 }
@@ -50,6 +52,8 @@ export function pageProps(entry: PageEntry): BaseLayoutProps {
     seoTitle: data.seo_title,
     jsonld: data.jsonld,
     lastmod: data.lastmod,
+    // Alle Seiten außer der Startseite beginnen mit der Breadcrumb (tests/head.test.mjs prüft das gegen das HTML).
+    breadcrumb: kind !== 'home',
     kind,
     section,
   };
@@ -66,6 +70,7 @@ export function postProps(entry: BlogEntry): BaseLayoutProps {
     date: data.date,
     lastmod: data.lastmod,
     image: data.image,
+    breadcrumb: true,
     kind: 'page',
     section: 'blog',
   };

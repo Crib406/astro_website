@@ -28,6 +28,7 @@ const {
   date,
   lastmod,
   image,
+  breadcrumb = false,
 } = Astro.props;
 const permalink = Astro.props.permalink ?? permalinkFromUrl(Astro.url);
 
@@ -47,7 +48,7 @@ const js = await getJsBundle();
 <!DOCTYPE html>
 <html lang={lang}>
 
-  <Head page={page} seoTitle={seoTitle} kind={kind} section={section} />
+  <Head page={page} seoTitle={seoTitle} kind={kind} section={section} breadcrumb={breadcrumb} />
 
   <body>
 

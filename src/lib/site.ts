@@ -30,6 +30,18 @@ export const ogLocale = 'de_DE';
 /** Social-Preview-Bild (1200x630), Pfad relativ zur Basis. */
 export const ogImagePath = 'assets/images/about/og-card.jpg';
 
+/**
+ * Dateien, die der Browser früh laden soll (<link rel="preload">), Pfade
+ * relativ zur Basis. Die beiden Schriften sind die Text-Schriften der Seite;
+ * der Hintergrund des Seitenkopfs (Breadcrumb) wird nur auf Seiten mit
+ * Breadcrumb vorgeladen.
+ */
+export const preloadFontPaths = [
+  'assets/fonts/fraunces/fraunces-variable.woff2',
+  'assets/fonts/source-sans-3/source-sans-3-variable.woff2',
+] as const;
+export const breadcrumbBgPath = 'assets/images/breadcrumb/breadcum-bg.png';
+
 /** Ursprung der Seite ohne Pfad und ohne abschließenden Schrägstrich, z. B. `https://creimann.cc`. */
 const origin = new URL(import.meta.env.SITE ?? 'https://creimann.cc').origin;
 

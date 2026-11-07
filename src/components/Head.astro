@@ -15,10 +15,13 @@ import { specialPaths } from '../lib/routes';
 import {
   absUrl,
   blogPublic,
+  breadcrumbBgPath,
   canonicalUrl,
   isPreview,
   ogImagePath,
   ogLocale,
+  preloadFontPaths,
+  relUrl,
   seoDescription,
   seoTitle,
   siteTitle,
@@ -30,8 +33,10 @@ interface Props {
   seoTitle?: string;
   kind: 'home' | 'section' | 'page' | '404';
   section?: string;
+  /** Seite zeigt die Breadcrumb: deren Hintergrundbild vorladen */
+  breadcrumb?: boolean;
 }
-const { page, kind, section } = Astro.props;
+const { page, kind, section, breadcrumb = false } = Astro.props;
 
 // Title: seo_title (Frontmatter) > Startseite: globaler SEO-Titel > "Seitentitel – Christoph B. Reimann"
 let title: string;
@@ -110,6 +115,14 @@ const css = await getCssBundle();
   {blogPublic && <link rel="alternate" type="application/rss+xml" title={siteTitle} href={absUrl(specialPaths.feed)}>}
 
   <JsonLd page={page} image={ogImage} />
+
+  {/* Früh laden, was sonst erst nach dem CSS entdeckt wird: die Text-Schriften
+      (crossorigin ist bei Schriften Pflicht, sonst lädt der Browser sie doppelt)
+      und das Hintergrundbild der Breadcrumb. */}
+  {preloadFontPaths.map((path) => (
+    <link rel="preload" href={relUrl(path)} as="font" type="font/woff2" crossorigin>
+  ))}
+  {breadcrumb && <link rel="preload" href={relUrl(breadcrumbBgPath)} as="image" type="image/png" fetchpriority="high">}
 
   <link rel="stylesheet" href={css.href}>
 </head>
