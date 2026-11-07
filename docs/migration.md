@@ -181,6 +181,16 @@ on:
 permissions:
   contents: write
 
+# Alle Läufe, die auf gh-pages schreiben, laufen nacheinander (auch main und Vorschauen
+# untereinander und preview_cleanup.yml mit derselben Gruppe). Ohne das scheitern gleichzeitige
+# Pushes mit "non-fast-forward". cancel-in-progress: false, damit ein Deploy nie mittendrin
+# abgebrochen wird. Achtung: Pro Gruppe wartet höchstens ein Lauf, ein neuerer ersetzt den
+# wartenden. Ein wartender Deploy von main kann so von einem späteren Vorschau-Push verdrängt
+# werden; dann main erneut anstoßen.
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
+
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
@@ -206,6 +216,12 @@ jobs:
 
       - run: npm ci
       - run: npm run verify         # build + check + test (mit SITE und BASE_PATH, auch für Vorschauen)
+
+      # Vorschauen sind keine eigene Domain: CNAME gehört nur in den Root von main.
+      # Nach den Tests entfernen, denn tests/files.test.mjs erwartet dist/CNAME (siehe Hinweise).
+      - name: CNAME aus Vorschau-Bau entfernen
+        if: github.ref_name != 'main'
+        run: rm dist/CNAME
 
       # Vorschau: nur den eigenen Unterordner ersetzen. Mit keep_files: false räumt die Action
       # laut ihrer Dokumentation nur destination_dir; beim ersten Deploy kontrollieren.
@@ -252,6 +268,14 @@ Hinweise:
   zwei ähnliche Dateien (`preview-cleanup.yml` und `preview_cleanup.yml`); übernommen werden sollte nur die
   neuere, `preview_cleanup.yml`.
 - `fetch-depth: 0` ist nicht nötig, weil `lastmod` aus dem Frontmatter kommt.
+- `concurrency` steht auf Workflow-Ebene, nicht am Job. `preview_cleanup.yml` muss dieselbe Gruppe
+  (`group: gh-pages`, `cancel-in-progress: false`) nennen, sonst können Aufräumen und Deploy gleichzeitig auf
+  `gh-pages` pushen.
+- `rm dist/CNAME` läuft bewusst **nach** `npm run verify`: `tests/files.test.mjs` erwartet `CNAME` in `dist/` (Datei
+  vorhanden, Inhalt eine Domain) und ist auch im Vorschau-Lauf aktiv, weil `verify` dort dieselbe Suite ausführt. Ein
+  Code-Eingriff ist nicht nötig: Getestet wird der Bau mit `CNAME`, ausgeliefert wird die Vorschau ohne. Der
+  verschachtelte Vorschau-Bau in `tests/preview.test.mjs` schreibt in ein eigenes Temp-Verzeichnis und ist davon
+  nicht berührt.
 
 ### Einmalige Handgriffe und Fallen
 
@@ -275,7 +299,9 @@ Hinweise:
   sonst entfernen). Ohne sie würde Jekyll Ordner mit führendem Unterstrich ignorieren. (Astro legt hier zwar keinen `_astro/`-Ordner an, weil
   alle Assets unter `assets/` liegen, die Datei bleibt trotzdem sinnvoll.)
 - **`CNAME`** liegt in `public/` und wird mitgebaut (`dist/CNAME`: `creimann.cc`). Er muss in `dist/` stehen, weil
-  der Deploy den Root ersetzt (sonst würde `rsync --delete` ihn entfernen); ein Test prüft das.
+  der Deploy den Root ersetzt (sonst würde `rsync --delete` ihn entfernen); ein Test prüft das. In Vorschauen wird
+  die Datei nach den Tests wieder gelöscht (Workflow-Schritt „CNAME aus Vorschau-Bau entfernen“), damit unter
+  `preview/<branch>/` kein `CNAME` liegt.
 - **Kein `actions/deploy-pages`:** Es ersetzt immer die ganze Seite; mit den Vorschauen unter `preview/` bleibt der Branch `gh-pages` das passendere Ziel.
 - **Cache:** GitHub Pages sendet `Cache-Control: max-age=600`. Der Fingerabdruck der Bündel verhindert veraltete
   Dateien; HTML ist bis zu zehn Minuten alt.
