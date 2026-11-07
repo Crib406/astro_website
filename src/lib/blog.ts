@@ -1,0 +1,135 @@
+/**
+ * Blog-Helfer: Beitragsliste, Datumsformate und die Zusammenfassung wie in Hugo
+ * (`.Summary | plainify | truncate 150`).
+ */
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+export type BlogEntry = CollectionEntry<'blog'>;
+
+/** Zeitzone der Frontmatter-Daten (in der Referenz stehen sie mit +01:00/+02:00). */
+const TZ = 'Europe/Berlin';
+
+/** URL-Segment eines Beitrags (Hugo: Frontmatter `slug`). */
+export const slugOf = (entry: BlogEntry): string => entry.data.slug ?? entry.id;
+
+/** Veröffentlichte Beiträge (ohne Entwürfe), Datum absteigend wie in Hugo. */
+export async function getPosts(): Promise<BlogEntry[]> {
+  const all = await getCollection('blog', ({ data }) => data.draft !== true);
+  return all.sort(
+    (a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0),
+  );
+}
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+function berlinParts(d: Date) {
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: TZ,
+      hourCycle: 'h23',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      timeZoneName: 'longOffset',
+    })
+      .formatToParts(d)
+      .map((x) => [x.type, x.value]),
+  );
+  const off = p.timeZoneName === 'GMT' ? '+00:00' : p.timeZoneName.replace('GMT', '');
+  return { ...p, offset: off } as Record<string, string>;
+}
+
+/** Hugo `02. Jan 2006` (englische Monatskürzel, wie in der Referenz). */
+export function formatListDate(d: Date): string {
+  const p = berlinParts(d);
+  return `${p.day}. ${MONTHS[Number(p.month) - 1]} ${p.year}`;
+}
+
+/** Hugo `02.01.2006`. */
+export function formatPostDate(d: Date): string {
+  const p = berlinParts(d);
+  return `${p.day}.${p.month}.${p.year}`;
+}
+
+/** RFC 822 mit numerischem Offset (Hugo: `.Date.Format "Mon, 02 Jan 2006 15:04:05 -0700"`). */
+export function formatRfc822(d: Date): string {
+  const p = berlinParts(d);
+  const wd = WEEKDAYS[new Date(Date.UTC(Number(p.year), Number(p.month) - 1, Number(p.day))).getUTCDay()];
+  return `${wd}, ${p.day} ${MONTHS[Number(p.month) - 1]} ${p.year} ${p.hour}:${p.minute}:${p.second} ${p.offset.replace(':', '')}`;
+}
+
+/** Kleiner Ersatz für Hugos Inline-Markdown (Goldmark mit Typographer) der Summary. */
+function inlineHtml(md: string): string {
+  let s = md
+    .replace(/<[^>]*>/g, '') // rohes HTML wird (wie in Hugo ohne unsafe) nicht übernommen
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  s = s
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1');
+  s = s
+    .replace(/(^|[\s(\[>])"/g, '$1&ldquo;')
+    .replace(/"/g, '&rdquo;')
+    .replace(/(^|[\s(\[>])'/g, '$1&lsquo;')
+    .replace(/'/g, '&rsquo;')
+    .replace(/\.\.\./g, '&hellip;')
+    .replace(/---/g, '&mdash;')
+    .replace(/--/g, '&ndash;');
+  return s;
+}
+
+/**
+ * Hugos `.Summary` eines Beitrags als Inline-HTML: das Frontmatter-Feld
+ * `summary`, sonst die ersten 70 Wörter des Textes (Hugo-Standard).
+ */
+export function summaryHtml(entry: BlogEntry): string {
+  const fm = entry.data.summary;
+  if (fm) return inlineHtml(fm.trim());
+  const text = (entry.body ?? '')
+    .replace(/^#+\s.*$/gm, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/[*_`>#-]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return inlineHtml(text.split(' ').slice(0, 70).join(' '));
+}
+
+/** Hugo `plainify`: Tags entfernen, Entitäten bleiben stehen. */
+export const plainify = (html: string): string => html.replace(/<[^>]*>/g, '');
+
+/**
+ * Hugo `truncate` (tpl/strings): gezählt wird in Zeichen; wird das (length+1)-te
+ * Zeichen erreicht, wird am Ende des letzten vollständigen Wortes abgeschnitten
+ * und " …" angehängt. Das Ergebnis ist in Hugo HTML-typisiert (nicht erneut escaped).
+ */
+export function truncate(text: string, length: number, omission = ' …'): string {
+  const chars = [...text];
+  if (chars.length <= length) return text;
+  let lastWordIndex = 0;
+  let lastNonSpace = 0;
+  let currentLen = 0;
+  let pos = 0; // Index in UTF-16-Einheiten
+  for (const ch of chars) {
+    currentLen++;
+    if (/\s/u.test(ch)) lastWordIndex = lastNonSpace;
+    else lastNonSpace = pos + ch.length;
+    if (currentLen > length) {
+      const end = lastWordIndex === 0 ? pos : lastWordIndex;
+      return text.slice(0, end) + omission;
+    }
+    pos += ch.length;
+  }
+  return text;
+}
+
+/** `.Summary | plainify | truncate 150` (Text enthält ggf. HTML-Entitäten; per set:html ausgeben). */
+export function listSummary(entry: BlogEntry): string {
+  return truncate(plainify(summaryHtml(entry)).trim(), 150);
+}

@@ -1,0 +1,83 @@
+---
+/*
+  Blog-Übersicht (Hugo: layouts/blog/list.html). Seitendaten aus der
+  Collection-Seite `blog`, Beiträge ohne Entwürfe, neueste zuerst.
+*/
+import { getEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import { relUrl } from '../../lib/site';
+import { formatListDate, getPosts, listSummary, slugOf } from '../../lib/blog';
+
+const entry = (await getEntry('pages', 'blog'))!;
+const { data } = entry;
+const posts = await getPosts();
+---
+<BaseLayout
+  title={data.title}
+  description={data.description}
+  seoTitle={data.seo_title}
+  jsonld={data.jsonld}
+  lastmod={data.lastmod}
+  kind="section"
+  section="blog"
+>
+  <Breadcrumb pageTitle={data.title} crumbName="Blog" />
+
+  <div class="blog-classic-area-wrapper tmp-section-gap">
+    <div class="container">
+      <div class="row">
+        {posts.map((post, i) => {
+          const href = relUrl(`blog/${slugOf(post)}/`);
+          const summary = listSummary(post);
+          return (
+            <div class="col-lg-4 col-md-6 col-sm-6">
+              <div class={`blog-card tmp-hover-link image-box-hover tmp-scroll-trigger tmp-fade-in animation-order-${(i % 3) + 1}`}>
+                <div class="img-box">
+                  <a href={href}>
+                    {post.data.image && (
+                      <img class="w-100" src={relUrl(post.data.image)} alt={post.data.title} width="1000" height="600" loading="lazy" decoding="async">
+                    )}
+                  </a>
+                  <ul class="blog-tags">
+                    {post.data.category && (
+                      <li>
+                        <span class="tag-icon">
+                          <i class="fa-solid fa-tag"></i>
+                        </span>
+                        {post.data.category}
+                      </li>
+                    )}
+                    <li>
+                      <span class="tag-icon">
+                        <i class="fa-solid fa-calendar-days"></i>
+                      </span>
+                      {post.data.date && formatListDate(post.data.date)}
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="blog-content-wrap">
+                  <h3 class="blog-title">
+                    <a class="link" href={href}>{post.data.title}</a>
+                  </h3>
+
+                  {summary && <p class="para" set:html={summary} />}
+
+                  <div class="more-btn tmp-link-animation">
+                    <a href={href} class="read-more-btn">
+                      Mehr lesen
+                      <span class="read-more-icon">
+                        <i class="fa-solid fa-angle-right"></i>
+                      </span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+</BaseLayout>
