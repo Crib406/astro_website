@@ -13,7 +13,8 @@
  * Attributreihenfolge, Hashes der Bündel-URLs, JSON-LD (geparst, Schlüssel
  * sortiert), Kommentaren und der Hugo-Generator-Meta. Nicht-HTML-Dateien
  * (sitemap.xml, robots.txt, RSS, statische Dateien) werden mitgeprüft.
- * Bewusst akzeptierte Abweichungen stehen in scripts/compare-hugo.allow.json.
+ * Bewusst akzeptierte Abweichungen stehen in scripts/compare-hugo.allow.json
+ * (page, path-Präfix, optional exp/act als genauer Wert, reason).
  * Exit-Code 1 bei Abweichungen, 2 bei falscher Bedienung.
  */
 import fs from 'node:fs';
@@ -54,8 +55,20 @@ if (!fs.existsSync(distDir)) {
 const allowFile = path.join(here, 'compare-hugo.allow.json');
 /** @type {{page:string,path:string,reason?:string}[]} */
 const allow = fs.existsSync(allowFile) ? JSON.parse(fs.readFileSync(allowFile, 'utf8')) : [];
+/**
+ * Eine Ausnahme gilt nur, wenn Seite und Pfad-Präfix passen und, falls
+ * angegeben, auch der erwartete (`exp`) bzw. tatsächliche (`act`) Wert genau
+ * dem Eintrag entspricht. So sind bewusste Abweichungen einzeln benannt und
+ * keine Pauschalfreigabe für ganze Pfade.
+ */
 const isAllowed = (d) =>
-  allow.some((a) => (a.page === '*' || a.page === d.page) && d.path.startsWith(a.path ?? ''));
+  allow.some(
+    (a) =>
+      (a.page === '*' || a.page === d.page) &&
+      d.path.startsWith(a.path ?? '') &&
+      (a.exp === undefined || a.exp === d.exp) &&
+      (a.act === undefined || a.act === d.act),
+  );
 
 /* ---------- Dateien ---------- */
 
@@ -416,7 +429,7 @@ for (const [key, refFile] of [...refMap].sort(([a], [b]) => a.localeCompare(b)))
 
 // Zusätzliche Seiten/Feeds in dist, die es in der Referenz nicht gibt
 for (const key of [...distMap.keys()].sort()) {
-  if (!wanted(key) || refMap.has(key) || !isText(key)) continue;
+  if (!wanted(key) || refMap.has(key)) continue;
   record(key, [{ path: '(Datei)', exp: 'fehlt in Referenz', act: 'vorhanden in dist' }]);
 }
 
