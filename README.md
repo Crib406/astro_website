@@ -7,7 +7,8 @@ URLs sind gleich geblieben (siehe `docs/migration.md`). Ausgeliefert wird über 
 ## Voraussetzungen
 
 - Node.js 22.23.4 oder neuer (Vorgabe von Astro 7; entwickelt mit Node 26) und npm
-- sonst nichts: Dart Sass (`sass`) und esbuild kommen als npm-Pakete mit
+- sonst nichts für Bau und Tests: Dart Sass (`sass`) und esbuild kommen als npm-Pakete mit
+- nur für die Werkzeuge in `tools/` (Icon-Teilmenge, Favicons): Python 3 mit `pip install fonttools brotli pillow`
 
 ## Befehle
 
@@ -28,7 +29,11 @@ Einzeln:
 npm run check        # astro check (Typen, .astro-Dateien), muss 0 Fehler liefern
 npm test             # tests/*.test.mjs gegen dist/ (vorher bauen)
 HUGO_REF_DIR=/pfad/zum/hugo-public-raw npm run compare:hugo   # Vergleich mit dem Hugo-Referenzbau
+python3 tools/check-icons.py     # jedes benutzte Font-Awesome-Icon ist im Schnitt vorhanden (braucht fonttools)
 ```
+
+Das Skript `tools/build-fontawesome-subset.py` erzeugt die Icon-Teilmenge neu, `tools/build-favicons.py` die
+Favicons (Einzelheiten in `CLAUDE.md`). `tools/` wird nicht mitgebaut.
 
 Branch-Vorschau lokal bauen (die CI setzt dieselben Variablen):
 
@@ -54,7 +59,8 @@ automatisch miterwartet.
   lässt die ganze Suite dagegen laufen. Von Hand gegen einen vorhandenen Vorschau-Bau:
   `DIST_DIR=/pfad BASE_PATH=/preview/x/ npm test` (optional `SITE`).
 - `npm run compare:hugo` vergleicht jede Seite mit dem Hugo-Referenzbau (`HUGO_REF_DIR`, am besten der
-  unminifizierte Bau). Ausgabe je Datei `OK` oder eine Liste der Abweichungen, Exit-Code 1 bei Abweichungen.
+  unminifizierte Bau). Ausgabe je Datei `OK` oder eine Liste der Abweichungen, Exit-Code 1 bei Abweichungen oder
+  bei Einträgen der Ausnahmenliste ohne Treffer.
   Mit `-- --all` alle Abweichungen, mit Dateinamen nur einzelne Seiten
   (`npm run compare:hugo -- about/index.html`). Bewusst akzeptierte Abweichungen stehen in
   `scripts/compare-hugo.allow.json`.

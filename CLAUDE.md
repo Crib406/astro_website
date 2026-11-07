@@ -74,28 +74,19 @@ Punkt 12.
 
 **Font Awesome liegt nur als Teilmenge vor.** Ein neues Icon erscheint sonst als leeres Kästchen.
 Die Teilmenge besteht aus `src/legacy/scss/vendor/_fontawesome-subset.scss` und vier
-`public/assets/fonts/fa-subset-*.woff2`. Erzeugt wurde sie mit den Hugo-Werkzeugen
-`tools/build-fontawesome-subset.py` und `tools/check-icons.py` — **die wurden bei der Migration nicht
-übernommen** (sie liegen im alten Hugo-Repo, samt den Original-Schriften in `tools/fontawesome-src/`).
+`public/assets/fonts/fa-subset-*.woff2`. Erzeugt wird sie mit `tools/build-fontawesome-subset.py`
+(Original-Schriften in `tools/fontawesome-src/`), geprüft mit `tools/check-icons.py`. `tools/` liegt außerhalb
+von `src/` und `public/` und wird nicht gebaut. Beide Skripte brauchen `pip install fonttools brotli`.
 Vorgehen bei einem neuen Icon:
 
-1. Prüfen, ob es fehlt. Benutzte Icons ausgeben und mit der Teilmenge vergleichen:
-   ```bash
-   grep -rhoE 'class="[^"]*fa-[^"]*"' src/components src/layouts src/pages src/content \
-     | grep -oE '\bfa-[a-z0-9-]+' | sort -u
-   grep -oE '\.fa-[a-z0-9-]+::before' src/legacy/scss/vendor/_fontawesome-subset.scss | sort -u
-   ```
-   (Die Stil-Klassen `fa-solid`, `fa-regular`, `fa-light`, `fa-brands`, `fa-sharp` gehören nicht dazu.)
-2. `tools/` aus dem Hugo-Repo in einen **eigenen Ordner außerhalb von `public/`** kopieren, das Icon in die
-   Liste `ICONS` von `build-fontawesome-subset.py` eintragen und die Ausgabepfade anpassen:
-   `FONT_DIR` auf `public/assets/fonts`, `OUT_SCSS` auf `src/legacy/scss/vendor/_fontawesome-subset.scss`;
-   in `check-icons.py` ebenso, und statt `layouts/` und `content/` die Ordner `src/` durchsuchen.
-   Das Skript braucht `pip install fonttools brotli`.
-3. Skript laufen lassen, danach `python3 check-icons.py` (meldet fehlende Zeichen), `npm run verify`
-   und das Icon im Browser ansehen.
+1. Icon in die Liste `ICONS` in `tools/build-fontawesome-subset.py` eintragen.
+2. `python3 tools/build-fontawesome-subset.py` ausführen. Das schreibt die SCSS-Datei und die vier Schriften neu.
+3. `python3 tools/check-icons.py` ausführen: es sucht alle `fa-…`-Klassen in `src/**/*.astro` und
+   `src/content/**/*.md` und meldet Icons, die im benutzten Schnitt fehlen (sonst leeres Kästchen).
+4. `npm run verify` und das Icon im Browser ansehen.
 
-Sinnvoll wäre, `tools/` einmalig ins Astro-Repo zu holen und die Pfade dort dauerhaft anzupassen
-(siehe `docs/migration.md`, „Offene Punkte“).
+Die Favicons (`public/favicon.ico`, `public/assets/images/favicon/`) erzeugt `python3 tools/build-favicons.py`
+(braucht zusätzlich `pillow`); das Monogramm „CBR“ steht im Skript.
 
 **Hervorhebungen werden gegen den Fließtext gemessen, nicht gegen den Hintergrund.** Eine Farbe kann auf
 dunklem Grund gut lesbar sein und trotzdem neben dem cremefarbenen Text zurückfallen.
