@@ -47,11 +47,20 @@ h1, h2, h3, h4, h5, h6,
 
     a {
         color: var(--color-accent-strong);
-
-        &:hover {
-            text-decoration: underline;
-        }
     }
+}
+
+// Links im Fliesstext: dauerhaft fein unterstrichen, damit sie nicht nur ueber
+// die Farbe erkennbar sind (WCAG 1.4.1: Akzentgruen gegen Fliesstext misst nur
+// 1,73:1, und nicht klickbare Hervorhebungen tragen dieselbe Farbe).
+// Gilt nur fuer Links in Absaetzen und Listen der Inhaltsbereiche, nicht fuer
+// Buttons, Menue, Footer, Karten-Links oder Breadcrumb.
+.blog-details-left-area .disc a:not(.tmp-btn),
+.text-para-doc-wrap .text-para-documents a:not(.tmp-btn) {
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent-strong);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
 }
 
 // Das Banner blendet zwei fest verdrahtete #FF014F-Blurflaechen ein
