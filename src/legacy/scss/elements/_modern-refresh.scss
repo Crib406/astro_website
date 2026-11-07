@@ -198,12 +198,17 @@ h1, h2, h3, h4, h5, h6,
         // deshalb unter den Namen, damit dieser auf dem ersten Bildschirm steht.
         margin-bottom: -24px;
 
-        img {
-            width: 100%;
-            height: 44vh;
-            height: 44svh;
-            object-fit: cover;
-            object-position: center top;
+        // Die Begrenzung gilt nur im Hochformat: im Querformat (z. B. 667x375)
+        // waeren 44svh nur ~165px und zeigten Haare und Stirn. Dort bleibt das
+        // Foto wie im Template.
+        @media (orientation: portrait) {
+            img {
+                width: 100%;
+                height: 44vh;
+                height: 44svh;
+                object-fit: cover;
+                object-position: center top;
+            }
         }
     }
 }
@@ -724,11 +729,34 @@ p {
 
 // Tastaturfokus. Das Template setzt ueberall outline: none (default/_reset.scss,
 // z. B. a:focus mit 0-1-1), eine :focus-visible-Regel allein (0-1-0) verlore.
-// "html :focus-visible" (0-2-1) schlaegt alle diese Regeln. Maus-Klicks loesen
-// :focus-visible nicht aus, dort bleibt es ohne Linie.
-html :focus-visible {
+// ":root :focus-visible" hat 0-2-0 und schlaegt alle diese Regeln. Maus-Klicks
+// loesen :focus-visible nicht aus, dort bleibt es ohne Linie.
+// Das Template animiert ueberall "transition: all .4s": ohne outline-Reset
+// wuerde der Rahmen erst einblenden. Fuer den Fokus soll er sofort da sein.
+:root :focus-visible {
     outline: 2px solid var(--color-accent-strong);
     outline-offset: 3px;
+    transition-property: none;
+}
+
+// Links, die Block-Inhalt umschliessen (<a><p>..</p></a>, <a><div>..</div></a>):
+// Chrome zeichnet die Outline eines inline-<a> mit Block-Kindern nicht. Der
+// Rahmen sitzt deshalb am Kind, am <a> selbst entfaellt er (docs/template-
+// fallen.md, Punkt 13). Layout bleibt unveraendert.
+.logo a:focus-visible,
+.service-card-link:focus-visible {
+    outline: none;
+}
+
+.logo a:focus-visible > p {
+    outline: 2px solid var(--color-accent-strong);
+    outline-offset: 3px;
+}
+
+.service-card-link:focus-visible > .service-card-v1 {
+    outline: 2px solid var(--color-accent-strong);
+    outline-offset: 3px;
+    transition-property: none;
 }
 
 // Skip-Link: erstes Element im body, nur bei Tastaturfokus sichtbar.
@@ -755,8 +783,11 @@ html :focus-visible {
     }
 }
 
-// Ziel des Skip-Links bekommt beim Sprung keinen Fokusring.
-main:focus {
+// Ziel des Skip-Links bekommt beim Sprung keinen Fokusring. Per Tastatur
+// ausgeloest trifft hier auch :focus-visible zu, deshalb :root davor (0-2-1
+// gegen die 0-2-0 der allgemeinen Fokusregel).
+:root main:focus,
+:root main:focus-visible {
     outline: none;
 }
 
@@ -775,4 +806,26 @@ main:focus {
 
 .tmp-popup-mobile-menu .tmp-mainmenu li a[aria-current="page"] {
     color: var(--color-primary);
+}
+
+// Mobiles Menue: Die Kinder tragen "transition: all" (Template). Dabei laeuft
+// auch das geerbte visibility ueber die Zeit - im ersten Takt nach dem Oeffnen
+// waere ein Link noch nicht fokussierbar. visibility bleibt deshalb aus der
+// Transition; Einfahren (left/right) und Einblenden (opacity) sind unveraendert.
+// Doppelte Klasse = 0-3-0, schlaegt auch .tmp-popup-mobile-menu .tmp-mainmenu li a (0-2-2).
+.tmp-popup-mobile-menu.tmp-popup-mobile-menu .inner,
+.tmp-popup-mobile-menu.tmp-popup-mobile-menu .inner * {
+    transition-property: opacity, left, right, transform, color, background-color, border-color, box-shadow;
+}
+
+// Kontaktkarten (/kontakt/, Seitenleiste im Blogbeitrag) gleich hoch: die
+// Karten stehen in Bootstrap-Spalten (gleich hoch), der Link und die Karte
+// fuellen die Spalte. Inhalt bleibt oben wie bisher.
+.row > [class*="col-"] > .service-card-link {
+    display: block;
+    height: 100%;
+
+    > .service-card-v1 {
+        height: 100%;
+    }
 }
