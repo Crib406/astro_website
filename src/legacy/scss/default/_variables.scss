@@ -1,0 +1,155 @@
+:root {
+
+    // UI-Refresh 2026: dunkles Waldgruen / Messing statt Neon-Pink auf Schwarz
+    --color-paper: #161A12;      // Seitenhintergrund
+    --color-surface: #1E2418;    // Karten / abgesetzte Flaechen
+    --color-surface-2: #262D1E;  // noch eine Stufe heller
+    --color-ink: #ECEAE0;        // Ueberschriften / heller Text
+    --color-ink-soft: #A8AD9A;   // Fliesstext
+    --color-line: #333A29;       // Linien / Raender
+
+    --color-accent: #8FB89A;         // helles Gruen: Buttons, Akzente
+    // Hervorgehobene Woerter stehen im cremefarbenen Fliesstext
+    // (--color-ink #ECEAE0). Entscheidend ist der Abstand zu DIESEM Text,
+    // nicht zum Hintergrund. Zwei Fallstricke:
+    //   - zu dunkel (#6BE6A0) -> faellt gegenueber dem Fliesstext zurueck
+    //   - zu blass (#8CFFC0)  -> Helligkeit passt, aber zu viel Weissanteil,
+    //     dadurch farblich zu nah am Creme
+    // #2BFF8A haelt die Helligkeit und verdoppelt den Farbabstand
+    // (Delta-E 81 statt 48), Kontrast zum Hintergrund bleibt bei 13:1.
+    --color-accent-strong: #2BFF8A;
+    --color-accent-tint: #26332A;    // gruene Flaeche hinter Icons
+    --color-brass: #D6AA62;          // warmer Zweitakzent (Eyebrow, Chip)
+    --color-brass-tint: #3A331E;
+
+    // themes color
+    --color-primary: var(--color-accent);
+    --color-primary-alt: var(--color-accent-strong);
+    --color-primary-2nd: #FF494A;
+    --color-primary-3rd: #FDC448;
+    --color-primary-4th: #0071ff;
+    --color-secondary: var(--color-paper);
+    --color-white:#ffffff;
+
+
+    --color-gray: var(--color-ink-soft);
+    --color-gray-2: var(--color-surface);
+    --color-subtitle: var(--color-brass);
+    
+     
+    // background-color
+    --background-color-1: #24243557;
+    --background-color-2: #13131d;
+    --background-color-3: #151521;
+    --background-color-4: #242435;
+    --background-color-5: #EDF5FF;
+    --color-card: var(--color-surface);
+
+    // color gradient
+    --gradient-box: linear-gradient(to right, #5237f9, #FF014F);
+    
+    --gradient-one: linear-gradient(to right bottom, #E42032, #1273EB);
+    --gradient-two: linear-gradient(to right, #ED145B, #4A11EB);
+    --gradient-three: linear-gradient(to right, #03041c, #0612b3);
+    --text-gradient-one:linear-gradient(to right, #E42032, #4A11EB);
+
+    // typo Color
+    --color-heading: var(--color-ink);
+    --color-body: var(--color-ink-soft);
+    --color-dark:#1d1d1d;
+
+
+    // text extra color
+    --color-text-1:#DEDEDE;
+    --color-light-heading: #181c32;
+    --color-light-body: #65676b;
+    --color-border-white: #00000024;
+
+    // Gery Colors 
+    --color-midgray: #878787;
+    --color-light: #E4E6EA;
+    --color-lighter: #CED0D4;
+    --color-lightest: #F0F2F5;
+    --color-border: var(--color-line);
+    --color-white: #ffffff;
+    --color-white-75: rgba(255, 255, 255, 0.75);
+
+
+    // notify Colors
+    --color-success: #3EB75E;
+    --color-danger: #FF0003;
+    --color-warning: #FF8F3C;
+    --color-info: #1BA2DB;
+
+
+    //Social icon colors
+    --color-facebook: #3B5997;
+    --color-twitter: #1BA1F2;
+    --color-youtube: #ED4141;
+    --color-linkedin: #0077B5;
+    --color-pinterest: #E60022;
+    --color-instagram: #C231A1;
+    --color-vimeo: #00ADEF;
+    --color-twitch: #6441A3;
+    --color-discord: #7289da;
+
+    // Font Family
+    --font-primary: 'Fraunces', ui-serif, Georgia, serif;
+    --font-secondary: 'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
+    --font-three: 'fontawesome';
+
+    // Font weight
+    --p-light: 300;
+    --p-regular: 400;
+    --p-medium: 500;
+    --p-semi-bold: 600;
+    --p-bold: 700;
+    --p-extra-bold: 800;
+    --p-black: 900;
+   
+    // Font weight
+    --s-light: 300;
+    --s-regular: 400;
+    --s-medium: 500;
+    --s-semi-bold: 600;
+    --s-bold: 700;
+    --s-extra-bold: 800;
+    --s-black: 900;
+
+    --border-width: 2px;
+    --radius: 10px;
+    
+
+    //transition easing
+    --transition: all 0.4s ease-in-out;
+
+    //Fonts Size
+    --font-size-b1: 16px;
+    --font-size-b2: 18px;
+    --font-size-b3: 22px;
+
+
+    //Line Height
+    --line-height-b1: 1.75;
+    --line-height-b2: 1.6;
+    --line-height-b3: 1.7;
+
+
+    // Heading Font
+    --h1: 60px;
+    --h2: 36px;
+    --h3: 27px;
+    --h4: 24px;
+    --h5: 20px;
+    --h6: 18px;
+}
+
+// Layouts Variation
+$smlg-device: 'only screen and (max-width: 1199px)';
+$extra-device: 'only screen and (min-width: 1600px) and (max-width: 1919px)';
+$laptop-device: 'only screen and (min-width: 1200px) and (max-width: 1599px)';
+$lg-layout: 'only screen and (min-width: 992px) and (max-width: 1199px)';
+$md-layout:'only screen and (min-width: 768px) and (max-width: 991px)';
+$sm-layout:'only screen and (max-width: 767px)';
+$large-mobile: 'only screen and (max-width: 575px)';
+$small-mobile: 'only screen and (max-width: 479px)';    

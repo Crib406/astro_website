@@ -1,0 +1,20 @@
+/*----------------------------
+ Self-hosted Fonts
+ (ersetzt den Google-Fonts-Import von Rajdhani/Rubik)
+----------------------------*/
+
+@font-face {
+    font-family: 'Fraunces';
+    src: url('../fonts/fraunces/fraunces-variable.woff2') format('woff2');
+    font-weight: 300 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Source Sans 3';
+    src: url('../fonts/source-sans-3/source-sans-3-variable.woff2') format('woff2');
+    font-weight: 300 700;
+    font-style: normal;
+    font-display: swap;
+}

@@ -1,0 +1,97 @@
+# Wer hinter der Website steht, als schema.org-Person.
+#
+# Wird von layouts/partials/jsonld.html als Knoten mit der @id
+# <Startseite>#person ausgegeben und von jeder Seite per @id referenziert.
+# Die Schluessel muessen der schema.org-Schreibweise folgen (camelCase);
+# @type, @id, url und image setzt das Partial selbst.
+#
+# sameAs ist das wichtigste Feld fuer die Suche nach dem Namen: Es sagt
+# Google, welche Profile zu derselben Person gehoeren. Jedes weitere Profil
+# (XING, Vereins- oder Alumni-Seite) gehoert hier hinein — und sollte
+# moeglichst seinerseits auf creimann.cc zurueckverlinken.
+
+name: "Christoph B. Reimann"
+alternateName:
+  - "Christoph Reimann"
+  - "Christoph Bruno Reimann"
+jobTitle: "Betriebswirt und Generalist"
+description: "Betriebswirt und Generalist für Unternehmenskultur, Struktur und vertrauensvolle Zusammenarbeit. Verbindet Strategie, Führung und Praxis – mit Klarheit, Integrität und Menschlichkeit."
+
+sameAs:
+  - "https://www.linkedin.com/in/christoph-b-reimann-192328227/"
+
+address:
+  "@type": "PostalAddress"
+  addressLocality: "Bad Harzburg"
+  addressRegion: "Niedersachsen"
+  addressCountry: "DE"
+
+homeLocation:
+  "@type": "Place"
+  name: "Bad Harzburg (Harz), Landkreis Goslar"
+  address:
+    "@type": "PostalAddress"
+    addressLocality: "Bad Harzburg"
+    addressRegion: "Niedersachsen"
+    addressCountry: "DE"
+
+areaServed:
+  - "Bad Harzburg"
+  - "Harz"
+  - "Landkreis Goslar"
+  - "Niedersachsen"
+
+alumniOf:
+  - "@type": "CollegeOrUniversity"
+    name: "DHBW Mosbach"
+    sameAs: "https://www.mosbach.dhbw.de/"
+
+hasCredential:
+  - "@type": "EducationalOccupationalCredential"
+    name: "Duales Studium Holzbetriebswirtschaftslehre (BWL)"
+    credentialCategory: "degree"
+    recognizedBy:
+      "@type": "CollegeOrUniversity"
+      name: "DHBW Mosbach"
+      sameAs: "https://www.mosbach.dhbw.de/"
+  - "@type": "EducationalOccupationalCredential"
+    name: "Ausbildung zum Groß- und Außenhandelskaufmann"
+    credentialCategory: "Apprenticeship"
+  - "@type": "EducationalOccupationalCredential"
+    name: "Individualpsychologischer Berater (ADI)"
+    credentialCategory: "certificate"
+    recognizedBy:
+      "@type": "Organization"
+      name: "Adler-Dreikurs-Institut (ADI)"
+      sameAs: "https://www.adler-dreikurs-institut.de/"
+
+hasOccupation:
+  "@type": "Occupation"
+  name: "Betriebswirt und Generalist im Mittelstand"
+  description: "Verbindet betriebswirtschaftliches Denken mit psychologischer Kompetenz und technischer Praxis, um Zusammenarbeit wirksam zu gestalten."
+  # skills gehoert bei schema.org zur Occupation, nicht zur Person.
+  skills:
+    - "Führen auf Augenhöhe"
+    - "Ermutigende Führung"
+    - "Vielseitigkeit"
+    - "Lernbereitschaft"
+    - "Prozessgestaltung"
+    - "Organisationsentwicklung"
+    - "Psychologische Sicherheit"
+    - "Klarheit & Struktur"
+
+knowsAbout:
+  - "Fehlerkultur"
+  - "Prozessgestaltung"
+  - "Change im Mittelstand"
+  - "Organisationsentwicklung"
+  - "Leadership"
+  - "Führung"
+  - "Psychologie"
+  - "Individualpsychologie"
+  - "Scrum"
+  - "Agiles Arbeiten"
+  - "Menschenkenntnis"
+  - "Faires Miteinander"
+  - "Verbindungen schaffen"
+  - "Menschen"

@@ -1,0 +1,688 @@
+/*----------------------------
+ UI-Refresh 2026
+ Dunkle Waldgruen-Palette auf Basis der bestehenden Template-Struktur.
+ Das Template ist von Haus aus dunkel, es bekommt hier nur eine neue
+ Farbwelt und eine saubere Schriftzuordnung. Laeuft zuletzt, damit es
+ gegenueber template/color-theme gewinnt.
+----------------------------*/
+
+body {
+    background: var(--color-paper);
+}
+
+// Das Template setzt global body{} auf --font-primary und h1-h6{} auf
+// --font-secondary - also Display-Schrift fuer Fliesstext und umgekehrt.
+// Die Element-Regeln (Banner-Titel, .service-title = primary; Buttons,
+// .service-para = secondary) stimmen dagegen, deshalb nur diese beiden
+// globalen Regeln geradeziehen.
+body {
+    font-family: var(--font-secondary);
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: var(--font-primary);
+}
+
+// Hervorgehobene Woerter im Fliesstext: kraeftiges Gruen, damit sie sich
+// vom hellen Fliesstext auf dunklem Grund klar abheben.
+// Die Spezifitaet muss die Template-Regel
+// .text-para-doc-wrap .text-para-documents span (zwei Klassen) schlagen.
+.text-para-doc-wrap .text-para-documents span,
+.text-para-doc-wrap .text-para-documents a span,
+.section-title span,
+.title span {
+    color: var(--color-accent-strong);
+}
+
+// Auf den Unterseiten sind einzelne Woerter im Fliesstext als <span>
+// ausgezeichnet ("LinkedIn", "Austausch") - offensichtlich als Hervorhebung
+// gemeint, wie auf der Startseite. Eine Regel dafuer fehlte, sie wurden also
+// nie farbig dargestellt. Links im Fliesstext waren ausserdem nicht von
+// normalem Text zu unterscheiden.
+.blog-details-left-area .disc {
+    span {
+        color: var(--color-accent-strong);
+    }
+
+    a {
+        color: var(--color-accent-strong);
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+// Das Banner blendet zwei fest verdrahtete #FF014F-Blurflaechen ein
+// (Rest der Pink-Herkunft des Templates). In der hellen Variante waren
+// sie ausgeblendet, im dunklen Modus leuchten sie rot durch.
+.rpp-banner-two-area {
+    &::before,
+    &::after {
+        background: var(--color-accent);
+        opacity: 0.16;
+    }
+}
+
+/*----------------------------
+ Hero
+----------------------------*/
+.banner-two-main-wrapper {
+    .inner {
+        // Eyebrow "Ich bin" in warmem Messing. Die Spezifitaet muss die
+        // Template-Regel .banner-two-main-wrapper .inner .sub-title
+        // schlagen, die hier --color-primary setzt.
+        .sub-title {
+            color: var(--color-brass);
+            font-family: var(--font-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+        }
+
+        .title {
+            margin-bottom: 18px;
+        }
+    }
+}
+
+// Zwischenzeile mit vorangestelltem Strich.
+// Die Zeile ist eine Hervorhebung, keine Beschriftung, deshalb die kraeftige
+// Akzentfarbe wie bei den hervorgehobenen Woertern im Fliesstext. Mit dem
+// gedaempften --color-accent fiel sie neben dem cremefarbenen Namen zurueck.
+// Der Strich bleibt gedaempft: er ist Schmuck, die Zeile ist die Aussage.
+.hero-kicker {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--color-accent-strong);
+    font-family: var(--font-secondary);
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 26px;
+
+    &::before {
+        content: "";
+        flex: 0 0 auto;
+        width: 34px;
+        height: 2px;
+        background: var(--color-accent);
+    }
+
+    @media (max-width: 767px) {
+        font-size: 18px;
+        gap: 10px;
+
+        &::before {
+            width: 22px;
+        }
+    }
+}
+
+.hero-lead {
+    color: var(--color-ink-soft);
+    font-family: var(--font-secondary);
+    font-size: 20px;
+    line-height: 1.65;
+    max-width: 46ch;
+    margin-bottom: 34px;
+
+    // Lag hier bei 18px, waehrend der Fliesstext der Unterseiten auf 17px
+    // fiel - dieselbe Rolle in zwei Groessen.
+    @media #{$sm-layout} {
+        font-size: 18px;
+    }
+
+    // Hervorgehobene Woerter wie im uebrigen Fliesstext. Der Absatz liegt
+    // NICHT in einem .inv-title-animation-wrap, die Split-Text-Animation
+    // kann hier also nichts zerlegen.
+    span {
+        color: var(--color-accent-strong);
+        font-weight: 600;
+    }
+}
+
+// Freigestelltes PNG wuerde mit Rahmen eine schwebende Linie ergeben -
+// deshalb hier bewusst das nicht freigestellte Foto (ich_cropped.webp).
+.hero-portrait {
+    display: inline-block;
+
+    // Der Verlauf des Templates blendet nach #060606 aus, dem Schwarz der
+    // alten Palette. Er liegt ausserdem als Flaeche ueber dem ganzen Rahmen -
+    // bei einem freigestellten Motiv wird daraus ein dunkler Kasten neben
+    // der Silhouette. Bleibt aus, die Kanten loest stattdessen die Maske.
+    &::after {
+        display: none;
+    }
+
+    // Das Freistellen schneidet Oberkoerper und Arm an der rechten und
+    // unteren Rahmenkante senkrecht ab. Beide Kanten laufen deshalb ueber
+    // eine Maske aus.
+    //
+    // Die zwei Verlaeufe sitzen bewusst auf ZWEI Ebenen - waagerecht am
+    // Rahmen, senkrecht am Bild - statt als zwei Maskenschichten an einem
+    // Element. Zwei Schichten braeuchten mask-composite, und das loeste sich
+    // im Browser zu "source-in, source-in" auf: der senkrechte Verlauf wurde
+    // dabei verschluckt, die untere Kante blieb hart. Verschachtelt
+    // multiplizieren sich die Masken von allein, ohne Compositing.
+    mask-image: linear-gradient(90deg, #000 0%, #000 86%, rgb(0 0 0 / 0%) 100%);
+    -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 86%, rgb(0 0 0 / 0%) 100%);
+
+    // Keine Rundung: das Motiv steht frei auf dem Hintergrund, eine Rundung
+    // wuerde nur den unsichtbaren Rahmen beschneiden.
+    img {
+        display: block;
+        mask-image: linear-gradient(180deg, #000 0%, #000 58%, rgb(0 0 0 / 0%) 100%);
+        -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 58%, rgb(0 0 0 / 0%) 100%);
+    }
+}
+
+.home-cta {
+    text-align: center;
+    margin-top: 46px;
+}
+
+// Werte-Karten (Startseite): Icon bekommt eine ruhige Farbflaeche statt
+// nur einem Kreis-Outline, Kartenrand folgt der neuen Linienfarbe.
+.service-card-v1 {
+    border-color: var(--color-line);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    transition: var(--transition);
+
+    &:hover {
+        border-color: var(--color-accent);
+        transform: translateY(-2px);
+    }
+
+    // Das Template gibt .service-card-icon nur min-width/min-height und
+    // laesst es als Block ueber die ganze Karte laufen - mit Hintergrund
+    // wird daraus ein Band statt einer Kachel.
+    .service-card-icon {
+        width: 60px;
+        height: 60px;
+        min-width: 0;
+        min-height: 0;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 22px;
+        font-size: 28px;
+        background: var(--color-accent-tint);
+        border-radius: 14px;
+        color: var(--color-accent);
+    }
+}
+
+// Footer: neu befuellte Spalten (Zitat + Kontakt-Kachel)
+.footer-quote {
+    font-family: var(--font-primary);
+    font-style: italic;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--color-ink);
+    margin: 0;
+    padding-left: 14px;
+    border-left: 2px solid var(--color-brass);
+}
+
+.tmp-btn {
+    // Der Button ist jetzt hellgruen - der Text darauf muss dunkel sein,
+    // nicht weiss wie im Template-Default.
+    background: var(--color-accent);
+    color: var(--color-paper);
+
+    // Die Template-Pille (radius-round, 500px) wirkte neben den
+    // Karten wie ein Fremdkoerper. Gleiche Rundung wie die Karten.
+    border-radius: 12px;
+    height: auto;
+    line-height: 1.2;
+    padding: 17px 30px;
+    font-size: 16px;
+    letter-spacing: 0;
+
+    // text-transform: capitalize aus dem Template macht aus
+    // "Mehr ueber mich erfahren" ein "Mehr Ueber Mich Erfahren" - im
+    // Deutschen falsch.
+    text-transform: none;
+    font-weight: 600;
+
+    i {
+        top: 0;
+        font-size: 15px;
+    }
+
+    .btn-text,
+    .btn-icon,
+    .btn-icon i {
+        color: inherit;
+    }
+
+    // Sicherheitsnetz: liegt ein Button doch einmal in einem Element mit
+    // Split-Text-Animation, zerlegt diese den Buttontext in einzelne
+    // Buchstaben-Divs mit opacity:0 und der Button bleibt leer. Hier
+    // erzwingen wir, dass Buttontext immer sichtbar ist.
+    .btn-text div {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    &:hover {
+        background: var(--color-accent-strong);
+        color: var(--color-paper);
+    }
+
+    // Sekundaerer Button (Umriss). Das Template setzt im Hover
+    // background: var(--color-primary) UND color: var(--color-white) - mit der
+    // hellgruenen Primaerfarbe ergaebe das weissen Text auf Hellgruen, also
+    // kaum lesbar. Deshalb hier dunkler Text wie beim primaeren Button.
+    &.btn-border {
+        border-width: 1px;
+        border-color: var(--color-line);
+        color: var(--color-ink);
+        // Das Template setzt hier line-height: 57px. Zusammen mit dem
+        // Padding oben wird der Button dadurch fast doppelt so hoch - und
+        // zieht im Flex-Container den primaeren Button mit.
+        line-height: 1.2;
+
+        &:hover {
+            background: var(--color-accent);
+            border-color: var(--color-accent);
+            color: var(--color-paper);
+        }
+    }
+}
+
+/*----------------------------
+ Hinweisleiste fuer Branch-Vorschauen
+ (erscheint nur unter /preview/, siehe partials/preview-banner.html)
+----------------------------*/
+.preview-banner {
+    position: relative;
+    z-index: 100;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px 14px;
+    padding: 10px 16px;
+    background: var(--color-brass-tint);
+    border-bottom: 1px solid var(--color-brass);
+    font-family: var(--font-secondary);
+    font-size: 14px;
+    line-height: 1.3;
+    text-align: center;
+
+    &__label {
+        background: var(--color-brass);
+        color: var(--color-paper);
+        font-weight: 600;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 3px 9px;
+        border-radius: 999px;
+    }
+
+    &__branch {
+        color: var(--color-brass);
+        font-weight: 600;
+        word-break: break-all;
+    }
+
+    &__link {
+        color: var(--color-brass);
+        text-decoration: underline;
+
+        &:hover {
+            color: var(--color-accent-strong);
+        }
+    }
+}
+
+// Zwei Handlungsaufrufe nebeneinander, auf schmalen Schirmen untereinander.
+.page-end-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    align-items: center;
+}
+
+// Hinweis: das Hero-Bild ist ein freigestelltes PNG mit Transparenz -
+// ein Rahmen/Radius darauf ergibt eine frei schwebende Linie unter der
+// Person. Daher bewusst KEIN Rahmen auf .banner-right-content .main-img img.
+
+/*----------------------------
+ Startseite: Abschnitte der Dramaturgie
+----------------------------*/
+.home-section {
+    padding: 90px 0;
+
+    @media #{$sm-layout} {
+        padding: 56px 0;
+    }
+
+    &--traits {
+        padding-top: 0;
+    }
+
+    &--cta {
+        padding-top: 0;
+        text-align: center;
+    }
+}
+
+.home-section-head {
+    margin-bottom: 46px;
+    text-align: center;
+}
+
+.home-section-eyebrow {
+    display: block;
+    color: var(--color-brass);
+    font-family: var(--font-secondary);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}
+
+.home-section-title {
+    font-family: var(--font-primary);
+    color: var(--color-ink);
+    font-size: 32px;
+    line-height: 1.25;
+    margin: 0;
+
+    @media #{$sm-layout} {
+        font-size: 24px;
+    }
+}
+
+// Die Aussagen-Absaetze lagen mit 48px direkt unter der H1 (54px) und
+// konkurrierten dadurch mit dem Namen. Auf dem Handy war die Hierarchie
+// sogar verkehrt: Abschnitts-Titel 27px gegen Aussage 25px.
+.text-para-doc-wrap .text-para-documents {
+    font-size: 40px;
+    line-height: 1.3;
+
+    @media #{$sm-layout} {
+        font-size: 27px;
+        line-height: 1.4;
+    }
+}
+
+// Schwerpunkt-Karten bewusst OHNE Icon: die Eigenschaftskarten weiter
+// unten haben Symbole, der Unterschied trennt die beiden Bloecke.
+.focus-card {
+    height: 100%;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    padding: 26px 24px;
+    border-top: 2px solid var(--color-accent);
+    transition: var(--transition);
+
+    h3 {
+        font-family: var(--font-primary);
+        color: var(--color-ink);
+        font-size: 24px;
+        line-height: 1.3;
+        margin: 0 0 10px;
+
+        @media #{$sm-layout} {
+            font-size: 22px;
+        }
+    }
+
+    // Lesetext, nicht Nebentext: diese Karten sind der Hauptinhalt der
+    // Startseite und tragen ganze Saetze. Mit 17px las sich die Startseite
+    // eine Stufe kleiner als die Unterseiten. Die Bildunterschriften der
+    // Eigenschaftskarten ("und lernbereit") bleiben dagegen Nebentext - das
+    // sind Zusaetze zu einem Wort, keine Aussagen.
+    p {
+        font-family: var(--font-secondary);
+        color: var(--color-ink-soft);
+        font-size: 20px;
+        line-height: 1.6;
+        margin: 0;
+
+        @media #{$sm-layout} {
+            font-size: 18px;
+        }
+    }
+
+    &:hover {
+        transform: translateY(-2px);
+        border-color: var(--color-accent);
+    }
+}
+
+// Spacer statt manueller <br>-Stapel
+.section-spacer {
+    display: block;
+    height: 64px;
+
+    @media #{$sm-layout} {
+        height: 32px;
+    }
+}
+
+/*----------------------------
+ Schriftskala
+ Es gab vier verschiedene Fliesstextgroessen auf der Seite: 15, 16, 17 und
+ 18px - dieselbe Rolle je nach Seite anders gross. Jetzt gibt es zwei:
+
+   Lesetext   20px / 18px (Handy)   was man wirklich liest
+   Nebentext  17px / 16px           Kartentexte, Bildunterschriften
+
+ Die Navigation (Breadcrumb) bleibt bei 16px, das ist kein Lesetext.
+
+ Der Sprung von 18 auf 20 ist bewusst: 16-20px gilt als empfohlener Bereich,
+ wir lagen am unteren Rand. Auf breiten Bildschirmen wirkt Text im Verhaeltnis
+ zur Flaeche kleiner, als er gemessen ist.
+
+ Bewusst als p-Regel und nicht als Klasse: sie korrigiert genau die
+ Template-Regel in default/_typography.scss, die hier stoert. Alles mit eigener
+ Groesse gewinnt ueber die hoehere Spezifitaet und bleibt unberuehrt.
+----------------------------*/
+p {
+    font-size: 20px;
+}
+
+@media #{$sm-layout} {
+    p {
+        font-size: 18px;
+        line-height: 1.7;
+    }
+}
+
+// Nebentext aus dem Template: die Bildunterschrift der Eigenschaftskarten lag
+// bei 16px, der Untertitel der Schwerpunktkarten bei 15px - gleiche Rolle,
+// zwei Werte. Die Template-Regel steht unter zwei Klassen, deshalb hier auch.
+.service-card-v1 .service-para {
+    font-size: 17px;
+
+    @media #{$sm-layout} {
+        font-size: 16px;
+    }
+}
+
+// Kartentitel: .service-title stand bei 24px, .focus-card h3 bei 20px. Beide
+// sind jetzt h3 und teilen sich eine Groesse.
+.service-card-v1 .service-title {
+    font-size: 24px;
+
+    @media #{$sm-layout} {
+        font-size: 22px;
+    }
+}
+
+// Seitentitel der Unterseiten (_breadcrumb.scss:22). Auf dem Handy war er mit
+// 32px groesser als der Name auf der Startseite (28px) - die Startseite trat
+// damit hinter das Impressum zurueck. Der Name steht jetzt ebenfalls auf 32px,
+// siehe unten.
+// Umschaltpunkt bewusst $sm-layout (767px) statt des Template-Werts
+// $large-mobile (575px), damit die Ueberschrift zur selben Breite umschaltet
+// wie der Rest der Skala.
+.breadcrumb-inner .title {
+    font-size: 44px;
+
+    @media #{$sm-layout} {
+        font-size: 32px;
+    }
+}
+
+.banner-two-main-wrapper .inner .title {
+    @media #{$sm-layout} {
+        font-size: 32px;
+    }
+}
+
+// Abschnittstitel der Unterseiten
+.blog-details-left-area .title {
+    font-size: 38px;
+
+    @media #{$sm-layout} {
+        font-size: 28px;
+    }
+}
+
+// Diese beiden sind als Absatz ausgezeichnet, tragen aber Fraunces und 700 -
+// sie sollen wie Fliesstext gross sein, nicht wie eine Ueberschrift.
+// Die Selektoren sind so lang, weil die Template-Regeln es sind:
+// .check-box-wrap ul li .check-box-item (0-2-2) in _projects-details.scss:54
+// und .blog-details-left-area .quote-area-blog-details .author (0-3-0) in
+// _blog.scss:895. Kuerzere Fassungen verlieren.
+.check-box-wrap ul li .check-box-item,
+.blog-details-left-area .quote-area-blog-details .author {
+    font-size: 20px;
+
+    @media #{$sm-layout} {
+        font-size: 18px;
+    }
+}
+
+/*----------------------------
+ Zeilenlaenge auf den Textseiten
+ Lesbar sind 45-75 Zeichen pro Zeile, ideal rund 66. Ueber die volle
+ Spaltenbreite kamen die Absaetze auf 74 bis 137 Zeichen - dann verliert das
+ Auge beim Ruecksprung die naechste Zeile.
+
+ Begrenzt wird die ganze SPALTE, nicht jedes Element einzeln. Nur so teilen
+ sich Ueberschriften, Absaetze, Bildkarten und Zitatkaesten eine linke Kante.
+ Der erste Anlauf deckelte die Elemente einzeln und erzeugte damit vier
+ verschiedene Kanten auf einer Seite.
+
+ Der Wert steht bewusst in PIXELN und nicht in ch: an einem Container misst
+ ch die Schriftgroesse des Containers, nicht die seiner Kinder. Der
+ Zitatkasten erbt 16px vom Grundtext, seine Absaetze stehen auf 20px - sein
+ "70ch" ergab deshalb 557px statt der 696px, die dieselbe Regel an einem
+ 20px-Absatz ergibt. 700px entsprechen rund 70 Zeichen bei 20px Fliesstext.
+ Auf dem Handy ohne Wirkung, dort ist die Spalte ohnehin schmaler.
+----------------------------*/
+.blog-details-left-area {
+    &:not(.legal-page) {
+        max-width: 740px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    // Das Template gibt der Quellenzeile unter einem Zitat 60px Einzug und
+    // einen 40px-Strich als ::after (_blog.scss:895). Als Flex-Element in
+    // einem zentrierten Container zentriert sich der umbrechende Text und
+    // laeuft vom Strich weg - der stand dann allein daneben.
+    .quote-area-blog-details .author {
+        display: block;
+        text-align: left;
+    }
+
+    // Impressum: reine Textseite ohne Bilder, deshalb eine eigene, schmalere
+    // Spalte - hier erzwingt keine Bildkarte eine Mindestbreite.
+    // 560px statt des frueheren "70ch": das ergab durch die 16px des
+    // Containers genau diesen Wert, aber eben zufaellig statt absichtlich.
+    &.legal-page {
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+
+        // Die Datenschutzerklaerung besteht aus vollstaendigen Saetzen, auch
+        // in den Listen - das ist Lesetext und lag bei 16px.
+        .legal-text li {
+            font-size: 20px;
+            line-height: 1.7;
+
+            @media #{$sm-layout} {
+                font-size: 18px;
+            }
+        }
+
+        // Die Zwischenueberschriften kommen aus der globalen Skala. Die h5 lag
+        // auf dem Handy bei 16px und war damit kleiner als der Fliesstext -
+        // eine Ueberschrift, die sich nicht mehr abhebt.
+        .legal-text h3 { font-size: 28px; }
+        .legal-text h4 { font-size: 24px; }
+        .legal-text h5 { font-size: 21px; }
+
+        @media #{$sm-layout} {
+            .legal-text h3 { font-size: 24px; }
+            .legal-text h4 { font-size: 21px; }
+            .legal-text h5 { font-size: 19px; }
+        }
+    }
+}
+
+// Text-Bild-Karten: die Spalte ist jetzt 700px breit, davon nahm das Bild die
+// Haelfte. Dem Text blieben dann rund 38 Zeichen pro Zeile.
+// Ab 1200px steht das Bild deshalb fest auf 220px, darunter stapeln die
+// Karten (Bild ueber Text) und der Text nutzt die volle Spalte. Das Template
+// stellte schon ab 769px nebeneinander, was in dem Bereich zu eng wurde.
+//
+// Zwei Fallen dabei:
+// - Die Mindestbreite muss mit zurueckgesetzt werden. min-width schlaegt in
+//   CSS immer max-width; ohne das bleibt das Bild bei seinen 300px.
+// - Nur die Mindestbreite senken hilft nicht: beide Kinder haben width: 100%
+//   und teilen sich den Platz gleichmaessig, das Bild wuerde dann groesser
+//   statt kleiner. Es braucht eine feste Breite.
+// Die Template-Regeln stehen unter .our-portfolio-swiper
+// .our-portfoli-swiper-card (0-2-0) bzw. deren .card-right-content (0-3-0),
+// die Ueberschreibungen muessen mitziehen.
+.our-portfolio-swiper .our-portfoli-swiper-card {
+    flex-wrap: wrap;
+
+    @media (min-width: 1200px) {
+        flex-wrap: nowrap;
+
+        .card-right-content {
+            min-width: 0;
+            flex: 0 0 230px;
+        }
+    }
+}
+
+// Mobiles Menue faehrt von rechts ein, passend zum Burger-Button oben rechts.
+// Uebernommen aus static/assets/css/custom.css, das auf main nach style.css
+// geladen wurde. Hier laeuft alles ueber die SCSS-Pipeline, deshalb steht die
+// Regel in dieser Datei - sie wird ohnehin zuletzt eingebunden.
+//
+// left muss explizit auf auto: sind bei position: absolute mit fester width
+// sowohl left als auch right gesetzt, gewinnt in LTR left und das Panel
+// bliebe links stehen.
+// Der Versatz von -150px statt der vollen Panelbreite ist bewusst gespiegelt,
+// damit sich die Animation aus Teil-Slide und Opacity-Fade genauso anfuehlt
+// wie vorher.
+.tmp-popup-mobile-menu {
+    .inner {
+        left: auto;
+        right: -150px;
+    }
+
+    &.active .inner {
+        left: auto;
+        right: 0;
+    }
+}
