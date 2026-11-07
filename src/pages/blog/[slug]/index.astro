@@ -1,0 +1,305 @@
+---
+/*
+  Blogbeitrag (Hugo: layouts/blog/single.html). Der Markdown-Text wird von
+  Astro gerendert; Entwürfe erzeugen keine Seite.
+*/
+import { render } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../../components/Breadcrumb.astro';
+import { relUrl } from '../../../lib/site';
+import { formatPostDate, getPosts, slugOf } from '../../../lib/blog';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((entry) => ({ params: { slug: slugOf(entry) }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const data = entry.data as typeof entry.data & {
+  featured_image?: string;
+  author_role?: string;
+  author_bio?: string;
+};
+const img = data.featured_image || data.image;
+const author = data.author || 'Christoph B. Reimann';
+const bio =
+  data.author_bio ||
+  'Ich schreibe über Menschlichkeit, Werte und mutige Entscheidungen im Alltag mit dem Ziel, das Zugehörigkeitsgefühl zu steigern.';
+---
+<BaseLayout
+  title={data.title}
+  description={data.description}
+  seoTitle={data.seo_title}
+  jsonld={data.jsonld}
+  date={data.date}
+  lastmod={data.lastmod}
+  image={data.image}
+  kind="page"
+  section="blog"
+>
+  <style is:inline>
+    .blog-details-left-area {
+      text-align: center;
+    }
+
+    .blog-details-discription .disc {
+      display: inline-block;
+      text-align: justify !important;
+      text-justify: inter-word !important;
+      hyphens: auto !important;
+      max-width: 760px;
+      line-height: 1.7 !important;
+      font-size: 1.9rem !important;
+    }
+
+    .blog-details-discription .disc p,
+    .blog-details-discription .disc li,
+    .blog-details-discription .disc span {
+      font-weight: 700 !important;
+      text-align: justify !important;
+      text-justify: inter-word !important;
+      hyphens: auto !important;
+      font-size: 1.9rem !important;
+      line-height: 1.7 !important;
+    }
+
+    .blog-details-discription .disc h1,
+    .blog-details-discription .disc h2,
+    .blog-details-discription .disc h3,
+    .blog-details-discription .disc h4,
+    .blog-details-discription .disc h5,
+    .blog-details-discription .disc h6 {
+      font-weight: inherit !important;
+      text-align: left !important;
+    }
+
+    .blog-details-discription .disc p {
+      margin-bottom: 1.4em;
+    }
+
+    .blog-details-discription .disc li {
+      margin-bottom: 0.7em;
+    }
+
+    .blog-details-discription .disc .check-box {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      border-top: 2px solid rgba(157, 157, 255, 0.05);
+      padding-top: 43px;
+      padding-bottom: 30px;
+    }
+
+    @media (min-width: 992px) {
+      .blog-details-discription .disc .check-box {
+        padding-bottom: 40px;
+      }
+    }
+
+    .blog-details-discription .disc .check-box li {
+      margin: 0 0 0.7em 0;
+    }
+
+    .blog-details-discription .disc .check-box-item,
+    .blog-details-discription .disc .check-box .box-para,
+    .blog-details-discription .disc .check-box .box-icon {
+      font-size: inherit !important;
+      line-height: inherit !important;
+      font-weight: inherit !important;
+      font-family: inherit !important;
+      color: inherit !important;
+    }
+
+    .blog-details-discription .disc .check-box-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 0;
+    }
+
+    .blog-details-discription .disc .check-box .box-icon {
+      flex: 0 0 auto;
+      line-height: 1;
+      margin-top: 0.2em;
+    }
+
+    .check-box {
+      border-top: 2px solid rgba(157, 157, 255, 0.05);
+      padding-top: 43px;
+      padding-bottom: 30px;
+    }
+
+    @media (min-width: 992px) {
+      .check-box {
+        padding-bottom: 40px;
+      }
+    }
+
+    .check-box li {
+      list-style: none;
+      margin: 0 0 0.7em 0;
+    }
+
+    .check-box .check-box-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .check-box .box-para {
+      font: inherit;
+      color: inherit;
+    }
+
+    .blog-details-discription .disc .check-box .box-icon,
+    .blog-details-discription .disc .check-box .box-icon i {
+      color: var(--color-primary) !important;
+    }
+
+    .check-box-item .box-para strong {
+      font-weight: 800 !important;
+      font-size: 1.12em;
+      color: var(--color-heading) !important;
+    }
+
+    .blog-details-discription .disc strong {
+      font-size: 1.12em;
+      font-weight: 800 !important;
+      color: var(--color-heading) !important;
+    }
+  </style>
+
+  <Breadcrumb pageTitle={data.title} isBlogPost />
+
+  <div class="blog-classic-area-wrapper tmp-section-gap">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="blog-details-left-area">
+
+            {img && (
+              <div class="thumbnail-top">
+                <img src={relUrl(img)} alt={data.title} width="1000" height="600" fetchpriority="high" decoding="async">
+              </div>
+            )}
+
+            <div class="blog-details-discription">
+              <div class="blog-classic-tag">
+                <h4 class="title">Von {data.author}</h4>
+                <ul>
+                  <li>
+                    <div class="tag-wrap">
+                      <i class="fa-solid fa-tag"></i>
+                      <h4 class="tag-title">{data.category}</h4>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="tag-wrap">
+                      <i class="fa-solid fa-calendar-day"></i>
+                      <h4 class="tag-title">
+                        {data.date && formatPostDate(data.date)}
+                        {data.reading_time && (
+                          <Fragment>
+                            • <i class="fa-regular fa-clock"></i> {data.reading_time} min
+                          </Fragment>
+                        )}
+                      </h4>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="disc">
+                <Content />
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="container">
+            <div class="row justify-content-center">
+
+              <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+                <a href="mailto:hello@creimann.cc" class="service-card-link">
+                  <div class="service-card-v1 tmp-scroll-trigger tmp-fade-in animation-order-3 tmp-link-animation">
+                    <div class="service-card-icon">
+                      <i class="fa-solid fa-envelope"></i>
+                    </div>
+                    <h4 class="service-title">Per Mail</h4>
+                  </div>
+                </a>
+              </div>
+
+              <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+                <a href="https://www.linkedin.com/in/christoph-b-reimann-192328227/" target="_blank" rel="noopener" class="service-card-link">
+                  <div class="service-card-v1 tmp-scroll-trigger tmp-fade-in animation-order-3 tmp-link-animation">
+                    <div class="service-card-icon">
+                      <i class="fa-brands fa-linkedin"></i>
+                    </div>
+                    <h4 class="service-title">Auf LinkedIn</h4>
+                  </div>
+                </a>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="tmp-sidebar">
+
+            <!-- Autorenbox -->
+            <div class="signle-side-bar tmponhover">
+              <div class="header">
+                <h3 class="title">Über mich</h3>
+              </div>
+              <div class="body">
+                <div class="about-me-details">
+                  <div class="about-me-details-head">
+                    <div class="about-me-img">
+                      <img src={relUrl('assets/images/blog/cr_autor.webp')} alt={author} width="771" height="1028" loading="lazy" decoding="async">
+                    </div>
+                    <div class="about-me-right-content">
+                      <h3 class="title">
+                        {author}
+                      </h3>
+                      {data.author_role && <p class="para">{data.author_role}</p>}
+
+                      <div class="social-link">
+                        <a href="https://www.linkedin.com/in/christoph-b-reimann-192328227/">
+                          <i class="fa-brands fa-linkedin-in"></i>
+                        </a>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <p class="about-me-para">
+                    {bio}
+                  </p>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Tags ohne Links -->
+            <div class="signle-side-bar tmponhover">
+              <div class="header">
+                <h3 class="title">Tags</h3>
+              </div>
+              <div class="body">
+                <div class="tags-wrapper">
+                  {(data.tags ?? []).map((tag) => <span class="tag-link">{tag}</span>)}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</BaseLayout>
