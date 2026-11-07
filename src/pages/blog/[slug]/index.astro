@@ -175,25 +175,25 @@ const bio =
 
             <div class="blog-details-discription">
               <div class="blog-classic-tag">
-                <h4 class="title">Von {data.author}</h4>
+                <div class="title">Von {data.author}</div>
                 <ul>
                   <li>
                     <div class="tag-wrap">
                       <i class="fa-solid fa-tag"></i>
-                      <h4 class="tag-title">{data.category}</h4>
+                      <div class="tag-title">{data.category}</div>
                     </div>
                   </li>
                   <li>
                     <div class="tag-wrap">
                       <i class="fa-solid fa-calendar-day"></i>
-                      <h4 class="tag-title">
+                      <div class="tag-title">
                         {formatPostDate(postDate(entry))}
                         {data.reading_time && (
                           <Fragment>
                             • <i class="fa-regular fa-clock"></i> {data.reading_time} min
                           </Fragment>
                         )}
-                      </h4>
+                      </div>
                     </div>
                   </li>
                 </ul>

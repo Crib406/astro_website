@@ -34,7 +34,7 @@ jsonld:
     - "Mut"
     - "Glück"
     - "Zufriedenheit"
-lastmod: "2025-12-09T19:03:30Z"
+lastmod: "2026-11-07T14:30:00+01:00"
 ---
 
 ## Einleitung
@@ -50,7 +50,7 @@ Im Duden lassen sich folgende Synonyme für Integrität nachschlagen: Makellosig
 
 An folgenden drei Tugenden möchte ich etwas ausführen und erklären, was Integrität meiner Auffassung nach wirklich bedeutet.
 
-### 1.1. Wahrhaftigkeit 
+### 1.1 Wahrhaftigkeit 
 
 Wahrhaftigkeit ist ein **inneres** Streben nach Wahrheit. Das setzt voraus, dass Gedanken, Gefühle und Handlungen in Einklang stehen.
 
@@ -106,7 +106,7 @@ Loyalität anderen gegenüber im Sinne von Ehrlichkeit und Verlässlichkeit ist 
 Hier lohnt es sich genau zu unterscheiden woher die Loyalität kommt. Von innen, oder von außen? Es braucht Charakter, sein Wort zu halten und die Loyalität zu sich selbst und den eigenen Werten zu bewahren und dabei konsequent zu sein.
 
 ---
-## 2 Was bringt einem Integrität?
+## 2. Was bringt einem Integrität?
 Integrität schafft innere Klarheit, stärkt die Selbstachtung und baut vertrauensvolle Beziehungen auf. Menschen mit Integrität sind berechenbar, ehrlich und fördern echte `Zugehörigkeit` in ihrem Umfeld. 
 
 Integrität stärkt zudem die Urteilskraft und führt zu besseren, aber vor allem **stimmigeren** Entscheidungen.
