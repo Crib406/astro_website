@@ -9,12 +9,16 @@
  * Dateiname trägt einen sha256-Fingerabdruck des Inhalts. Die Endpunkte unter
  * src/pages/assets/css/ und src/pages/assets/js/ liefern den Inhalt aus.
  *
- * Die Quellen liegen in src/legacy/ und werden relativ zum Projektordner
- * gelesen (Astro läuft immer im Projektstamm). Das Bündel muss unter
- * assets/css/ liegen, damit ../fonts/ im SCSS auf /assets/fonts/ zeigt.
+ * Die Quellen liegen in src/legacy/. Die JS-Dateien kommen über
+ * `import.meta.glob(…?raw)` (Vite kennt sie, Änderungen laden das Modul neu),
+ * SCSS und CSS liest Dart Sass über den echten Pfad (Astro läuft immer im
+ * Projektstamm). Im Entwicklungsserver gilt der Zwischenspeicher nur so lange,
+ * wie sich unter src/legacy/ nichts ändert; abgelehnte Promises bleiben nie
+ * im Speicher. Das CSS-Bündel muss unter assets/css/ liegen, damit ../fonts/
+ * im SCSS auf /assets/fonts/ zeigt.
  */
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -34,6 +38,16 @@ export interface Bundle {
 }
 
 const legacy = (...parts: string[]) => path.resolve(process.cwd(), 'src/legacy', ...parts);
+
+/** Roh-Quelltexte aller JS-Dateien, Schlüssel relativ zu src/legacy/js/ (`vendor/jquery.js`). */
+const jsSources: Record<string, string> = Object.fromEntries(
+  Object.entries(
+    import.meta.glob<string>('../legacy/js/**/*.js', { query: '?raw', import: 'default', eager: true }),
+  ).map(([file, source]) => [file.replace('../legacy/js/', ''), source]),
+);
+
+/** Trenner zwischen den JS-Dateien wie bei Hugos resources.Concat: das Semikolon schützt vor offenen Anweisungen. */
+const JS_SEPARATOR = '\n;\n';
 
 /** Reihenfolge wie hugo/layouts/partials/scripts.html: jQuery zuerst, main.js zuletzt. */
 export const jsFiles = [
@@ -115,21 +129,54 @@ async function buildCss(): Promise<Bundle> {
     quietDeps: true,
   });
   // Ein eventuelles @charset aus Sass würde mitten im Bündel stehen.
-  const scss = compiled.css.replace(/^﻿/, '').replace(/^@charset "UTF-8";/, '');
+  const scss = compiled.css.replace(/^\uFEFF/, '').replace(/^@charset "UTF-8";/, '');
   const { code } = await transform(`${bootstrap}\n${scss}`, { loader: 'css', minify: true });
   return makeBundle(code, 'css');
 }
 
 async function buildJs(): Promise<Bundle> {
-  const sources = await Promise.all(jsFiles.map((f) => readFile(legacy('js', f), 'utf8')));
-  const { code } = await transform(sources.join('\n'), { loader: 'js', minify: true });
+  const sources = jsFiles.map((f) => {
+    const source = jsSources[f];
+    if (source === undefined) throw new Error(`src/legacy/js/${f} fehlt (siehe jsFiles in src/lib/bundles.ts)`);
+    return source;
+  });
+  const { code } = await transform(sources.join(JS_SEPARATOR), { loader: 'js', minify: true });
   return makeBundle(code, 'js');
 }
 
-let cssBundle: Promise<Bundle> | undefined;
-let jsBundle: Promise<Bundle> | undefined;
+/** Neueste Änderungszeit unter src/legacy/ (nur im Entwicklungsserver gebraucht). */
+function legacyStamp(): number {
+  let newest = 0;
+  for (const entry of readdirSync(legacy(), { recursive: true, withFileTypes: true })) {
+    if (entry.isFile()) newest = Math.max(newest, statSync(path.join(entry.parentPath, entry.name)).mtimeMs);
+  }
+  return newest;
+}
 
-/** CSS-Bündel (einmal pro Prozess gebaut). */
-export const getCssBundle = () => (cssBundle ??= buildCss());
-/** JS-Bündel (einmal pro Prozess gebaut). */
-export const getJsBundle = () => (jsBundle ??= buildJs());
+interface Slot {
+  stamp: number;
+  promise: Promise<Bundle>;
+}
+const slots: { css?: Slot; js?: Slot } = {};
+
+/**
+ * Bündel einmal bauen. Im Entwicklungsserver wird neu gebaut, sobald sich eine
+ * Datei unter src/legacy/ ändert (Hash und damit URL wechseln dann). Ein
+ * fehlgeschlagener Bau bleibt nicht im Speicher hängen.
+ */
+function cached(name: 'css' | 'js', build: () => Promise<Bundle>): Promise<Bundle> {
+  const stamp = import.meta.env.DEV ? legacyStamp() : 0;
+  const hit = slots[name];
+  if (hit && hit.stamp === stamp) return hit.promise;
+  const slot: Slot = { stamp, promise: build() };
+  slots[name] = slot;
+  slot.promise.catch(() => {
+    if (slots[name] === slot) delete slots[name];
+  });
+  return slot.promise;
+}
+
+/** CSS-Bündel (einmal pro Prozess gebaut; im Entwicklungsserver bei Änderungen neu). */
+export const getCssBundle = () => cached('css', buildCss);
+/** JS-Bündel (einmal pro Prozess gebaut; im Entwicklungsserver bei Änderungen neu). */
+export const getJsBundle = () => cached('js', buildJs);
