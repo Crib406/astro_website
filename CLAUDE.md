@@ -38,6 +38,9 @@ Ausnahme: der Link „Alle Vorschauen“ in `PreviewBanner.astro` zeigt hart auf
 Die 404-Seite darf nur wurzelabsolute, base-fähige Links haben, nie relative (sie erscheint unter beliebigen
 Pfaden).
 
+**Menüeinträge stehen einmal in `items` in `src/components/Header.astro`** (speist Desktop- und Mobilmenü). Die
+aktuelle Seite markiert `Header.astro` serverseitig mit `aria-current="page"`; kein `href="#"`, kein Dropdown.
+
 **Buttons niemals in ein Element mit `inv-title-animation-wrap` schachteln.** Die Split-Text-Animation
 (`src/legacy/js/main.js`) zerlegt jeden Text darin in Buchstaben mit `opacity: 0` — der Button erscheint
 dann leer. Das ist in diesem Projekt schon dreimal passiert, siehe `docs/template-fallen.md`, Punkt 1a.

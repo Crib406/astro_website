@@ -93,6 +93,28 @@ für eine Seite oder, mit `"page": "*"`, für jede Seite; der Pfad muss genau pa
 Leerzeichen-Grenze). Einträge ohne Treffer meldet das Skript am Ende und beendet sich mit Fehlercode 1, damit die
 Liste nicht verwildert.
 
+### Nach der Migration: UX-Paket (ab v1.0.0)
+
+Ab dem Stand `v1.0.0` (pixelgleich zu Hugo) sind bewusste, kleine UX-Änderungen erlaubt. Die Nummern stammen aus dem
+UX-Review; die Begründungen in `scripts/compare-hugo.allow.json` verweisen mit „UX-Paket nach Migration, Punkt N“
+darauf. Paket A (Markup, Inhalt, Gestaltung):
+
+| Punkt | Änderung | Grund |
+|---|---|---|
+| 1 | Sichtbarer Tastaturfokus (`:focus-visible`, 2 px Akzentgrün) und Skip-Link „Zum Inhalt springen“ (Ziel `<main id="inhalt">`) | das Template setzte überall `outline: none`; Tastaturbedienung war nicht nachvollziehbar |
+| 2, 3 | Menü flach: Start · Über mich · Mein Weg · (Blog) · Kontakt, ohne Dropdown und ohne `href="#"` | „Kontakt“ fehlte im Menü, das Untermenü war nur per Maus erreichbar und mobil zwei Tipps tief |
+| 4 | Links im Fließtext dauerhaft fein unterstrichen (Startseite: Schlusssatz; Mein Weg und Impressum: Links in Absätzen) | Akzentgrün gegen Fließtext hat nur 1,73:1 Kontrast (WCAG 1.4.1); nicht klickbare Hervorhebungen tragen dieselbe Farbe |
+| 6 | Schlusssatz der Startseite („Woran ich aktuell arbeite …“) ist ein `<p>` statt `<h2>` | keine Abschnittsüberschrift; Optik und Animation unverändert |
+| 8 | Kontakt: Adresse hello@creimann.cc sichtbar unter „Per Mail“ | die Adresse stand nur im `mailto:`-Link |
+| 9 | Tippfehler in `mein-weg.md` (umsetzenden, Angst vor Fehlern, Ambient Innovation GmbH) | Textkorrektur |
+| 10 | Mobil (unter 768 px): Hero-Foto auf 44 % der Bildschirmhöhe begrenzt (`object-fit: cover`, Kopf bleibt) | auf dem ersten Bildschirm war nur das Foto zu sehen, Name und Tagline lagen darunter |
+| 11 | Aktuelle Seite im Menü markiert (`aria-current="page"`, serverseitig; Blogbeitrag → „Blog“ nur bei `blogPublic`) | das alte JS (`menuCurrentLink`) traf bei Adressen mit Schrägstrich nie |
+| 12 | Footer „Seiten“ statt „Quick Link“; Zitate auf Mein Weg in Lesetextgröße; Beitragskopf (Autor, Kategorie, Datum) ohne `h4` vor der ersten `h2`; Überschriften in `integritaet.md` einheitlich nummeriert (1., 1.1, 1.2, 2.) | Kleinigkeiten: eine dritte Fließtextgröße, Überschriften-Sprung, uneinheitliche Nummern |
+
+`lastmod` wurde nur bei inhaltlichen Änderungen angehoben (Kontakt, Mein Weg, `integritaet.md`). Die Punkte 5, 6
+(Screenreader-Beschriftung der Split-Text-Zeilen), 7 und der JS-Teil von 11 (Paket B, Template-JS) stehen in
+`docs/template-fallen.md`.
+
 ## Nachweise
 
 1. **`npm run compare:hugo`** (mit `HUGO_REF_DIR` = unminifizierter Hugo-Referenzbau, erzeugt aus dem alten

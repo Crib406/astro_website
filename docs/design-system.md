@@ -162,3 +162,24 @@ Buttons gibt es in zwei Ausprägungen:
 
 Beide sind in `_modern-refresh.scss` angepasst. Warum das nötig war, steht in
 `template-fallen.md`.
+
+## Fokus, aktuelle Seite, Links, Hero mobil
+
+Alle Regeln stehen am Ende von `src/legacy/scss/elements/_modern-refresh.scss`.
+
+- **Tastaturfokus:** `html :focus-visible { outline: 2px solid var(--color-accent-strong); outline-offset: 3px; }`.
+  Das Template setzt überall `outline: none` (`a:focus` hat Spezifität 0-1-1); `html :focus-visible` (0-2-1)
+  schlägt das. Mit der Maus erscheint keine Linie. Der Skip-Link „Zum Inhalt springen“ (`.skip-link`, erstes
+  Element im `body`) ist außerhalb des Bildschirms und erscheint nur bei Tastaturfokus; er hat bewusst
+  `transition: none`, weil das Template Links animiert.
+- **Aktuelle Seite im Menü:** `a[aria-current="page"]` bekommt Akzentfarbe und die dezente Fläche des Hover-Zustands
+  (`--color-primary`, keine neue Farbe). Das Attribut setzt `Header.astro` serverseitig; die Menüeinträge stehen
+  dort einmal zentral in `items` und speisen Desktop- und Mobilmenü.
+- **Links im Fließtext:** dauerhaft unterstrichen (`text-decoration-thickness: 1px`, `text-underline-offset: 0.2em`,
+  Linie in `--color-accent-strong`). Gilt für Links in `.blog-details-left-area .disc` (Mein Weg, Impressum,
+  Blogbeitrag) und `.text-para-documents` (Startseite). Nicht für Buttons (`.tmp-btn`), Menü, Footer, Karten-Links,
+  Logo, Breadcrumb und Icons.
+- **Hero mobil (unter 768 px):** das Foto (`.hero-portrait img`) ist auf `44svh` (Fallback `44vh`) begrenzt, mit
+  `object-fit: cover` und `object-position: center top`, dazu `margin-bottom: -24px` am Rahmen. Bei 375x812 liegen
+  Name und Zwischenzeile damit zwischen 515 und 647 px. Ab 768 px ist nichts verändert.
+- **Zitate auf Mein Weg** haben keine eigene Größe mehr (vorher 18 px inline) und stehen auf Lesetextgröße.
