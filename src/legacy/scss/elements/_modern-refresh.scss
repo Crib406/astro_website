@@ -746,6 +746,8 @@ html :focus-visible {
     font-weight: 600;
     line-height: 1.2;
     transform: translateY(-300%);
+    // Das Template animiert Links; der Skip-Link soll beim Fokus sofort da sein.
+    transition: none;
 
     &:focus,
     &:focus-visible {
