@@ -13,11 +13,12 @@ Wie eine Änderung von der Quelldatei auf die Live-Seite kommt. Astro 7, rein st
 | `src/pages/` | Routen (eine Datei je URL, siehe unten) |
 | `src/layouts/` | `BaseLayout.astro`: `<head>`, Banner, Header, `<main>`, Footer, JS-Bündel |
 | `src/components/` | `Head`, `JsonLd`, `Breadcrumb`, `Header`, `Footer`, `Favicons`, `PreviewBanner`, `ScrollToTop` |
-| `src/lib/` | `site.ts`, `routes.ts`, `pages.ts`, `blog.ts`, `jsonld.ts`, `dates.ts`, `bundles.ts` |
+| `src/lib/` | `site.ts`, `routes.ts`, `pages.ts`, `blog.ts`, `jsonld.ts`, `dates.ts`, `bundles.ts`, `xml.ts` (XML-Escaping für Sitemap und Feed), `origin.mjs` (Standard-Ursprung, gemeinsam für `astro.config.mjs`, `site.ts` und Tests) |
 | `src/legacy/` | Das Template aus Hugo: `scss/`, `css/vendor/bootstrap.min.css`, `js/`. Möglichst unverändert. |
 | `src/content.config.ts` | Collections `pages` und `blog` mit ihren Schemas |
 | `public/` | Bilder, Schriften, `favicon.ico`, `CNAME`. **Wird 1:1 kopiert.** |
 | `scripts/` | `compare-hugo.mjs` und `compare-hugo.allow.json` |
+| `tools/` | Python-Werkzeuge für Icon-Teilmenge und Favicons samt Original-Schriften (siehe unten). Wird **nicht** gebaut. |
 | `tests/` | Prüfungen gegen das gebaute `dist/` |
 | `docs/` | Diese Doku. Wird **nicht** gebaut. |
 | `dist/` | Bauergebnis. Nicht eingecheckt. |
@@ -238,7 +239,7 @@ Schriften werden sonst erst nach dem CSS entdeckt, das Breadcrumb-Bild als CSS-H
 
 | Knoten | `@id` | Quelle |
 |---|---|---|
-| `WebSite` | `<Startseite>#website` | `site.ts` (mit `alternateName`) |
+| `WebSite` | `<Startseite>#website` | `site.ts` (Name, `alternateName` aus `siteAlternateNames`) |
 | `Person` | `<Startseite>#person` | `src/data/person.yaml` (`image` = quadratisches Porträt `uebermichich.webp`) |
 | die Seite | ihre URL | Titel, Beschreibung, `lastmod`, bei Beiträgen Datum, Titelbild und Autor |
 
@@ -247,7 +248,7 @@ Im Frontmatter steht unter `jsonld:` nur, was vom Standard abweicht, meist der T
 (`deepMerge`); `@id`, `url` und `isPartOf` werden danach erzwungen. Blogbeiträge werden automatisch
 `BlogPosting` mit der Person als Autor (`@id`-Verweis, zusätzlich `name` und `url`). `ProfilePage` bekommt die
 Person als `mainEntity`. `dateModified` kommt aus `lastmod`, `datePublished` wörtlich aus `date`. `toScriptJson`
-maskiert `<` als `<`, damit nichts den `<script>`-Block beendet.
+ersetzt jedes `<` im JSON-Text durch die Schreibweise `\u003c` (ein JSON-Escape, kein HTML-Entity wie `&lt;`; JSON-Leser lesen es wieder als `<`), damit nichts im Text den `<script>`-Block beendet.
 
 Die **BreadcrumbList** erzeugt `Breadcrumb.astro` als eigener JSON-LD-Block, aus derselben Liste, die auch die
 sichtbare Navigation ausgibt (Start → [Blog →] aktuelle Seite). Die Startseite und die 404 haben keine.
@@ -326,10 +327,9 @@ eine neue Seite oder ein neuer Beitrag wird automatisch erwartet, zusätzlich ge
 | `tests/links.test.mjs` | interne Links und Quellen zeigen auf vorhandene Dateien (Hugo-Altlasten werden gemeldet), Schrägstrich am Ende, Schriften im CSS, 404 nur mit wurzelabsoluten Links |
 | `tests/sitemap.test.mjs` | Sitemap = genau die Seiten laut Frontmatter und `blogPublic`; `lastmod` = JSON-LD `dateModified` = Frontmatter; `robots.txt`; Weiterleitung von `/visitenkarte/` |
 | `tests/feed.test.mjs` | RSS wohlgeformt, Einträge = veröffentlichte Beiträge, absolute Links, RFC-822-Datum |
+| `tests/head.test.mjs` | `<head>` und Beschriftung (SEO-Phase): Preloads der Schriften und des Breadcrumb-Hintergrunds, zugängliche Namen von Links und Buttons, `aria-label` auf Deutsch, Nach-oben-Knopf `aria-hidden`, 404 ohne Canonical/`og:url`/JSON-LD, `article:*`-Metadaten nur bei Beiträgen |
+| `tests/jsonld.test.mjs` | JSON-LD-Graph: `@id`-Verweise lösen sich auf, Person ohne `areaServed` und mit Porträt, `WebSite.alternateName`, `BlogPosting.author` mit `@id`, Name und URL, kein `BlogPosting` auf anderen Seiten, `Person.image` unter der Adresse des Baus |
 | `tests/preview.test.mjs` | baut selbst eine Vorschau (`BASE_PATH=/preview/x/`) und lässt die ganze Suite dagegen laufen; prüft `noindex`, Canonical, Hinweisleiste, base an allen wurzelabsoluten Verweisen, JSON-LD, Sitemap und `robots.txt` unter der Vorschau-Adresse |
-
-Seit der SEO-Phase zusätzlich: Preloads vorhanden, 404 ohne Canonical und ohne Seitenknoten, keine Icon-Links ohne
-Beschriftung, Robots je Seitenart.
 
 **`npm run check`** ist `astro check` (Typen, `.astro`-Dateien) und muss **0 Fehler** liefern; `src/legacy` ist
 ausgenommen (`tsconfig.json`).
@@ -338,7 +338,21 @@ ausgenommen (`tsconfig.json`).
 Hugo-Referenzbau auf DOM-Ebene (`HUGO_REF_DIR`, am besten der unminifizierte Bau, erzeugt mit dem alten Hugo-Repo).
 Normalisiert werden Leerraum, Attributreihenfolge, Hashes der Bündel-URLs, Kommentare, die Hugo-`generator`-Meta
 und JSON-LD (geparst, Schlüssel sortiert, weil Hugo Map-Schlüssel alphabetisch ausgibt). Bewusste Abweichungen
-stehen in `scripts/compare-hugo.allow.json` (`page`, `path`-Präfix, optional `exp`/`act` als genauer Wert,
-`reason`); eine Ausnahme gilt nur für genau diesen Wert. Gedacht war der Vergleich für die Migration. Wo der Astro-Bau
-später bewusst abweicht (SEO-Verbesserungen, siehe `docs/migration.md`), muss jede Abweichung mit Wert in der
-Ausnahmenliste stehen, sonst meldet der Vergleich sie als Fehler.
+stehen in `scripts/compare-hugo.allow.json` (`page`, oder `*` für jede Seite; `path` genau oder als Präfix an einer
+Leerzeichen-Grenze; optional `exp`/`act` als genauer Wert; `reason`); eine Ausnahme gilt nur für genau diesen Wert.
+Einträge ohne Treffer meldet das Skript am Ende und beendet sich mit Exit-Code 1. Gedacht war der Vergleich für
+die Migration. Wo der Astro-Bau später bewusst abweicht (SEO-Verbesserungen, siehe `docs/migration.md`), muss jede
+Abweichung mit Wert in der Ausnahmenliste stehen, sonst meldet der Vergleich sie als Fehler.
+
+## Werkzeuge (`tools/`)
+
+Python-Skripte für Dinge, die selten und von Hand anfallen. Sie liegen außerhalb von `src/` und `public/`, also
+nicht im Bau. Voraussetzung: `pip install fonttools brotli pillow`. Aufruf immer aus dem Projektwurzelverzeichnis.
+
+| Datei | Zweck |
+|---|---|
+| `build-fontawesome-subset.py` | erzeugt aus den vollständigen Font-Awesome-Schriften (`tools/fontawesome-src/`) die Teilmenge: `src/legacy/scss/vendor/_fontawesome-subset.scss` und `public/assets/fonts/fa-subset-*.woff2`. Benutzte Icons stehen in der Liste `ICONS` im Skript |
+| `check-icons.py` | sucht alle `fa-…`-Klassen in `src/**/*.astro` und `src/content/**/*.md` und prüft, ob jedes Icon in seinem Schnitt vorhanden ist (sonst leeres Kästchen); Exit-Code 1 bei Fehlern |
+| `build-favicons.py` | setzt das Monogramm „CBR“ in Fraunces und schreibt `public/favicon.ico` und `public/assets/images/favicon/` |
+
+Vorgehen bei einem neuen Icon: `CLAUDE.md`, „Font Awesome“.
