@@ -62,6 +62,21 @@ for (const [i, a] of allow.entries()) {
     console.error(`Fehler: Eintrag ${i + 1} in compare-hugo.allow.json braucht page, path und reason (Text).`);
     process.exit(2);
   }
+  for (const k of ['exp', 'act']) {
+    if (a[k] !== undefined && typeof a[k] !== 'string') {
+      console.error(`Fehler: Eintrag ${i + 1} in compare-hugo.allow.json: ${k} muss Text sein.`);
+      process.exit(2);
+    }
+  }
+  // Ohne exp/act wäre die Ausnahme eine Pauschalfreigabe für den ganzen Pfad. Das ist nur bei
+  // einer ganzen Datei sinnvoll (entfällt bewusst), sonst muss der Wert benannt werden.
+  if (a.exp === undefined && a.act === undefined && a.path !== '(Datei)') {
+    console.error(
+      `Fehler: Eintrag ${i + 1} in compare-hugo.allow.json (page "${a.page}", path "${a.path}") hat weder exp noch act. ` +
+        'Ausnahmen ohne Wert sind nur für path "(Datei)" erlaubt.',
+    );
+    process.exit(2);
+  }
 }
 /** Einträge der Ausnahmenliste, die mindestens eine Abweichung freigegeben haben. */
 const usedAllow = new Set();
