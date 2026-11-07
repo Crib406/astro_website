@@ -1,6 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { tryParseLiteralDate } from './lib/dates';
 
 /**
  * Seiten (home, about, mein-weg, kontakt, impressum, blog): Hugo-Frontmatter
@@ -38,7 +39,16 @@ const blog = defineCollection({
   schema: z
     .object({
       title: z.string(),
-      date: z.coerce.date().optional(),
+      /** Text in Anführungszeichen, damit der Versatz erhalten bleibt (siehe lib/dates.ts) */
+      date: z
+        .string({
+          error:
+            'date muss als Text in Anführungszeichen stehen, z. B. "2025-12-06T10:00:00+01:00" (sonst geht der Versatz verloren)',
+        })
+        .refine((s) => tryParseLiteralDate(s) !== undefined, {
+          error: 'date ist kein gültiges Datum (erwartet: "2025-12-06" oder "2025-12-06T10:00:00+01:00")',
+        })
+        .transform((s) => tryParseLiteralDate(s)!.iso),
       lastmod: z.coerce.date().optional(),
       draft: z.boolean().optional(),
       author: z.string().optional(),

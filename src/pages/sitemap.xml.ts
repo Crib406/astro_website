@@ -51,7 +51,7 @@ export const GET: APIRoute = async () => {
     if (exclude) continue;
     entries.push({
       loc: absUrl(blogPostPath(post.id)),
-      lastmod: post.data.lastmod ?? post.data.date,
+      lastmod: post.data.lastmod ?? new Date(post.data.date),
       changefreq: 'monthly',
       priority: '0.7',
     });

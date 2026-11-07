@@ -93,36 +93,15 @@ export function canonicalUrl(permalink: string): string {
   return isPreview ? `${origin}/${permalink.slice(home.length)}` : permalink;
 }
 
-const isoFormat = (d: Date, timeZone: string | null): string => {
-  if (!timeZone) return d.toISOString().replace(/\.\d{3}Z$/, 'Z');
-  const parts = Object.fromEntries(
-    new Intl.DateTimeFormat('en-CA', {
-      timeZone,
-      hourCycle: 'h23',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      timeZoneName: 'longOffset',
-    })
-      .formatToParts(d)
-      .map((p) => [p.type, p.value]),
-  );
-  const offset = parts.timeZoneName === 'GMT' ? 'Z' : parts.timeZoneName.replace('GMT', '');
-  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}${offset}`;
-};
-
 /**
- * Datum im Format von Hugos `2006-01-02T15:04:05Z07:00`.
- * Ohne Zeitzone in UTC (`…Z`, so schreibt Hugo Git-Zeiten); mit Zeitzone
- * (z. B. `Europe/Berlin`) mit Offset (`…+01:00`, so stehen die
- * Frontmatter-Daten der Blogbeiträge in der Referenz).
+ * Zeitpunkt im Format von Hugos `2006-01-02T15:04:05Z07:00`, immer in UTC
+ * (`...Z`, so schreibt Hugo die Zeiten aus der Versionsverwaltung).
+ * Frontmatter-Daten mit eigenem Versatz (Veröffentlichungsdatum der Beiträge)
+ * laufen nicht hierüber, sie bleiben wörtlich (siehe dates.ts).
  */
-export function isoDate(date: Date | string, timeZone: string | null = null): string {
+export function isoDate(date: Date | string): string {
   const d = typeof date === 'string' ? new Date(date) : date;
-  return isoFormat(d, timeZone);
+  return d.toISOString().replace(/\.\d{3}Z$/, 'Z');
 }
 
 /** Absolute Seiten-URL aus der Request-URL (`Astro.url`); enthält base bereits. */

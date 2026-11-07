@@ -5,7 +5,8 @@
 import type { APIRoute } from 'astro';
 import { getEntry } from 'astro:content';
 import { absUrl, langRegion, siteTitle } from '../../lib/site';
-import { formatRfc822, getPosts, slugOf, summaryHtml } from '../../lib/blog';
+import { getPosts, postDate, slugOf, summaryHtml } from '../../lib/blog';
+import { formatRfc822 } from '../../lib/dates';
 
 const xml = (s: string): string =>
   s
@@ -29,7 +30,7 @@ export const GET: APIRoute = async () => {
 			<item>
 				<title>${xml(post.data.title)}</title>
 				<link>${url}</link>
-				<pubDate>${post.data.date ? formatRfc822(post.data.date) : ''}</pubDate>
+				<pubDate>${formatRfc822(postDate(post))}</pubDate>
 				<guid>${url}</guid>
 				<description>${xml(summaryHtml(post))}</description>
 			</item>`;

@@ -7,7 +7,8 @@ import { getEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import { relUrl } from '../../lib/site';
-import { formatListDate, getPosts, listSummary, slugOf } from '../../lib/blog';
+import { getPosts, listSummary, postDate, slugOf } from '../../lib/blog';
+import { formatListDate } from '../../lib/dates';
 
 const entry = (await getEntry('pages', 'blog'))!;
 const { data } = entry;
@@ -52,7 +53,7 @@ const posts = await getPosts();
                       <span class="tag-icon">
                         <i class="fa-solid fa-calendar-days"></i>
                       </span>
-                      {post.data.date && formatListDate(post.data.date)}
+                      {formatListDate(postDate(post))}
                     </li>
                   </ul>
                 </div>

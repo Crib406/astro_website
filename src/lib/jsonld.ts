@@ -32,8 +32,8 @@ export interface PageSeo {
   permalink: string;
   /** Änderungsdatum (wird in UTC als …Z ausgegeben) */
   lastmod?: Date | string;
-  /** Veröffentlichungsdatum (Blog; wird mit Offset Europe/Berlin ausgegeben) */
-  date?: Date | string;
+  /** Veröffentlichungsdatum (Blog) als ISO-Text mit dem Versatz aus dem Frontmatter, wörtlich ausgegeben */
+  date?: string;
   /** Titelbild des Beitrags (Pfad oder URL) */
   image?: string;
   /** Inhalt des Frontmatter-Felds `jsonld` */
@@ -84,7 +84,7 @@ export function buildGraph(page: PageSeo, ogImage: string): Json {
     node.headline = page.title;
     node.author = personRef;
     node.mainEntityOfPage = page.permalink;
-    if (page.date) node.datePublished = isoDate(page.date, 'Europe/Berlin');
+    if (page.date) node.datePublished = page.date;
     if (page.image) node.image = absUrl(page.image);
   } else {
     node.about = personRef;

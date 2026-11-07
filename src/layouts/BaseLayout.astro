@@ -30,8 +30,8 @@ interface Props {
   section?: string;
   /** Frontmatter `jsonld`: wird in den Seitenknoten des JSON-LD-Graphen gemischt */
   jsonld?: Json;
-  /** Veröffentlichungsdatum (Blog) */
-  date?: Date | string;
+  /** Veröffentlichungsdatum (Blog) als ISO-Text, wörtlich aus dem Frontmatter */
+  date?: string;
   /** Änderungsdatum (JSON-LD dateModified) */
   lastmod?: Date | string;
   /** Titelbild eines Beitrags (Pfad oder URL) */

@@ -7,7 +7,8 @@ import { render } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Breadcrumb from '../../../components/Breadcrumb.astro';
 import { relUrl } from '../../../lib/site';
-import { formatPostDate, getPosts, slugOf } from '../../../lib/blog';
+import { getPosts, postDate, slugOf } from '../../../lib/blog';
+import { formatPostDate } from '../../../lib/dates';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -198,7 +199,7 @@ const bio =
                     <div class="tag-wrap">
                       <i class="fa-solid fa-calendar-day"></i>
                       <h4 class="tag-title">
-                        {data.date && formatPostDate(data.date)}
+                        {formatPostDate(postDate(entry))}
                         {data.reading_time && (
                           <Fragment>
                             • <i class="fa-regular fa-clock"></i> {data.reading_time} min

@@ -1,65 +1,22 @@
 /**
- * Blog-Helfer: Beitragsliste, Datumsformate und die Zusammenfassung wie in Hugo
+ * Blog-Helfer: Beitragsliste und die Zusammenfassung wie in Hugo
  * (`.Summary | plainify | truncate 150`).
  */
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { parseLiteralDate, type LiteralDate } from './dates';
 
 export type BlogEntry = CollectionEntry<'blog'>;
-
-/** Zeitzone der Frontmatter-Daten (in der Referenz stehen sie mit +01:00/+02:00). */
-const TZ = 'Europe/Berlin';
 
 /** URL-Segment eines Beitrags (Hugo: Frontmatter `slug`). */
 export const slugOf = (entry: BlogEntry): string => entry.data.slug ?? entry.id;
 
+/** Veröffentlichungsdatum eines Beitrags, wörtlich mit dem Versatz aus dem Frontmatter. */
+export const postDate = (entry: BlogEntry): LiteralDate => parseLiteralDate(entry.data.date);
+
 /** Veröffentlichte Beiträge (ohne Entwürfe), Datum absteigend wie in Hugo. */
 export async function getPosts(): Promise<BlogEntry[]> {
   const all = await getCollection('blog', ({ data }) => data.draft !== true);
-  return all.sort(
-    (a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0),
-  );
-}
-
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-function berlinParts(d: Date) {
-  const p = Object.fromEntries(
-    new Intl.DateTimeFormat('en-CA', {
-      timeZone: TZ,
-      hourCycle: 'h23',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      timeZoneName: 'longOffset',
-    })
-      .formatToParts(d)
-      .map((x) => [x.type, x.value]),
-  );
-  const off = p.timeZoneName === 'GMT' ? '+00:00' : p.timeZoneName.replace('GMT', '');
-  return { ...p, offset: off } as Record<string, string>;
-}
-
-/** Hugo `02. Jan 2006` (englische Monatskürzel, wie in der Referenz). */
-export function formatListDate(d: Date): string {
-  const p = berlinParts(d);
-  return `${p.day}. ${MONTHS[Number(p.month) - 1]} ${p.year}`;
-}
-
-/** Hugo `02.01.2006`. */
-export function formatPostDate(d: Date): string {
-  const p = berlinParts(d);
-  return `${p.day}.${p.month}.${p.year}`;
-}
-
-/** RFC 822 mit numerischem Offset (Hugo: `.Date.Format "Mon, 02 Jan 2006 15:04:05 -0700"`). */
-export function formatRfc822(d: Date): string {
-  const p = berlinParts(d);
-  const wd = WEEKDAYS[new Date(Date.UTC(Number(p.year), Number(p.month) - 1, Number(p.day))).getUTCDay()];
-  return `${wd}, ${p.day} ${MONTHS[Number(p.month) - 1]} ${p.year} ${p.hour}:${p.minute}:${p.second} ${p.offset.replace(':', '')}`;
+  return all.sort((a, b) => postDate(b).instant.getTime() - postDate(a).instant.getTime());
 }
 
 /** Kleiner Ersatz für Hugos Inline-Markdown (Goldmark mit Typographer) der Summary. */

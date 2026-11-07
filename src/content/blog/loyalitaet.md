@@ -1,6 +1,6 @@
 ---
 title: "Loyalität"
-date: 2025-12-06T10:00:00+01:00
+date: "2025-12-06T10:00:00+01:00"
 reading_time: 7
 draft: true
 
