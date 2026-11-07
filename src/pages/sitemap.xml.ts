@@ -4,24 +4,23 @@ import { absUrl, blogPublic, isoDate } from '../lib/site';
 import { getPublishedPosts } from '../lib/blog';
 import { getPage } from '../lib/pages';
 import { pagePath, postPath } from '../lib/routes';
+import { escapeXml } from '../lib/xml';
 
 /**
- * Sitemap wie hugo/layouts/sitemap.xml: Startseite fest (weekly, 1.0), danach
+ * Sitemap: Startseite fest (weekly, 1.0), danach
  * alle weiteren Seiten und Beiträge (monthly, 0.7). Ausgenommen sind Seiten mit
  * `sitemap_exclude` und, solange `blogPublic` aus ist, Blog-Übersicht und
  * Beiträge. Reihenfolge: Seiten, dann Beiträge (Hugo ordnet nach
  * Gewicht/Datum, das ist für Suchmaschinen ohne Bedeutung). `lastmod` ist
  * das Pflichtfeld aus dem Frontmatter.
  */
-const esc = (s: string) =>
-  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 type Entry = { loc: string; lastmod: Date; changefreq: string; priority: string };
 
 const urlXml = (e: Entry) =>
   [
     '  <url>',
-    `    <loc>${esc(e.loc)}</loc>`,
+    `    <loc>${escapeXml(e.loc)}</loc>`,
     `    <lastmod>${isoDate(e.lastmod)}</lastmod>`,
     `    <changefreq>${e.changefreq}</changefreq>`,
     `    <priority>${e.priority}</priority>`,

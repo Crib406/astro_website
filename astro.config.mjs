@@ -1,8 +1,9 @@
 import { defineConfig } from 'astro/config';
+import { defaultOrigin } from './src/lib/origin.mjs';
 
 // SITE und BASE_PATH setzt die CI für Branch-Vorschauen
 // (z. B. BASE_PATH=/preview/<branch>/). Auf der Hauptseite gelten die Vorgaben.
-const site = process.env.SITE ?? 'https://creimann.cc';
+const site = process.env.SITE ?? defaultOrigin;
 
 // SITE ist nur der Ursprung. Ein Pfad gehört in BASE_PATH; sonst würden
 // Vorschau-Erkennung und alle URLs auseinanderlaufen.

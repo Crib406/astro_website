@@ -1,5 +1,5 @@
 /**
- * Strukturierte Daten als ein zusammenhängender Graph (Hugo: jsonld.html):
+ * Strukturierte Daten als ein zusammenhängender Graph:
  *
  *   WebSite  <Startseite>#website   die Website als Ganzes
  *   Person   <Startseite>#person    Daten aus src/data/person.yaml, Bild: quadratisches Porträt
@@ -15,7 +15,7 @@
  */
 import YAML from 'yaml';
 import personRaw from '../data/person.yaml?raw';
-import { absUrl, homeUrl, isoDate, langRegion, personImagePath, siteTitle } from './site';
+import { absUrl, homeUrl, isoDate, langRegion, personImagePath, siteAlternateNames, siteTitle } from './site';
 
 export type Json = Record<string, any>;
 
@@ -62,7 +62,7 @@ export function buildGraph(page: PageSeo): Json {
     '@id': `${home}#website`,
     url: home,
     name: siteTitle,
-    alternateName: ['Christoph Reimann', 'creimann.cc'],
+    alternateName: [...siteAlternateNames],
     inLanguage: langRegion,
     publisher: personRef,
   };

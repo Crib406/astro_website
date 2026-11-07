@@ -6,9 +6,13 @@
  * (z. B. `/preview/<branch>/`), damit Links in Branch-Vorschauen nicht aus der
  * Vorschau herausführen.
  */
+import { defaultOrigin } from './origin.mjs';
 
 /** Seitentitel (Hugo: site.Title). */
 export const siteTitle = 'Christoph B. Reimann';
+
+/** Weitere Namen der Website (schema.org WebSite.alternateName, für den Site-Namen in der Suche). */
+export const siteAlternateNames = ['Christoph Reimann', 'creimann.cc'] as const;
 
 /** Globaler SEO-Titel der Startseite (Hugo: params.siteseo.title). */
 export const seoTitle = 'Christoph B. Reimann – Betriebswirt & Generalist, Bad Harzburg';
@@ -46,11 +50,11 @@ export const breadcrumbBgPath = 'assets/images/breadcrumb/breadcum-bg.png';
 export const personImagePath = 'assets/images/about/uebermichich.webp';
 
 /** Ursprung der Seite ohne Pfad und ohne abschließenden Schrägstrich, z. B. `https://creimann.cc`. */
-const origin = new URL(import.meta.env.SITE ?? 'https://creimann.cc').origin;
+const origin = new URL(import.meta.env.SITE ?? defaultOrigin).origin;
 
 /** Basispfad mit führendem und abschließendem Schrägstrich, z. B. `/` oder `/preview/x/`. */
 const baseTrimmed = (import.meta.env.BASE_URL ?? '/').replace(/^\/+|\/+$/g, '');
-export const base = baseTrimmed ? `/${baseTrimmed}/` : '/';
+const base = baseTrimmed ? `/${baseTrimmed}/` : '/';
 
 /** Pfad der vollen Start-URL (Ursprung + base), z. B. `/preview/x/`. */
 const homePath = new URL(origin + base).pathname;

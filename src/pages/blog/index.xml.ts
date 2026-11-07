@@ -1,9 +1,8 @@
 /*
-  RSS-Feed des Blogs (Hugo: Standard-RSS-Vorlage für die Sektion `blog`).
-  Gleiche Felder und Reihenfolge wie in der Hugo-Ausgabe, aber mit deutschen
-  Texten: Kanaltitel und -beschreibung kommen aus der Blog-Seite
-  (src/content/pages/blog.md) statt aus Hugos englischem "Recent content in …
-  on …"; die Zeile <generator> entfällt.
+  RSS-Feed des Blogs. Gleiche Felder und Reihenfolge wie die frühere Hugo-
+  Ausgabe, aber mit deutschen Texten: Kanaltitel und -beschreibung kommen aus
+  der Blog-Seite (src/content/pages/blog.md) statt aus Hugos englischem
+  "Recent content in … on …"; die Zeile <generator> entfällt.
 */
 import type { APIRoute } from 'astro';
 import { absUrl, langRegion } from '../../lib/site';
@@ -11,14 +10,7 @@ import { getPublishedPosts, postDate, summaryHtml } from '../../lib/blog';
 import { getPage } from '../../lib/pages';
 import { pagePath, postPath, specialPaths } from '../../lib/routes';
 import { formatRfc822 } from '../../lib/dates';
-
-const xml = (s: string): string =>
-  s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&#34;')
-    .replace(/'/g, '&#39;');
+import { escapeXml as xml } from '../../lib/xml';
 
 export const GET: APIRoute = async () => {
   const page = await getPage('blog');
