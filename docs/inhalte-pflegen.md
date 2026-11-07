@@ -23,13 +23,13 @@ Vor jeder Veröffentlichung gilt: **`npm run verify` muss grün sein** (siehe un
 # --- Pflicht ---------------------------------------------------------------
 title: "Titel des Beitrags"            # wird die Seitenüberschrift (h1) und Teil des <title>
 date: "2026-03-01T10:00:00+01:00"      # Veröffentlichungsdatum, IMMER in Anführungszeichen, mit Versatz
-lastmod: 2026-03-01T09:00:00Z          # Datum der letzten inhaltlichen Änderung, UTC (Z), ohne Anführungszeichen
+lastmod: "2026-03-01T09:00:00Z"        # Datum der letzten inhaltlichen Änderung, UTC (Z), in Anführungszeichen, nicht in der Zukunft
 summary: "Ein bis zwei Sätze für die Blog-Übersicht und den RSS-Feed."
 author: "Christoph B. Reimann"         # steht über dem Text: „Von …“
 category: "Zugehörigkeit"              # eine Kategorie, steht in Übersicht und Beitrag
 
 # --- Praktisch Pflicht (die Seite zeigt es an, ohne sieht es unvollständig aus) --------
-image: "/assets/images/blog/mein-beitrag.webp"   # Titelbild, 1000 × 600 px, Pfad mit führendem /
+image: "/assets/images/blog/mein-beitrag.webp"   # Titelbild, mind. 1200 px breit, 5:3 (z. B. 1500 × 900), Pfad mit führendem /
 
 # --- Optional --------------------------------------------------------------
 draft: false                           # true = Entwurf: keine Seite, nicht in Sitemap und Feed
@@ -151,8 +151,10 @@ ein anderes Icon erscheint als leeres Kästchen, siehe `CLAUDE.md`.
   `public/assets/images/`. Alles unter `public/` wird 1:1 ausgeliefert, nichts wird verkleinert oder umgewandelt:
   Bild vorher auf Größe bringen.
 - Format WebP (kleine Dateien), Dateiname Kleinbuchstaben ohne Leerzeichen.
-- **Titelbild eines Beitrags: 1000 × 600 px** (die Seite setzt `width="1000" height="600"`; ein anderes
-  Seitenverhältnis passt nicht in den vorgesehenen Rahmen). Im Frontmatter: `image: "/assets/images/blog/name.webp"`
+- **Titelbild eines Beitrags: mindestens 1200 px breit, Verhältnis 5:3, z. B. 1500 × 900 px** (die Seite setzt
+  `width="1000" height="600"` und zeigt das Bild in dieser Größe; ein anderes Seitenverhältnis passt nicht in den
+  vorgesehenen Rahmen, und Google verlangt für große Vorschaubilder mindestens 1200 px Breite, siehe O6 in
+  `docs/migration.md`). Im Frontmatter: `image: "/assets/images/blog/name.webp"`
   (Pfad **mit** führendem `/`, die Seite setzt den Vorschau-Pfad selbst davor).
 - **Bild im Text:** als HTML mit `width` und `height` (Pflicht: ohne springt das Layout, und ein Test schlägt an) und
   `alt`. Der Pfad ist **relativ** zum Beitrag (er liegt unter `/blog/<slug>/`):
@@ -170,7 +172,9 @@ ein anderes Icon erscheint als leeres Kästchen, siehe `CLAUDE.md`.
 `<lastmod>` in der Sitemap und als `dateModified` in den strukturierten Daten. Google nutzt den Wert nur, wenn er
 nachweislich stimmt, also **nur bei inhaltlicher Änderung anheben**.
 
-Format: UTC mit `Z`, ohne Anführungszeichen: `lastmod: 2026-03-01T09:00:00Z`. Die aktuelle Zeit liefert
+Format: UTC mit `Z`, **in Anführungszeichen**: `lastmod: "2026-03-01T09:00:00Z"`. Ohne Anführungszeichen wandelt YAML
+den Wert selbst in ein Datum und rechnet ungültige Angaben (z. B. `2026-13-45`) still um; nur als Text lässt sich
+prüfen, ob es das Datum gibt. Der Wert darf nicht in der Zukunft liegen. Die aktuelle Zeit liefert
 `date -u +%Y-%m-%dT%H:%M:%SZ`.
 
 | Anheben | Nicht anheben |
@@ -180,7 +184,7 @@ Format: UTC mit `Z`, ohne Anführungszeichen: `lastmod: 2026-03-01T09:00:00Z`. D
 | Impressum: Text in `impressum.md` oder Rahmenmarkup in `impressum/index.astro` | Layout, CSS, Menü, Footer |
 | Blog-Übersicht (`blog.md`): neuer oder geänderter Beitrag, Text der Übersicht | |
 
-Die Tests prüfen, dass Sitemap, `dateModified` und Frontmatter denselben Wert haben; ein fehlendes `lastmod` bricht den Bau.
+Die Tests prüfen, dass Sitemap, `dateModified` und Frontmatter denselben Wert haben; ein fehlendes, ungültiges oder in der Zukunft liegendes `lastmod` bricht den Bau.
 
 ## Blog öffentlich schalten
 
@@ -211,7 +215,7 @@ Beispiel: Seite „Angebot“ unter `/angebot/`.
    ```yaml
    ---
    title: "Angebot"                 # Überschrift und Teil des <title>
-   lastmod: 2026-03-01T09:00:00Z    # Pflicht
+   lastmod: "2026-03-01T09:00:00Z"  # Pflicht, in Anführungszeichen
    description: "Beschreibung für Google."
    # seo_title: "Eigener Titel für Google"
    # sitemap_exclude: true          # nicht in die Sitemap aufnehmen (wie das Impressum)
@@ -261,8 +265,10 @@ Häufige Meldungen:
 | `date muss als Text in Anführungszeichen stehen, z. B. "2025-12-06T10:00:00+01:00" …` | `date` ohne Anführungszeichen. Anführungszeichen setzen. |
 | `date fehlt. Pflichtfeld, als Text in Anführungszeichen …` | `date` fehlt im Frontmatter. |
 | `date ist kein gültiges Datum (erwartet: "2025-12-06" oder "2025-12-06T10:00:00+01:00")` | Tippfehler oder ein Datum, das es nicht gibt (31. Februar). |
-| `lastmod fehlt. Pflichtfeld, z. B. lastmod: 2026-08-12T18:00:38Z …` | `lastmod` fehlt (bei Seiten wie bei Beiträgen). |
-| `lastmod "…" ist kein gültiges Datum. Erwartet z. B. 2026-08-12T18:00:38Z` | Tippfehler im `lastmod`; der Wert wird in der Meldung genannt. |
+| `lastmod fehlt. Pflichtfeld, z. B. lastmod: "2026-08-12T18:00:38Z" …` | `lastmod` fehlt (bei Seiten wie bei Beiträgen). |
+| `lastmod muss als Text in Anführungszeichen stehen, z. B. lastmod: "2026-08-12T18:00:38Z" …` | `lastmod` ohne Anführungszeichen. Anführungszeichen setzen. |
+| `lastmod "…" ist kein gültiges Datum. Erwartet z. B. "2026-08-12T18:00:38Z"` | Tippfehler oder ein Datum, das es nicht gibt (Monat 13, 31. Februar, Stunde 25); der Wert wird in der Meldung genannt. |
+| `lastmod "…" liegt in der Zukunft. …` | Datum oder Uhrzeit liegt nach dem Zeitpunkt des Baus; meist falsche Zeitzone (der Wert ist UTC, in Deutschland 1 bis 2 Stunden früher als die Ortszeit) oder Zahlendreher im Jahr. |
 | `summary fehlt. Pflichtfeld: Kurztext für Blogübersicht und RSS` | `summary` fehlt. |
 | `summary ist leer. Pflichtfeld: …` | `summary` ist leer oder besteht nur aus Leerzeichen. |
 | `author fehlt …` / `author ist leer …` | `author` fehlt oder ist leer. |

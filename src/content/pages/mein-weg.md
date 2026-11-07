@@ -1,6 +1,6 @@
 ---
 title: "Mein Weg"
-lastmod: 2026-08-12T13:17:06Z
+lastmod: "2026-08-12T13:17:06Z"
 description: "Mein Weg: aufgewachsen im Familienunternehmen in Bad Harzburg, Ausbildung, Studium und viel Technik in der Praxis – bis zur heutigen Arbeit im Mittelstand."
 jsonld:
   description: "Mein persönlicher Weg von Christoph Reimann aus Bad Harzburg. Geprägt vom Aufwachsen im Familienunternehmen, der Bunro Reimann GmbH & Co. KG (auch Holz Reimann), in Bad Harzburg im Harz. Mit praktischer Techniknähe, Ausbildung und Studium bis hin zu meinem heutigen Ziel: Klare, verbindliche und menschliche Arbeit zu finden."

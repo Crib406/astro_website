@@ -1,6 +1,6 @@
 ---
 title: "Blog von Christoph B. Reimann"
-lastmod: 2025-12-09T19:03:30Z
+lastmod: "2025-12-09T19:03:30Z"
 description: "Menschliche Artikel über Werte, Haltung und Zugehörigkeit, mit dem Fokus, echte Verbindung zu stärken."
 
 jsonld:

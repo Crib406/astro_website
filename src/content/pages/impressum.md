@@ -1,6 +1,6 @@
 ---
 title: "Impressum & Datenschutz"
-lastmod: 2026-02-25T19:02:54Z
+lastmod: "2026-02-25T19:02:54Z"
 description: "Rechtliche Hinweise, Impressum und Informationen zum Datenschutz für die Website von Christoph B. Reimann."
 sitemap_exclude: true
 

@@ -33,7 +33,7 @@ jsonld:
     - "Wahrhaftigkeit"
     - "Mut zur Konsequenz"
     - "Mensch sein"
-lastmod: 2025-12-07T16:48:45Z
+lastmod: "2025-12-07T16:48:45Z"
 ---
 
 ## Einleitung

@@ -6,25 +6,33 @@ import { tryParseLiteralDate } from './lib/dates';
 /**
  * Änderungsdatum: Pflichtfeld, von Hand gepflegt (die Historie des Repos
  * beginnt mit der Migration, daher kein Datum aus der Versionsverwaltung).
- * Es steht als UTC-Zeitpunkt im Frontmatter (`2026-08-12T18:00:38Z`) und
- * speist Sitemap `<lastmod>` und JSON-LD `dateModified`. Bei jeder inhaltlichen
- * Änderung einer Seite anheben, bei reinen Frontmatter- oder Layoutänderungen nicht.
+ * Es steht als Text in Anführungszeichen im Frontmatter
+ * (`"2026-08-12T18:00:38Z"`, UTC) und speist Sitemap `<lastmod>` und JSON-LD
+ * `dateModified`. Bei jeder inhaltlichen Änderung einer Seite anheben, bei
+ * reinen Frontmatter- oder Layoutänderungen nicht.
+ *
+ * Als Text, weil YAML einen unquotierten Zeitstempel schon vor der Prüfung in
+ * ein Date wandelt und dabei ungültige Angaben still umrechnet (2026-13-45
+ * wird zum 14.2.2027). Nur der Rohtext lässt sich auf echte Kalenderdaten
+ * prüfen (gleiche Prüfung wie bei `date`, siehe lib/dates.ts). Ein Datum in
+ * der Zukunft ist ebenfalls ein Fehler: Google ignoriert solche Werte.
  */
-const lastmod = z.preprocess(
-  // Text in ein Datum wandeln; was sich nicht wandeln lässt, bleibt Text und
-  // erscheint so in der Fehlermeldung (z.coerce.date() würde "Invalid Date" melden).
-  (value) => {
-    if (typeof value !== 'string') return value;
-    const parsed = new Date(value);
-    return Number.isNaN(parsed.getTime()) ? value : parsed;
-  },
-  z.date({
+const lastmod = z
+  .string({
     error: (issue) =>
       issue.input === undefined
-        ? 'lastmod fehlt. Pflichtfeld, z. B. lastmod: 2026-08-12T18:00:38Z (Zeitpunkt der letzten inhaltlichen Änderung, UTC)'
-        : `lastmod "${String(issue.input)}" ist kein gültiges Datum. Erwartet z. B. 2026-08-12T18:00:38Z`,
-  }),
-);
+        ? 'lastmod fehlt. Pflichtfeld, z. B. lastmod: "2026-08-12T18:00:38Z" (Zeitpunkt der letzten inhaltlichen Änderung, UTC, in Anführungszeichen)'
+        : 'lastmod muss als Text in Anführungszeichen stehen, z. B. lastmod: "2026-08-12T18:00:38Z" (sonst rechnet YAML ungültige Daten still um)',
+  })
+  .refine((s) => tryParseLiteralDate(s) !== undefined, {
+    error: (issue) =>
+      `lastmod "${String(issue.input)}" ist kein gültiges Datum. Erwartet z. B. "2026-08-12T18:00:38Z"`,
+  })
+  .refine((s) => (tryParseLiteralDate(s)?.instant.getTime() ?? 0) <= Date.now(), {
+    error: (issue) =>
+      `lastmod "${String(issue.input)}" liegt in der Zukunft. Erwartet wird der Zeitpunkt der letzten Änderung (UTC), nicht ein geplantes Datum`,
+  })
+  .transform((s) => tryParseLiteralDate(s)!.instant);
 
 /** schema.org-Felder, die in den Seitenknoten des JSON-LD-Graphen gemischt werden. */
 const jsonld = z.record(z.string(), z.any());

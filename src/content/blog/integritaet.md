@@ -34,7 +34,7 @@ jsonld:
     - "Mut"
     - "Glück"
     - "Zufriedenheit"
-lastmod: 2025-12-09T19:03:30Z
+lastmod: "2025-12-09T19:03:30Z"
 ---
 
 ## Einleitung
