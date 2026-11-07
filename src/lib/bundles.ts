@@ -58,7 +58,6 @@ export const jsFiles = [
   'plugins/splittext.js',
   'plugins/scrolltigger.js',
   'plugins/scrolltoplugins.js',
-  'plugins/smoothscroll.js',
   'vendor/bootstrap.min.js',
   'vendor/waw.js',
   'plugins/animation.js',
