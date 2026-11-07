@@ -111,9 +111,16 @@ darauf. Paket A (Markup, Inhalt, Gestaltung):
 | 11 | Aktuelle Seite im Menü markiert (`aria-current="page"`, serverseitig; Blogbeitrag → „Blog“ nur bei `blogPublic`) | das alte JS (`menuCurrentLink`) traf bei Adressen mit Schrägstrich nie |
 | 12 | Footer „Seiten“ statt „Quick Link“; Zitate auf Mein Weg in Lesetextgröße; Beitragskopf (Autor, Kategorie, Datum) ohne `h4` vor der ersten `h2`; Überschriften in `integritaet.md` einheitlich nummeriert (1., 1.1, 1.2, 2.) | Kleinigkeiten: eine dritte Fließtextgröße, Überschriften-Sprung, uneinheitliche Nummern |
 
-`lastmod` wurde nur bei inhaltlichen Änderungen angehoben (Kontakt, Mein Weg, `integritaet.md`). Die Punkte 5, 6
-(Screenreader-Beschriftung der Split-Text-Zeilen), 7 und der JS-Teil von 11 (Paket B, Template-JS) stehen in
-`docs/template-fallen.md`.
+`lastmod` wurde nur bei inhaltlichen Änderungen angehoben (Kontakt, Mein Weg, `integritaet.md`).
+
+Paket B (Template-JS, Einzelheiten in `docs/template-fallen.md`, Punkt 13):
+
+| Punkt | Änderung | Grund |
+|---|---|---|
+| 5 | `plugins/smoothscroll.js` entfernt (natives Scrollen); bei `prefers-reduced-motion: reduce` laufen Buchstaben-, Banner- und Einblend-Animationen nicht, Inhalte stehen sofort da | SmoothScroll fing Mausrad und Pfeiltasten ab (600 ms Verzögerung); die JS-Animationen ignorierten die Systemeinstellung |
+| 6 | Zerlegter Text bleibt für Screenreader lesbar: Überschriften bekommen `aria-label`, sonst ein unsichtbarer Klartext; die Buchstaben-Teile sind `aria-hidden` | Screenreader lasen Hunderte einzelne Buchstaben |
+| 7 | Mobiles Menü: Burger mit `aria-controls`/`aria-expanded`, Fokus springt ins Menü, Tab bleibt darin, Escape schließt und gibt den Fokus zurück | per Tastatur landete man hinter dem offenen Menü |
+| 11 | `menuCurrentLink` entfernt | traf nie; ersetzt durch serverseitiges `aria-current` (Paket A) |
 
 ## Nachweise
 

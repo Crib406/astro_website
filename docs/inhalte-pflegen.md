@@ -231,9 +231,10 @@ Beispiel: Seite „Angebot“ unter `/angebot/`.
 3. **Pfad eintragen:** in `src/lib/routes.ts` unter `pageRoutes` die Zeile
    `angebot: { path: 'angebot/', kind: 'page' },` ergänzen. Der Schlüssel ist der Dateiname ohne `.md`. Fehlt
    die Zeile, bricht der Bau mit „Keine Route für Seite …“ ab.
-4. **Verlinken:** Menü und Footer nennen ihre Seiten einzeln. Eintrag in `src/components/Header.astro`
-   (Desktop-Menü **und** Handy-Menü) und/oder `src/components/Footer.astro` ergänzen, mit
-   `relUrl(pagePath('angebot'))`.
+4. **Verlinken:** Das Menü steht einmal als Liste `items` oben in `src/components/Header.astro`; Desktop- und
+   Handy-Menü werden daraus erzeugt, `aria-current="page"` setzt sich selbst. Dort einen Eintrag
+   `{ label: 'Angebot', href: relUrl(pagePath('angebot')) }` ergänzen. Der Footer nennt seine Seiten einzeln:
+   bei Bedarf in `src/components/Footer.astro` ebenfalls mit `relUrl(pagePath('angebot'))` eintragen.
 5. **Prüfen:** `npm run verify`. Sitemap und Tests erfassen die Seite automatisch (aus dem Content-Ordner und
    `routes.ts`); sie steht in der Sitemap, solange `sitemap_exclude` nicht gesetzt ist.
 
