@@ -1,0 +1,37 @@
+---
+/* Port von hugo/layouts/impressum/impressum.html: Breadcrumb + Rahmenmarkup,
+   der Impressums-/Datenschutztext steht als Rohtext in content/pages/impressum.md */
+import { getEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+
+const entry = (await getEntry('pages', 'impressum'))!;
+const { data } = entry;
+---
+<BaseLayout
+  title={data.title}
+  description={data.description}
+  seoTitle={data.seo_title}
+  jsonld={data.jsonld}
+  lastmod={data.lastmod}
+  kind="page"
+>
+
+  <Breadcrumb pageTitle={data.title} />
+
+  <div class="blog-classic-area-wrapper tmp-section-gap">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-10 offset-lg-1">
+          {/* legal-page begrenzt die Spaltenbreite (siehe _modern-refresh.scss). */}
+          <div class="blog-details-left-area legal-page">
+
+            <Fragment set:html={entry.body} />
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</BaseLayout>
