@@ -45,6 +45,8 @@ for (const file of allHtml()) {
       for (const l of legacyPatterns) {
         if (l.re.test(url)) problems.push(`${what} ${url}: Hugo-Altlast, ${l.why}`);
       }
+      // Die Hinweisleiste der Vorschauen verlinkt die Vorschau-Übersicht außerhalb von base
+      if (base !== '/' && url === '/preview/') continue;
       const r = resolveInternal(url, file);
       if (r.kind === 'ignore') continue;
       if (r.kind === 'outside') {

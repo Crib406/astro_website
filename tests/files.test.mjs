@@ -1,12 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { exists, walk, htmlPages, read, distDir } from './helpers.mjs';
+import { exists, walk, allHtml, expectedHtmlFiles, unpublishedPosts, specialPaths, read, distDir } from './helpers.mjs';
 
+// Die Seitenliste kommt aus src/content und routes.ts, nicht aus einer festen Liste:
+// neue Seiten und Beiträge werden automatisch erwartet.
 const expectedFiles = [
-  ...htmlPages,
-  'sitemap.xml',
-  'robots.txt',
-  'blog/index.xml',
+  ...expectedHtmlFiles,
+  specialPaths.sitemap,
+  specialPaths.robots,
+  specialPaths.feed,
   'CNAME',
   'favicon.ico',
 ];
@@ -34,16 +36,23 @@ test('Bereichs-Feeds (about, kontakt, mein-weg, impressum) entfallen', () => {
   }
 });
 
-test('Entwürfe werden nicht gebaut', () => {
-  assert.ok(!exists('blog/loyalitaet/index.html'), 'blog/loyalitaet/ ist ein Entwurf');
+test('Entwürfe und Beiträge mit Datum in der Zukunft werden nicht gebaut', () => {
+  for (const p of unpublishedPosts) {
+    assert.ok(!exists(`${p.path}index.html`), `${p.path} ist nicht veröffentlicht, darf aber nicht gebaut sein`);
+  }
+});
+
+test('keine unerwarteten HTML-Seiten im Bau', () => {
+  const unexpected = allHtml().filter((f) => !expectedHtmlFiles.includes(f));
+  assert.deepEqual(unexpected, []);
 });
 
 test('CNAME enthält die Domain', () => {
   assert.match(read('CNAME').trim(), /^[a-z0-9.-]+\.[a-z]+$/);
 });
 
-test('blog/index.xml ist wohlgeformtes RSS', () => {
-  const xml = read('blog/index.xml');
+test('Feed ist wohlgeformtes RSS (Einzelheiten in feed.test.mjs)', () => {
+  const xml = read(specialPaths.feed);
   assert.match(xml, /^<\?xml/);
   assert.match(xml, /<rss[\s>]/);
   assert.match(xml, /<channel>/);

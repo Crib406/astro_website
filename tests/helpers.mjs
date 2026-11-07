@@ -11,6 +11,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { load } from 'cheerio';
+import YAML from 'yaml';
+import { pagePath, specialPaths } from '../src/lib/routes.ts';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const distDir = path.resolve(process.env.DIST_DIR ?? path.join(root, 'dist'));
@@ -25,17 +27,55 @@ if (!fs.existsSync(path.join(distDir, 'index.html'))) {
   );
 }
 
-/** Alle URLs (Dateien) der Seite, die ein Bau enthalten muss. */
-export const htmlPages = [
-  'index.html',
-  'about/index.html',
-  'mein-weg/index.html',
-  'kontakt/index.html',
-  'impressum/index.html',
-  'blog/index.html',
-  'blog/integritaet/index.html',
-  '404.html',
-  'visitenkarte/index.html',
+/* ---------- Erwartungen aus dem Quelltext ---------- */
+
+const contentDir = path.join(root, 'src/content');
+
+/** Frontmatter einer Markdown-Datei (YAML liest Zeitstempel als Text, genau wie sie dastehen). */
+function frontmatterOf(file) {
+  const m = /^---\r?\n([\s\S]*?)\r?\n---/.exec(fs.readFileSync(file, 'utf8'));
+  if (!m) throw new Error(`${file}: kein Frontmatter`);
+  return YAML.parse(m[1]);
+}
+
+function readCollection(dir) {
+  const full = path.join(contentDir, dir);
+  if (!fs.existsSync(full)) return [];
+  return fs
+    .readdirSync(full)
+    .filter((f) => f.endsWith('.md'))
+    .sort()
+    .map((f) => ({ id: f.replace(/\.md$/, ''), data: frontmatterOf(path.join(full, f)) }));
+}
+
+/** Seiten der Collection `pages` (id = Dateiname ohne Endung) mit Frontmatter. */
+export const pages = readCollection('pages');
+
+/** Alle Beiträge der Collection `blog` mit Frontmatter und URL-Pfad `blog/<slug>/`. */
+export const posts = readCollection('blog').map((p) => ({
+  ...p,
+  path: `${pagePath('blog')}${p.data.slug ?? p.id}/`,
+}));
+
+/** Beitrag ist gebaut: kein Entwurf und Datum nicht in der Zukunft (Hugo: buildFuture=false). */
+export const isPublished = (p) => p.data.draft !== true && new Date(p.data.date) <= new Date();
+export const publishedPosts = posts.filter(isPublished);
+export const unpublishedPosts = posts.filter((p) => !isPublished(p));
+
+/** Pfad (relativ zur Startseite) einer Seite der Collection `pages`. */
+export { pagePath, specialPaths };
+
+/** Schalter `blogPublic` aus src/lib/site.ts. */
+export const blogPublic = /export const blogPublic = (true|false);/.exec(
+  fs.readFileSync(path.join(root, 'src/lib/site.ts'), 'utf8'),
+)?.[1] === 'true';
+
+/** Dateien, die ein Bau haben muss: alle Seiten und veröffentlichten Beiträge als index.html plus Sonderseiten. */
+export const expectedHtmlFiles = [
+  ...pages.map((p) => `${pagePath(p.id)}index.html`),
+  ...publishedPosts.map((p) => `${p.path}index.html`),
+  specialPaths.notFound,
+  `${specialPaths.visitenkarte}index.html`,
 ];
 
 /** Seiten ohne Kopf-Metadaten und Überschrift (reine Weiterleitung). */

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { allHtml, loadHtml, redirectPages } from './helpers.mjs';
+import { allHtml, loadHtml, redirectPages, origin, urlPathOf, base, specialPaths } from './helpers.mjs';
 
 const pageTypes = new Set([
   'WebPage',
@@ -79,12 +79,20 @@ for (const file of allHtml()) {
     assert.ok(kinds.includes('Person'), 'Person fehlt im @graph');
     const pageNode = all.find((n) => types(n).some((t) => pageTypes.has(t)));
     assert.ok(pageNode, `kein Seitenknoten (${[...pageTypes].join('/')}) im @graph`);
-    const canon = $('link[rel="canonical"]').attr('href');
-    // Der Seitenknoten gehört zu dieser Seite (404: Hugo-Verhalten, dort stimmt es ebenfalls)
+    // Der Seitenknoten gehört zu dieser Seite: seine @id ist der Permalink (Ursprung + base + Pfad),
+    // in Vorschauen also nicht das canonical, das auf die Hauptseite zeigt.
+    const permalink = origin + urlPathOf(file);
     assert.ok(
-      [pageNode['@id'], pageNode.url].includes(canon) || file === '404.html',
-      `Seitenknoten (${pageNode['@id']}) passt nicht zum canonical (${canon})`,
+      [pageNode['@id'], pageNode.url].includes(permalink),
+      `Seitenknoten (${pageNode['@id']}) passt nicht zum Permalink (${permalink})`,
     );
+  });
+
+  test(`${file}: robots`, () => {
+    const robots = meta('meta[name="robots"]').replace(/\s+/g, '');
+    if (file === specialPaths.notFound) assert.equal(robots, 'noindex,nofollow', '404 muss noindex sein');
+    else if (base !== '/') assert.equal(robots, 'noindex,nofollow', 'Vorschauen müssen noindex sein');
+    else assert.equal(robots, 'index,follow');
   });
 
   if (file !== 'index.html' && file !== '404.html') {

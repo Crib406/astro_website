@@ -1,7 +1,20 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { load } from 'cheerio';
-import { read, exists, loadHtml, resolveInternal, homeAbs, origin, base } from './helpers.mjs';
+import {
+  read,
+  exists,
+  loadHtml,
+  resolveInternal,
+  homeAbs,
+  origin,
+  base,
+  pages,
+  publishedPosts,
+  blogPublic,
+  pagePath,
+  specialPaths,
+} from './helpers.mjs';
 
 const sitemap = load(read('sitemap.xml'), { xmlMode: true });
 const entries = sitemap('url')
@@ -35,7 +48,7 @@ test('sitemap.xml: lastmod im Format JJJJ-MM-TTThh:mm:ssZ (soweit vorhanden)', (
   }
 });
 
-test('sitemap.xml: jede URL hat eine gebaute Seite, die indexiert werden darf und sich selbst als canonical meldet', () => {
+test('sitemap.xml: jede URL hat eine gebaute Seite, die (auf der Hauptseite) indexiert werden darf und sich selbst als canonical meldet', () => {
   const problems = [];
   for (const e of entries) {
     const r = fileOf(e.loc);
@@ -49,28 +62,74 @@ test('sitemap.xml: jede URL hat eine gebaute Seite, die indexiert werden darf un
     }
     const $ = loadHtml(r.file);
     const robots = ($('meta[name="robots"]').attr('content') ?? 'index').toLowerCase();
-    if (/noindex/.test(robots)) problems.push(`${e.loc}: robots "${robots}"`);
-    const canon = $('link[rel="canonical"]').attr('href');
-    // In Branch-Vorschauen zeigt das canonical bewusst auf die Hauptseite
-    if (base === '/' && canon !== e.loc) problems.push(`${e.loc}: canonical ist ${canon}`);
+    // Auf der Hauptseite müssen alle Sitemap-Seiten indexierbar sein, in Branch-Vorschauen
+    // (base != '/') ist jede Seite noindex und das canonical zeigt auf die Hauptseite.
+    if (base === '/') {
+      if (/noindex/.test(robots)) problems.push(`${e.loc}: robots "${robots}"`);
+      const canon = $('link[rel="canonical"]').attr('href');
+      if (canon !== e.loc) problems.push(`${e.loc}: canonical ist ${canon}`);
+    } else if (!/noindex/.test(robots)) {
+      problems.push(`${e.loc}: in der Vorschau wird noindex erwartet, robots ist "${robots}"`);
+    }
   }
   assert.deepEqual(problems, []);
 });
 
-test('sitemap.xml: keine Seiten mit sitemap_exclude (impressum, blog, Beiträge)', () => {
-  const locs = entries.map((e) => e.loc);
-  for (const p of ['impressum/', 'blog/']) {
-    assert.ok(!locs.includes(homeAbs + p), `${p} darf nicht in der Sitemap stehen`);
+test('sitemap.xml: enthält genau die Seiten und Beiträge, die laut Frontmatter und blogPublic hineingehören', () => {
+  const expected = [homeAbs];
+  for (const p of pages) {
+    if (p.id === 'home' || p.data.sitemap_exclude) continue;
+    if (p.id === 'blog' && !blogPublic) continue;
+    expected.push(homeAbs + pagePath(p.id));
   }
-  assert.ok(!locs.some((l) => l.startsWith(homeAbs + 'blog/')), 'Beiträge erben sitemap_exclude vom Blog');
+  if (blogPublic) for (const p of publishedPosts) expected.push(homeAbs + p.path);
+  assert.deepEqual([...entries.map((e) => e.loc)].sort(), expected.sort());
+});
+
+test('sitemap.xml: Weiterleitung, 404 und Entwürfe stehen nicht darin', () => {
+  const locs = entries.map((e) => e.loc);
   assert.ok(!locs.some((l) => l.includes('visitenkarte')), 'Weiterleitung gehört nicht in die Sitemap');
+  assert.ok(!locs.some((l) => l.includes('404')), '404 gehört nicht in die Sitemap');
+});
+
+test('sitemap.xml: lastmod entspricht dem dateModified im JSON-LD der Seite', () => {
+  const problems = [];
+  for (const e of entries) {
+    const r = fileOf(e.loc);
+    if (r.kind !== 'file' || !exists(r.file)) continue; // meldet der Test oben
+    const $ = loadHtml(r.file);
+    const graph = $('script[type="application/ld+json"]')
+      .map((_, el) => JSON.parse($(el).text()))
+      .get()
+      .flatMap((j) => j['@graph'] ?? []);
+    const node = graph.find((n) => n['@id'] === e.loc);
+    if (!node) problems.push(`${e.loc}: Seitenknoten im JSON-LD fehlt`);
+    else if (node.dateModified !== e.lastmod) problems.push(`${e.loc}: sitemap ${e.lastmod}, JSON-LD ${node.dateModified}`);
+  }
+  assert.deepEqual(problems, []);
+});
+
+test('sitemap.xml: lastmod entspricht dem Frontmatter (als UTC)', () => {
+  const problems = [];
+  const sources = [
+    { loc: homeAbs, lastmod: pages.find((p) => p.id === 'home').data.lastmod },
+    ...pages.filter((p) => p.id !== 'home').map((p) => ({ loc: homeAbs + pagePath(p.id), lastmod: p.data.lastmod })),
+    ...publishedPosts.map((p) => ({ loc: homeAbs + p.path, lastmod: p.data.lastmod })),
+  ];
+  for (const e of entries) {
+    const src = sources.find((x) => x.loc === e.loc);
+    if (!src) continue;
+    const expected = new Date(src.lastmod).toISOString().replace(/\.\d{3}Z$/, 'Z');
+    if (e.lastmod !== expected) problems.push(`${e.loc}: ${e.lastmod}, Frontmatter ${expected}`);
+  }
+  assert.deepEqual(problems, []);
 });
 
 test('robots.txt: erlaubt alles und verweist auf die Sitemap', () => {
   const lines = read('robots.txt').split(/\r?\n/);
   assert.ok(lines.includes('User-agent: *'));
   assert.ok(lines.includes('Allow: /'));
-  assert.ok(lines.includes(`Sitemap: ${homeAbs}sitemap.xml`), 'Sitemap-Zeile fehlt oder ist nicht absolut');
+  assert.ok(lines.includes(`Sitemap: ${homeAbs}${specialPaths.sitemap}`), 'Sitemap-Zeile fehlt oder ist nicht absolut');
   assert.ok(!lines.some((l) => /^disallow:\s*\S/i.test(l)), 'kein Disallow (noindex der Vorschauen muss lesbar bleiben)');
 });
 

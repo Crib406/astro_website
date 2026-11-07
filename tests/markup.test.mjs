@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { allHtml, loadHtml, redirectPages } from './helpers.mjs';
+import { allHtml, loadHtml, read, redirectPages } from './helpers.mjs';
 
 for (const file of allHtml()) {
   const $ = loadHtml(file);
@@ -20,6 +20,12 @@ for (const file of allHtml()) {
       if (missing.length) bad.push(`${a.src ?? '(ohne src)'}: fehlt ${missing.join(', ')}`);
     });
     assert.deepEqual(bad, []);
+  });
+
+  test(`${file}: keine nicht umgesetzten Hugo-Shortcodes`, () => {
+    // {{< … >}} und {{% … %}} sind Hugo-Shortcodes; im Astro-Bau darf nichts davon stehen bleiben
+    const text = read(file);
+    assert.doesNotMatch(text, /\{\{\s*[<%]/, 'Hugo-Shortcode im Seitentext');
   });
 
   test(`${file}: keine doppelten id-Attribute`, () => {
