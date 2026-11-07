@@ -39,10 +39,10 @@ const isCurrent = (href: string) =>
 
           <nav class="tmp-mainmenu-nav d-none d-xl-block">
             <ul class="tmp-mainmenu">
-        {items.map((item) => (
-          <li><a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a></li>
-        ))}
-      </ul>
+              {items.map((item) => (
+                <li><a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a></li>
+              ))}
+            </ul>
           </nav>
 
           <div class="actions-area">
@@ -78,17 +78,9 @@ const isCurrent = (href: string) =>
       </div>
 
       <ul class="tmp-mainmenu">
-        <li><a href={home}>Start</a></li>
-        <li class="has-dropdown">
-          <a href="#">Über mich
-            <i class="fa-regular fa-chevron-down"></i>
-          </a>
-          <ul class="submenu">
-            <li><a href={about}>Über mich</a></li>
-            <li><a href={meinWeg}>Mein Weg</a></li>
-          </ul>
-        </li>
-        {blogPublic && <li><a href={blog}>Blog</a></li>}
+        {items.map((item) => (
+          <li><a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a></li>
+        ))}
       </ul>
 
       <div class="social-wrapper mt--40">
