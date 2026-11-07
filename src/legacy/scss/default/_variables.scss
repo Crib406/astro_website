@@ -6,21 +6,18 @@
     --color-surface-2: #262D1E;  // noch eine Stufe heller
     --color-ink: #ECEAE0;        // Ueberschriften / heller Text
     --color-ink-soft: #A8AD9A;   // Fliesstext
-    --color-line: #333A29;       // Linien / Raender
+    --color-line: #2E3526;       // Linien / Raender
 
     --color-accent: #8FB89A;         // helles Gruen: Buttons, Akzente
     // Hervorgehobene Woerter stehen im cremefarbenen Fliesstext
     // (--color-ink #ECEAE0). Entscheidend ist der Abstand zu DIESEM Text,
-    // nicht zum Hintergrund. Zwei Fallstricke:
-    //   - zu dunkel (#6BE6A0) -> faellt gegenueber dem Fliesstext zurueck
-    //   - zu blass (#8CFFC0)  -> Helligkeit passt, aber zu viel Weissanteil,
-    //     dadurch farblich zu nah am Creme
-    // #2BFF8A haelt die Helligkeit und verdoppelt den Farbabstand
-    // (Delta-E 81 statt 48), Kontrast zum Hintergrund bleibt bei 13:1.
-    --color-accent-strong: #2BFF8A;
-    --color-accent-tint: #26332A;    // gruene Flaeche hinter Icons
-    --color-brass: #D6AA62;          // warmer Zweitakzent (Eyebrow, Chip)
-    --color-brass-tint: #3A331E;
+    // nicht zum Hintergrund. Messing (#E6A94A) ist der einzige warme Akzent:
+    // Hervorhebungen, Links, Fokus, Eyebrow, Chip. Messwerte in
+    // docs/design-system.md.
+    --color-accent-strong: #E6A94A;
+    --color-accent-tint: #26332A;    // Moos-Flaeche hinter den Icon-Kacheln (Icon bleibt Moos)
+    --color-brass: var(--color-accent-strong);   // ein Messing, kein zweiter Ton
+    --color-brass-tint: #39321C;     // Messing, dezent auf dem Grund
 
     // themes color
     --color-primary: var(--color-accent);
