@@ -2,7 +2,7 @@
  * Strukturierte Daten als ein zusammenhängender Graph (Hugo: jsonld.html):
  *
  *   WebSite  <Startseite>#website   die Website als Ganzes
- *   Person   <Startseite>#person    Daten aus src/data/person.yaml
+ *   Person   <Startseite>#person    Daten aus src/data/person.yaml, Bild: quadratisches Porträt
  *   Seite    <Seiten-URL>           WebPage, ProfilePage, BlogPosting, …
  *
  * Die Knoten verweisen per @id aufeinander. Die Seite wird aus Titel,
@@ -15,7 +15,7 @@
  */
 import YAML from 'yaml';
 import personRaw from '../data/person.yaml?raw';
-import { absUrl, homeUrl, isoDate, langRegion, siteTitle } from './site';
+import { absUrl, homeUrl, isoDate, langRegion, personImagePath, siteTitle } from './site';
 
 export type Json = Record<string, any>;
 
@@ -52,7 +52,7 @@ export function deepMerge(base: Json, extra: Json): Json {
   return out;
 }
 
-export function buildGraph(page: PageSeo, ogImage: string): Json {
+export function buildGraph(page: PageSeo): Json {
   const home = homeUrl();
   const personRef = { '@id': `${home}#person` };
   const websiteRef = { '@id': `${home}#website` };
@@ -62,6 +62,7 @@ export function buildGraph(page: PageSeo, ogImage: string): Json {
     '@id': `${home}#website`,
     url: home,
     name: siteTitle,
+    alternateName: ['Christoph Reimann', 'creimann.cc'],
     inLanguage: langRegion,
     publisher: personRef,
   };
@@ -70,7 +71,7 @@ export function buildGraph(page: PageSeo, ogImage: string): Json {
     '@type': 'Person',
     '@id': `${home}#person`,
     url: home,
-    image: ogImage,
+    image: absUrl(personImagePath),
   });
 
   let node: Json = {
@@ -82,7 +83,9 @@ export function buildGraph(page: PageSeo, ogImage: string): Json {
   if (page.lastmod) node.dateModified = isoDate(page.lastmod);
   if (page.isPost) {
     node.headline = page.title;
-    node.author = personRef;
+    // zusätzlich zur @id Name und Adresse inline: Google empfiehlt sie beim Autor,
+    // und nicht jedes Werkzeug löst @id-Verweise auf.
+    node.author = { '@type': 'Person', '@id': personRef['@id'], name: person.name, url: home };
     node.mainEntityOfPage = page.permalink;
     if (page.date) node.datePublished = page.date;
     if (page.image) node.image = absUrl(page.image);

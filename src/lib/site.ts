@@ -42,6 +42,9 @@ export const preloadFontPaths = [
 ] as const;
 export const breadcrumbBgPath = 'assets/images/breadcrumb/breadcum-bg.png';
 
+/** Porträt der Person (quadratisch, 886x886) für Person.image im JSON-LD, Pfad relativ zur Basis. */
+export const personImagePath = 'assets/images/about/uebermichich.webp';
+
 /** Ursprung der Seite ohne Pfad und ohne abschließenden Schrägstrich, z. B. `https://creimann.cc`. */
 const origin = new URL(import.meta.env.SITE ?? 'https://creimann.cc').origin;
 

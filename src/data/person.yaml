@@ -4,6 +4,8 @@
 # <Startseite>#person ausgegeben und von jeder Seite per @id referenziert.
 # Die Schluessel muessen der schema.org-Schreibweise folgen (camelCase);
 # @type, @id, url und image setzt das Partial selbst.
+# areaServed fehlt mit Absicht: schema.org kennt es nicht an Person (nur an
+# Organisation, Service, ContactPoint u. a.); der Ort steckt in homeLocation.
 #
 # sameAs ist das wichtigste Feld fuer die Suche nach dem Namen: Es sagt
 # Google, welche Profile zu derselben Person gehoeren. Jedes weitere Profil
@@ -35,12 +37,6 @@ homeLocation:
     addressRegion: "Niedersachsen"
     addressCountry: "DE"
 
-areaServed:
-  - "Bad Harzburg"
-  - "Harz"
-  - "Landkreis Goslar"
-  - "Niedersachsen"
-
 alumniOf:
   - "@type": "CollegeOrUniversity"
     name: "DHBW Mosbach"
@@ -56,7 +52,7 @@ hasCredential:
       sameAs: "https://www.mosbach.dhbw.de/"
   - "@type": "EducationalOccupationalCredential"
     name: "Ausbildung zum Groß- und Außenhandelskaufmann"
-    credentialCategory: "Apprenticeship"
+    credentialCategory: "apprenticeship"
   - "@type": "EducationalOccupationalCredential"
     name: "Individualpsychologischer Berater (ADI)"
     credentialCategory: "certificate"
