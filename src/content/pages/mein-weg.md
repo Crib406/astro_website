@@ -1,6 +1,6 @@
 ---
 title: "Mein Weg"
-lastmod: "2026-08-12T13:17:06Z"
+lastmod: "2026-11-07T14:30:00+01:00"
 description: "Mein Weg: aufgewachsen im Familienunternehmen in Bad Harzburg, Ausbildung, Studium und viel Technik in der Praxis – bis zur heutigen Arbeit im Mittelstand."
 jsonld:
   description: "Mein persönlicher Weg von Christoph Reimann aus Bad Harzburg. Geprägt vom Aufwachsen im Familienunternehmen, der Bunro Reimann GmbH & Co. KG (auch Holz Reimann), in Bad Harzburg im Harz. Mit praktischer Techniknähe, Ausbildung und Studium bis hin zu meinem heutigen Ziel: Klare, verbindliche und menschliche Arbeit zu finden."
@@ -83,7 +83,7 @@ jsonld:
             </p>
 
             <div class="quote-area-blog-details">
-              <p class="disc" style="font-size: 18px; font-weight: 700;">
+              <p class="disc" style="font-weight: 700;">
                 "Herr Reimann verbindet technisches Verständnis mit unternehmerischem Denken.
                 Er arbeitet effizient, verantwortungsvoll und mit hoher Integrität."
               </p>
@@ -113,19 +113,19 @@ jsonld:
             </p>
 
             <div class="quote-area-blog-details">
-              <p class="disc" style="font-size: 18px; font-weight: 700;">
+              <p class="disc" style="font-weight: 700;">
                 "Du interessierst dich für den Menschen hinter der Rolle – 
                 und nimmst dir Zeit für ein echtes Kennenlernen. Dadurch konntest du Brücken zwischen Kunden
                 und Kollegen bauen, die die Zusammenarbeit nachhaltig geprägt haben."
               </p>
-              <p class="author">Ambient Innovation: GmbH, 2025, Arbeitszeugnis</p>
+              <p class="author">Ambient Innovation GmbH, 2025, Arbeitszeugnis</p>
             </div>
 
             <br>
 
             <p class="disc">
               Während der Zeit im Homeoffice merkte ich allerdings, wie sehr mir der direkte Kontakt zu 
-              den umsetztenden Einheiten im Unternehmen, den gewerblichen Mitarbeitenden, fehlte.
+              den umsetzenden Einheiten im Unternehmen, den gewerblichen Mitarbeitenden, fehlte.
             </p>
 
             <!-- Heute -->
@@ -155,9 +155,9 @@ jsonld:
             </p>
 
             <div class="quote-area-blog-details">
-              <p class="disc" style="font-size: 18px; font-weight: 700;">
+              <p class="disc" style="font-weight: 700;">
                 "Klare Kommunikation, echtes Zuhören und Vertrauen sind für mich die Grundlage guter Zusammenarbeit.
-                Ich bin überzeugt: Entwicklung entsteht dort, wo ausprobiert werden darf, ohne Angst vor Fehler haben zu müssen."
+                Ich bin überzeugt: Entwicklung entsteht dort, wo ausprobiert werden darf, ohne Angst vor Fehlern haben zu müssen."
               </p>
             </div>
 
