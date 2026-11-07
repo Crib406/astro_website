@@ -1,7 +1,8 @@
 ---
-/* Platzhalter, wird von WP2 durch die echte Startseite ersetzt. */
+/* Startseite (Hugo: layouts/index.html). */
 import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { relUrl } from '../lib/site';
 
 const entry = (await getEntry('pages', 'home'))!;
 const { data } = entry;
@@ -15,4 +16,194 @@ const { data } = entry;
   isHome
   kind="home"
 >
+
+    <!-- tmp banner area start -->
+    <div class="rpp-banner-two-area">
+        <div class="container">
+            <div class="banner-two-main-wrapper">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 order-lg-2">
+                        <div class="banner-right-content">
+                            {/* LCP-Bild: bewusst eager + hohe Prioritaet, kein lazy.
+                                 Das freigestellte Motiv, nicht der gerahmte Ausschnitt:
+                                 hier blickt er nach links, also zum Text hin. Der
+                                 Ausschnitt zeigte in die andere Richtung, aus der Seite
+                                 heraus - der Blick fuehrt das Auge dann am Inhalt vorbei. */}
+                            <div class="main-img hero-portrait">
+                                <img class="tmp-scroll-trigger tmp-zoom-in animation-order-1" src={relUrl('assets/images/banner/ich.webp')} alt="Christoph B. Reimann 2025 bei der Arbeit im Büro." width="902" height="1351" fetchpriority="high" decoding="async">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 order-lg-1">
+                        <div class="inner">
+                            <span class="sub-title tmp-scroll-trigger tmp-fade-in animation-order-1">Ich bin</span>
+                            <h1 class="title tmp-scroll-trigger tmp-fade-in animation-order-2">
+                                Christoph B. Reimann
+                            </h1>
+                            {/* tmp-title-split gehoert auf den inneren span, nicht auf
+                                 das p: .hero-kicker ist ein Flex-Container (wegen des
+                                 Strichs davor), und SplitText legt Zeilen-divs an, die
+                                 dort sonst nebeneinander statt untereinander stuenden. */}
+                            <p class="hero-kicker tmp-scroll-trigger tmp-fade-in animation-order-3">
+                                <span class="tmp-title-split">Mensch &middot; Betriebswirt &middot; Generalist</span>
+                            </p>
+                            <p class="hero-lead tmp-scroll-trigger tmp-fade-in animation-order-4">
+                                <span>Verbindungen</span> zu schaffen und Prozesse nachhaltig
+                                mit <span>Menschen</span> zusammen zu gestalten, ist das,
+                                was mich antreibt.
+                            </p>
+                            {/* Kein Handlungsaufruf im Hero: hier hat der Besucher noch
+                                 keinen Grund, mehr wissen zu wollen. Der Button steht
+                                 weiter unten, wo die Neugier entstanden ist. */}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- tmp banner area end -->
+
+    {/* 2. Schritt der Seiten-Dramaturgie: die These. Bewusst ein eigener
+         Moment und nicht im Hero, damit die Seite einen Spannungsbogen hat. */}
+    <div class="about-content-area">
+        <div class="container tmp-section-gap">
+            <div class="text-para-doc-wrap">
+                <h2 class="text-para-documents tmp-scroll-trigger tmp-fade-in animation-order-1 inv-title-animation-wrap">
+                    <span>Generalist</span> mit praktischem Verständnis für Prozesse. Ich verbinde Betriebswirtschaft, technisches Know-how und ein gutes Gespür für <span>Menschen</span>, um <span>Verbindungen</span> zu schaffen, bevor Brüche entstehen.
+                </h2>
+            </div>
+        </div>
+    </div>
+
+    {/* 3. Schritt: Was ich tue. Die Schwerpunkte stehen bisher nur auf der
+         Über-mich-Seite - hier beantworten sie die Frage, die ein Besucher
+         als erstes hat. */}
+    <section class="home-section">
+        <div class="container">
+            <div class="home-section-head tmp-scroll-trigger tmp-fade-in animation-order-1">
+                <span class="home-section-eyebrow">Was ich tue</span>
+                <h2 class="home-section-title">Menschen, Abläufe und Technik verbinden</h2>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="focus-card tmp-scroll-trigger tmp-fade-in animation-order-1">
+                        <h3>Prozesse gestalten</h3>
+                        <p>Abläufe verstehen, vereinfachen, nachhaltig gestalten und digitalisieren.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="focus-card tmp-scroll-trigger tmp-fade-in animation-order-2">
+                        <h3>Technik praktisch denken</h3>
+                        <p>Vom Radlader bis zur Prozessautomation. Ich weiß, wie Arbeit wirklich läuft.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="focus-card tmp-scroll-trigger tmp-fade-in animation-order-3">
+                        <h3>Menschen wahrnehmen</h3>
+                        <p>Hinter jeder Rolle steht eine Person, kein Produktionsfaktor.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="focus-card tmp-scroll-trigger tmp-fade-in animation-order-4">
+                        <h3>Verantwortung übernehmen</h3>
+                        <p>Unternehmerisch denken und handeln.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {/* 4. Schritt: Wie ich dabei bin. Bewusst NACH den Schwerpunkten -
+         Eigenschaften überzeugen erst, wenn klar ist, worum es geht. */}
+    <section class="home-section home-section--traits">
+        <div class="container">
+            <div class="home-section-head tmp-scroll-trigger tmp-fade-in animation-order-1">
+                <span class="home-section-eyebrow">Wie ich arbeite</span>
+            </div>
+            <div class="row justify-content-center">
+
+                <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+                    <div class="service-card-v1 tmp-scroll-trigger tmp-fade-in animation-order-1 tmp-link-animation">
+                        <div class="service-card-icon">
+                            <i class="fa-solid fa-lightbulb"></i>
+                        </div>
+                        <h3 class="service-title">neugierig</h3>
+                        <p class="service-para">und lernbereit</p>
+                    </div>
+                </div>
+
+                <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+                    <div class="service-card-v1 tmp-scroll-trigger tmp-fade-in animation-order-2 tmp-link-animation">
+                        <div class="service-card-icon">
+                            <i class="fa-solid fa-scale-balanced"></i>
+                        </div>
+                        <h3 class="service-title">reflektiert</h3>
+                        <p class="service-para">und gewissenhaft</p>
+                    </div>
+                </div>
+
+                <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+                    <div class="service-card-v1 tmp-scroll-trigger tmp-fade-in animation-order-3 tmp-link-animation">
+                        <div class="service-card-icon">
+                            <i class="fa-solid fa-handshake"></i>
+                        </div>
+                        <h3 class="service-title">integer</h3>
+                        <p class="service-para">und loyal</p>
+                    </div>
+                </div>
+
+                <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+                    <div class="service-card-v1 tmp-scroll-trigger tmp-fade-in animation-order-3 tmp-link-animation">
+                        <div class="service-card-icon">
+                            <i class="fa-solid fa-water"></i>
+                        </div>
+                        <h3 class="service-title">klar</h3>
+                        <p class="service-para">und ruhig</p>
+                    </div>
+                </div>
+
+            </div>
+
+            {/* Handlungsaufruf hier statt im Hero: an dieser Stelle weiss der
+                 Besucher, was ich tue und wie ich arbeite - jetzt entsteht der
+                 Wunsch, mehr zu erfahren.
+                 Button NICHT in ein .inv-title-animation-wrap-Element schachteln:
+                 die Split-Text-Animation zerlegt sonst den Buttontext in
+                 Buchstaben mit opacity:0. */}
+            <div class="home-cta tmp-scroll-trigger tmp-fade-in animation-order-1">
+                <a class="tmp-btn hover-icon-reverse" href={relUrl('about/')}>
+                    <span class="icon-reverse-wrapper">
+                        <span class="btn-text">Mehr über mich erfahren</span>
+                        <span class="btn-icon"><i class="fa-sharp fa-regular fa-arrow-right"></i></span>
+                        <span class="btn-icon"><i class="fa-sharp fa-regular fa-arrow-right"></i></span>
+                    </span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    {/* 5. Schritt: Abschluss und nächster Schritt. */}
+    <div class="about-content-area about-content-area--stand">
+        <div class="container">
+            <div class="text-para-doc-wrap">
+                {/* Der Satzpunkt steht bewusst INNERHALB des Links: die
+                     Split-Text-Animation macht aus jedem Element ein eigenes
+                     Wort. Ein Punkt ausserhalb wird dadurch zum eigenen "Wort"
+                     und kann allein auf die naechste Zeile rutschen. */}
+                <h2 class="text-para-documents tmp-scroll-trigger tmp-fade-in animation-order-1 inv-title-animation-wrap">
+                    Woran ich aktuell arbeite, sehen Sie am besten auf <a href="https://www.linkedin.com/in/christoph-b-reimann-192328227/" target="_blank" rel="noopener"><span>LinkedIn.</span></a> Ich spreche einfach gerne mit <span>Menschen</span>. Über Austausch zu allen möglichen Themen freue ich mich jederzeit.
+                </h2>
+            </div>
+        </div>
+    </div>
+
+    {/* Bewusst kein abschliessender Handlungsaufruf: "Lassen Sie uns sprechen"
+         liest sich wie eine Bewerbung und erweckt den Eindruck einer Jobsuche.
+         Der Absatz darueber lädt bereits zum Austausch ein, der Kontakt steht
+         im Menü und im Footer. */}
+
 </BaseLayout>
